@@ -393,6 +393,27 @@ export async function onRequestGet(context) {
     }
   }
 
+  /* The matches list omits the live match clock — only the per-match
+     endpoint has `minute`. Fetch details for currently-live matches only
+     (≤4 at a time at a World Cup), so worst case ~5 upstream calls per
+     refresh, and refreshes are edge-cache-gated to ~1/min. */
+  if (upstreamJson && Array.isArray(upstreamJson.matches)) {
+    const liveNow = upstreamJson.matches.filter((m) => LIVE_STATUSES.includes(m.status)).slice(0, 4);
+    await Promise.all(liveNow.map(async (m) => {
+      try {
+        const detailUrl = env.FOOTBALL_DATA_URL
+          ? new URL("/v4/matches/" + m.id, env.FOOTBALL_DATA_URL).toString()
+          : "https://api.football-data.org/v4/matches/" + m.id;
+        const r = await fetch(detailUrl, { headers: { "X-Auth-Token": apiKey } });
+        if (!r.ok) return;
+        const detail = await r.json();
+        const src = detail && typeof detail.minute !== "undefined" ? detail : detail && detail.match;
+        const min = src ? parseInt(src.minute, 10) : NaN;
+        if (!isNaN(min)) m.minute = min;
+      } catch { /* clock is cosmetic — never fail the refresh over it */ }
+    }));
+  }
+
   if (!upstreamJson || !Array.isArray(upstreamJson.matches)) {
     if (kvBlob && kvBlob.payload) {
       const stale = { ...kvBlob.payload, source: "stale" };
