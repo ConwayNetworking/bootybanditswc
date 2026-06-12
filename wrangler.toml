@@ -1,0 +1,7 @@
+name = "wc2026-fantasy"
+compatibility_date = "2024-09-23"
+
+[[kv_namespaces]]
+binding = "WC_LEAGUE"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_YOUR_KV_PREVIEW_ID"
