@@ -1,161 +1,138 @@
-# 🏆 WC2026 Fantasy League — Cloudflare Pages Setup Guide
+# 🏆 WC2026 Fantasy League — Cloudflare Pages Setup
 
-## What's in this folder
+Full setup is **4 steps, ~10 minutes, completely free**. Once it's done,
+scores update themselves for everyone — there is nothing to run, click,
+or keep open during the tournament.
+
+## What's in this repo
 
 ```
-index.html                  ← Your app (patched — no hardcoded secrets)
+index.html                  ← The whole app (one file)
 functions/
   api/
-    matches.js              ← Proxies football-data.org (hides your API key)
-    league-data.js          ← Reads/writes scores to Cloudflare KV
+    matches.js              ← Auto-syncs live scores from football-data.org
+    league-data.js          ← Stores league scores/settings in Cloudflare KV
 wrangler.toml               ← Only for local dev, ignore otherwise
 SETUP.md                    ← You are here
 ```
 
 ---
 
-## Step 1 — Get a football-data.org API key (2 min)
+## Step 1 — Get a free football-data.org API key (2 min)
 
 1. Go to https://www.football-data.org/client/register
-2. Enter your email — no card, no phone
-3. Key arrives by email in under a minute, copy it
+2. Enter your email — no card, no phone number
+3. The key arrives by email in under a minute. Copy it, you'll need it in Step 3.
+
+The free tier is all we need — the server caches everything so we never
+get near its rate limit.
 
 ---
 
-## Step 2 — Connect your GitHub repo to Cloudflare Pages
+## Step 2 — Create the Pages project (3 min)
 
-Skip if already connected. Just make sure the root directory is correct.
+1. Sign up / log in at https://dash.cloudflare.com (free plan is fine)
+2. Go to **Workers & Pages → Create → Pages → Connect to Git**
+3. Pick this GitHub repo
+4. Build settings — leave EVERYTHING blank/default:
+   - Framework preset: **None**
+   - Build command: *(blank)*
+   - Build output directory: *(blank)*
+5. Click **Save and Deploy**
 
-1. Cloudflare Dashboard → Workers & Pages → Create → Pages
-2. Connect to Git → select your repo
-3. Build settings:
-   - Framework preset: None
-   - Build command: (leave blank)
-   - Build output directory: (leave blank)
-4. Save and Deploy
-
----
-
-## Step 3 — Create a KV Namespace (the shared database)
-
-1. Cloudflare Dashboard → Workers & Pages → KV
-2. Click "Create a namespace"
-3. Name it: WC_LEAGUE
-4. Click Add
+Your site is now live at `https://<project-name>.pages.dev`, but scores
+won't work until Steps 3 and 4 are done.
 
 ---
 
-## Step 4 — Set Environment Variables (your secrets)
+## Step 3 — Add your two secrets (2 min)
 
-Pages project → Settings → Environment Variables → Production → Add variable:
+In your Pages project: **Settings → Environment variables → Add**
 
-  FOOTBALL_DATA_KEY  =  (your key from Step 1)
-  ADMIN_PASSWORD     =  (pick any password you want)
+| Variable name       | Value                                  |
+|---------------------|----------------------------------------|
+| `FOOTBALL_DATA_KEY` | the API key from Step 1                |
+| `ADMIN_PASSWORD`    | any password you like (don't reuse one) |
 
-Repeat for Preview environment too.
+Add both to **Production** (and Preview too if you're offered the choice).
 
-⚠️  The old password was "wc2026admin" sitting in plain HTML.
-    It's now checked server-side. Pick something better!
-
----
-
-## Step 5 — Bind KV to your Pages project
-
-Pages project → Settings → Functions → KV namespace bindings → Add binding:
-
-  Variable name: WC_LEAGUE
-  KV namespace:  WC_LEAGUE
-
-Save. Repeat for Preview tab.
+`ADMIN_PASSWORD` is what you type into the gear menu on the site to
+unlock admin mode (manually overriding a score if the API ever gets one
+wrong). Normal visitors never need it.
 
 ---
 
-## Step 6 — Push files and redeploy
+## Step 4 — Create the shared database (KV) and connect it (3 min)
 
-Replace your repo contents with the files in this folder:
+This is one shared store so every visitor sees the same scores.
 
-  your-repo/
-  ├── index.html
-  ├── functions/
-  │   └── api/
-  │       ├── matches.js
-  │       └── league-data.js
-  └── wrangler.toml
-
-Then:
-  git add .
-  git commit -m "Add Cloudflare Functions + KV"
-  git push
-
-Cloudflare Pages auto-deploys in ~30 seconds.
+1. Cloudflare Dashboard → **Storage & Databases → KV** (or Workers & Pages → KV)
+2. **Create a namespace**, name it `WC_LEAGUE`
+3. Back in your Pages project: **Settings → Bindings** (older dashboards:
+   Settings → Functions → KV namespace bindings) → **Add → KV namespace**:
+   - Variable name: `WC_LEAGUE`
+   - KV namespace: `WC_LEAGUE` (the one you just made)
+4. Save, then redeploy so the binding takes effect:
+   **Deployments → ⋯ on the latest deployment → Retry deployment**
 
 ---
 
-## Step 7 — Verify it works
+## Check it works (1 min)
 
-Open your site and check these URLs:
+Open these in a browser (replace with your real site URL):
 
-  https://yoursite.pages.dev/api/matches
-  → should return JSON with World Cup fixtures
+- `https://yoursite.pages.dev/` — the app loads
+- `https://yoursite.pages.dev/api/matches` — JSON starting with
+  `{"syncedAt":...` and containing `"results"` and `"matches"`
+- `https://yoursite.pages.dev/api/league-data?league=work` — JSON
+  containing `"results"`, `"autosync":true`, `"theme"`
 
-  https://yoursite.pages.dev/api/league-data?league=work
-  → should return {"results":{},"autosync":true,"theme":"dark"}
-
-If /api/matches errors the first time, wait 60s (rate limit) — caching kicks in after first successful call.
-
----
-
-## What changed from the old version
-
-  BEFORE                                    AFTER
-  API key hardcoded in HTML source          Stored in Cloudflare env vars
-  Admin password "wc2026admin" in HTML      Verified server-side only
-  Scores in each visitor's localStorage     Shared in Cloudflare KV
-  Direct calls to football-data.org         Proxied via /api/matches
-  Scores lost on browser clear              Scores live in KV forever
-  Everyone had to sync separately           One sync updates everyone
-  Admin tab had to stay open to save        Fully automatic server-side sync
+If both API URLs return JSON, you're done. Share the site link with the
+league and forget about it — scores flow in automatically.
 
 ---
 
-## How the automatic sync works
+## That's the whole setup. How it runs itself
 
-  /api/matches does everything server-side on each request:
-
-  1. Edge cache (Cloudflare Cache API) absorbs all traffic for 55s while
-     matches are live (or kicking off within 15 min), 5 min otherwise.
-     football-data.org sees ~1 request/min worst case — well inside the
-     free tier's 10 req/min.
-  2. On refresh, the upstream payload is trimmed (~90% smaller) and every
-     API match is mapped onto fixture IDs 1-104 — including knockout
-     bracket slots (2A, W73, 3rd(A/B/C/D/F)...) resolved from standings,
-     with penalty shootouts handled.
-  3. Computed results are saved to KV (global:auto), shared by all three
-     leagues (Work, The Boys, Gogi Gang). Nobody needs to be in admin
-     mode — any visitor's poll keeps scores fresh for everyone.
-     KV is only written when a score actually changes, so the free tier's
-     1k writes/day is never threatened.
-
-  The per-league league:<id>:results key now only stores manual admin
-  overrides (pencil button in Match Centre). An override always wins over
-  the API feed; remove it (✕) to fall back to automatic scores.
-
-  Browsers poll /api/matches every 60s when matches are live or imminent
-  and every 5 min otherwise. Note the free tier's live scores lag ~5 min
-  behind real time.
+- The server checks football-data.org **at most ~once a minute during
+  live matches** and every 5 minutes otherwise — no matter how many
+  people are on the site (Cloudflare's edge cache absorbs the traffic).
+  That's well inside the free tier's 10 requests/min.
+- Results are matched to fixtures **on the server** (including knockout
+  bracket slots and penalty shootouts) and saved to KV, so all three
+  leagues (Work, The Boys, Gogi Gang) update from one sync.
+- Browsers poll every minute during live play, every 5 minutes when idle.
+  There are no manual sync buttons — nobody can flood the API.
+- Heads-up: the free football-data tier lags **~5 minutes behind real
+  time**, so don't panic when a goal takes a few minutes to appear.
+- Admin mode (gear icon → your `ADMIN_PASSWORD`) is only for fixing a
+  wrong score: pencil ✎ overrides the API for your league, ✕ removes the
+  override and goes back to automatic.
 
 ---
 
 ## Troubleshooting
 
-/api/matches returns 502
-→ FOOTBALL_DATA_KEY env var missing or wrong. Check Step 4.
+**`/api/matches` returns 502 with "FOOTBALL_DATA_KEY env var not set"**
+→ Step 3 not done, or the variable name is misspelled. Add it and retry
+the deployment.
 
-/api/league-data returns 500
-→ KV binding missing. Check Step 5.
+**`/api/matches` returns 502 with "Upstream HTTP 4xx"**
+→ The API key is wrong. Re-copy it from the football-data email.
 
-Admin login says "Could not verify"
-→ Functions not deployed yet. Make sure functions/ folder is in repo root.
+**`/api/league-data` returns a 500 error**
+→ The KV binding is missing (Step 4). Bind it and retry the deployment.
 
-Scores not saving
-→ Must be in Admin mode (gear icon → enter your ADMIN_PASSWORD).
+**Admin login says "Could not verify"**
+→ `ADMIN_PASSWORD` env var not set, or the functions aren't deployed —
+make sure the `functions/` folder is at the repo root.
+
+**Scores seem stuck**
+→ Remember the ~5 min feed delay. If it's been longer, open
+`/api/matches` directly — if it shows `"source":"stale"`, football-data
+is having an outage and the site is serving the last good data; it
+recovers on its own.
+
+**Changed an env var or binding but nothing happened**
+→ Env vars and bindings only apply to new deployments. Go to
+Deployments → Retry deployment.
