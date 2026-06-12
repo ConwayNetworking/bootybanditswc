@@ -248,6 +248,22 @@ function trimMatch(m) {
   };
 }
 
+function extractRef(m) {
+  const refs = m.referees;
+  if (!Array.isArray(refs) || !refs.length) return null;
+  const main = refs.find((r) => r.type === "REFEREE") || refs[0];
+  if (!main || !main.name) return null;
+  return main.nationality ? main.name + " (" + main.nationality + ")" : main.name;
+}
+
+function orientScore(sc, homeIsFirst) {
+  if (homeIsFirst) return sc;
+  const out = { ...sc, s1: sc.s2, s2: sc.s1 };
+  if (sc.p1 != null) { out.p1 = sc.p2; out.p2 = sc.p1; }
+  if (sc.ht1 != null) { out.ht1 = sc.ht2; out.ht2 = sc.ht1; }
+  return out;
+}
+
 function extractScore(m) {
   const status = m.status;
   const live = LIVE_STATUSES.includes(status);
@@ -259,6 +275,7 @@ function extractScore(m) {
   let s2 = ft.away != null ? ft.away : ht.away != null ? ht.away : (live ? 0 : null);
   if (s1 == null || s2 == null) return null;
   const out = { s1, s2, st: live ? "LIVE" : "FT" };
+  if (ht.home != null && ht.away != null) { out.ht1 = ht.home; out.ht2 = ht.away; }
   if (live) {
     /* The feed's own match clock lags with its scores, so the client can
        show a clock consistent with the (delayed) scoreline. */
@@ -272,11 +289,13 @@ function extractScore(m) {
 
 /**
  * Maps API matches onto fixture IDs 1-104 and returns
- * { results: {id:{s1,s2,st,p1?,p2?}}, times: {id:utcDate} }
+ * { results, times, statuses, refs }
  */
 function computeAuto(matches) {
   const results = {};
   const times = {};
+  const statuses = {};
+  const refs = {};
 
   const groupApi = [];
   const koApi = [];
@@ -289,9 +308,12 @@ function computeAuto(matches) {
     const fx = MX.find((x) => (x[2] === h && x[3] === a) || (x[2] === a && x[3] === h));
     if (!fx) continue;
     if (m.utcDate) times[fx[0]] = m.utcDate;
+    const ref = extractRef(m);
+    if (ref) refs[fx[0]] = ref;
+    if (m.status === "POSTPONED" || m.status === "CANCELLED") statuses[fx[0]] = m.status;
     const sc = extractScore(m);
     if (!sc) continue;
-    const oriented = fx[2] === h ? sc : { ...sc, s1: sc.s2, s2: sc.s1, p1: sc.p2, p2: sc.p1 };
+    const oriented = orientScore(sc, fx[2] === h);
     if (oriented.p1 == null) { delete oriented.p1; delete oriented.p2; }
     results[fx[0]] = oriented;
   }
@@ -315,9 +337,12 @@ function computeAuto(matches) {
         if (!((t1 === h && t2 === a) || (t1 === a && t2 === h))) continue;
         matched.add(m.id);
         if (m.utcDate) times[k[0]] = m.utcDate;
+        const ref = extractRef(m);
+        if (ref) refs[k[0]] = ref;
+        if (m.status === "POSTPONED" || m.status === "CANCELLED") statuses[k[0]] = m.status;
         const sc = extractScore(m);
         if (sc) {
-          const oriented = t1 === h ? sc : { ...sc, s1: sc.s2, s2: sc.s1, p1: sc.p2, p2: sc.p1 };
+          const oriented = orientScore(sc, t1 === h);
           if (oriented.p1 == null) { delete oriented.p1; delete oriented.p2; }
           results[k[0]] = oriented;
           progress = true;
@@ -328,7 +353,7 @@ function computeAuto(matches) {
     if (!progress) break;
   }
 
-  return { results, times };
+  return { results, times, statuses, refs };
 }
 
 function anyLiveOrSoon(matches, now) {
@@ -428,9 +453,9 @@ export async function onRequestGet(context) {
   }
 
   const matches = upstreamJson.matches.map(trimMatch);
-  const { results, times } = computeAuto(matches);
+  const { results, times, statuses, refs } = computeAuto(matches);
   const live = anyLiveOrSoon(matches, now);
-  const payload = { syncedAt: now, live, results, times, matches, source: "api" };
+  const payload = { syncedAt: now, live, results, times, statuses, refs, matches, source: "api" };
   const ttl = live ? LIVE_TTL_S : IDLE_TTL_S;
 
   const resp = jsonResp(payload, {
@@ -461,9 +486,10 @@ export async function onRequestGet(context) {
         return out;
       };
       const changed = !prev ||
-        JSON.stringify({ r: stripClock(prev.results), t: prev.times }) !== JSON.stringify({ r: stripClock(results), t: times });
+        JSON.stringify({ r: stripClock(prev.results), t: prev.times, s: prev.statuses, rf: prev.refs }) !==
+        JSON.stringify({ r: stripClock(results), t: times, s: statuses, rf: refs });
       if (changed) {
-        await kv.put(KV_AUTO, JSON.stringify({ results, times, syncedAt: now }));
+        await kv.put(KV_AUTO, JSON.stringify({ results, times, statuses, refs, syncedAt: now }));
       }
       const kvStaleAge = kvBlob && kvBlob.ts ? now - kvBlob.ts : Infinity;
       if (changed || kvStaleAge > KV_REWRITE_MS) {
