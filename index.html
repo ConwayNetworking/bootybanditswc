@@ -501,7 +501,7 @@ body.light .mt-status.c{color:#059669}body.light .mt-status.e{color:#c62828}
 <div class="hdr">
 
 <h1>2026 World Cup Fantasy League</h1>
-<div class="hdr-left"><button class="hdr-sync-btn" id="hdrSyncBtn" onclick="hdrSync()">&#128260; Sync</button><span class="hdr-sync-st" id="hdrSyncSt"></span></div>
+<div class="hdr-left"><span class="hdr-sync-st show" id="hdrSyncSt">&#9889; Auto-sync</span></div>
 <div class="gear" onclick="tglM()">&#9881;</div>
 </div>
 <div class="mbg" id="mBg" onclick="clsM(event)">
@@ -530,18 +530,12 @@ body.light .mt-status.c{color:#059669}body.light .mt-status.e{color:#c62828}
 <hr class="mdv">
 <hr class="mdv">
 <label>&#128260; Auto-Sync Live Scores</label>
-<p style="font-size:.72em;color:#666;margin-bottom:6px">Scores update automatically for all visitors. Admin controls toggle.</p>
+<p style="font-size:.72em;color:#666;margin-bottom:6px">Scores sync automatically for everyone &#8212; every minute during live matches, every 5 minutes otherwise. No manual syncing needed.</p>
 <div class="sync-row">
 <div><span class="sync-dot" id="syncDot"></span><span style="font-size:.85em">Auto-Sync</span></div>
 <div class="tgl" id="syncTgl" onclick="tglSync()"></div>
 </div>
-<div class="sync-row">
-<button class="sync-btn" onclick="doSync()">&#128260; Sync Now</button>
-</div>
 <div class="sync-status" id="syncSt">Not synced yet</div>
-<label style="margin-top:10px;display:block">&#128273; Live Score API Key <span style="font-size:.7em;color:#666">(free)</span></label>
-<input type="text" id="apiKeyIn" class="mta" style="height:34px;font-size:.78em" placeholder="Paste key from football-data.org/client/register" placeholder="API key set in Cloudflare env vars" readonly style="opacity:.5;cursor:not-allowed">
-<p style="font-size:.62em;color:#555;margin-top:3px">API key stored securely in Cloudflare env vars. See SETUP.md to configure.</p>
 <hr class="mdv">
 <button class="cl-btn" onclick="document.getElementById('clWrap').classList.toggle('open')">Version History</button>
 <div class="cl-wrap" id="clWrap">
@@ -972,7 +966,16 @@ function setLeague(){var lg=LEAGUES[curLg];MGR=lg.mgr;MO=lg.mo;CO={};for(var m i
 function getKey(k){return curLg==="boys"?"wc2026b_"+k:curLg==="family"?"wc2026f_"+k:"wc2026w_"+k;}
 
 // theme applied after KV load
-setLeague();var RS={} // loaded async from KV
+setLeague();
+var RS={};   // merged view used by all rendering (auto + manual overrides)
+var RSA={};  // auto results computed server-side from the live API feed
+var RSM={};  // manual admin overrides (the only thing saved per-league)
+var FXTIMES={}; // fixtureId -> real UTC kickoff time from the API
+var FXST={};    // fixtureId -> "LIVE" while in play per the API
+var lastSyncAt=0;
+function mergeRS(){RS={};FXST={};for(var k in RSA){RS[k]=RSA[k];if(RSA[k].st==="LIVE")FXST[k]="LIVE";}for(var k in RSM){RS[k]=RSM[k];if(FXST[k])delete FXST[k];}}
+function toNZ(utc){try{var d=new Date(utc);if(isNaN(d.getTime()))return null;var parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(d);var o={};for(var i=0;i<parts.length;i++)o[parts[i].type]=parts[i].value;if(o.hour==="24")o.hour="00";return o.year+"-"+o.month+"-"+o.day+" "+o.hour+":"+o.minute;}catch(e){return null;}}
+function applyTimes(){for(var k in FXTIMES){var nz=toNZ(FXTIMES[k]);if(!nz)continue;var idn=parseInt(k,10);for(var i=0;i<MX.length;i++){if(MX[i][0]===idn){MX[i][4]=nz;break;}}for(var i=0;i<KO.length;i++){if(KO[i][0]===idn){KO[i][4]=nz;break;}}}}
 var GRP={
 "A":["Mexico","South Africa","South Korea","Czech Republic"],
 "B":["Canada","Bosnia & Herzegovina","Qatar","Switzerland"],
@@ -1086,7 +1089,7 @@ var isAdm=false; // verified server-side each session
 function sv(){
   var tok=sessionStorage.getItem("wc2026_admintoken")||"";
   fetch("/api/league-data",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({league:curLg,key:"results",value:RS,adminToken:tok})
+    body:JSON.stringify({league:curLg,key:"results",value:RSM,adminToken:tok})
   }).catch(function(e){console.warn("KV save failed:",e);});
 }
 function appTh(){if(curTh==="light"){document.body.classList.add("light");document.getElementById("thTgl").classList.add("on");}else{document.body.classList.remove("light");document.getElementById("thTgl").classList.remove("on");}fetch("/api/league-data",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({league:curLg,key:"theme",value:curTh})}).catch(function(){});}
@@ -1096,7 +1099,7 @@ function chkA(e){
   if(e&&e.key!=="Enter")return;
   var pw=document.getElementById("aPw").value;if(!pw)return;
   fetch("/api/league-data",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({league:curLg,key:"results",value:RS,adminToken:pw})
+    body:JSON.stringify({league:curLg,key:"results",value:RSM,adminToken:pw})
   }).then(function(r){
     if(r.ok){isAdm=true;sessionStorage.setItem("wc2026_admintoken",pw);appAdm();document.getElementById("aPw").value="";rAll();alert("Admin mode enabled!");}
     else{alert("Wrong password");}
@@ -1110,16 +1113,18 @@ function stab(t){var ids=["fantasy","myteams","matches","groups","knockout","h2h
 function cGrp(g){var teams=GRP[g];var st={};for(var i=0;i<teams.length;i++)st[teams[i]]={p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};var gp=0;for(var i=0;i<MX.length;i++){var mx=MX[i];if(mx[1]!==g)continue;var r=RS[mx[0]];if(!r)continue;gp++;var t1=mx[2],t2=mx[3],s1=r.s1,s2=r.s2;st[t1].p++;st[t2].p++;st[t1].gf+=s1;st[t1].ga+=s2;st[t2].gf+=s2;st[t2].ga+=s1;if(s1>s2){st[t1].w++;st[t1].pts+=3;st[t2].l++;}else if(s1<s2){st[t2].w++;st[t2].pts+=3;st[t1].l++;}else{st[t1].d++;st[t1].pts+=1;st[t2].d++;st[t2].pts+=1;}}var arr=[];for(var t in st){st[t].gd=st[t].gf-st[t].ga;arr.push([t,st[t]]);}arr.sort(function(a,b){if(b[1].pts!==a[1].pts)return b[1].pts-a[1].pts;if(b[1].gd!==a[1].gd)return b[1].gd-a[1].gd;return b[1].gf-a[1].gf;});return{st:arr,done:gp===6};}
 function gPos(g,p){var d=cGrp(g);if(!d.done)return null;if(p<d.st.length)return d.st[p][0];return null;}
 function gB3(){var all=[];var ok=true;for(var i=0;i<GL.length;i++){var d=cGrp(GL[i]);if(!d.done){ok=false;continue;}if(d.st.length>2)all.push({team:d.st[2][0],group:GL[i],s:d.st[2][1]});}if(!ok)return null;all.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});return all.slice(0,8);}
-function gKT(slot){if(!slot)return null;if(slot[0]==="W"){var mid=parseInt(slot.substring(1));var r=RS[mid];if(!r)return null;var t=gKM(mid);if(!t)return null;return r.s1>r.s2?t[0]:(r.s2>r.s1?t[1]:null);}if(slot[0]==="L"){var mid=parseInt(slot.substring(1));var r=RS[mid];if(!r)return null;var t=gKM(mid);if(!t)return null;return r.s1<r.s2?t[0]:(r.s2<r.s1?t[1]:null);}if(slot.length===2&&slot[1]>="A"&&slot[1]<="L"){return slot[0]==="1"?gPos(slot[1],0):gPos(slot[1],1);}if(slot.indexOf("3rd")===0){var b3=gB3();if(!b3)return null;var gs=slot.replace("3rd(","").replace(")","").split("/");for(var i=0;i<b3.length;i++){for(var j=0;j<gs.length;j++){if(b3[i].group===gs[j])return b3[i].team;}}return null;}return null;}
+function koWin(r,t){if(!r||!t)return null;if(r.s1>r.s2)return t[0];if(r.s2>r.s1)return t[1];if(r.p1!=null&&r.p2!=null){if(r.p1>r.p2)return t[0];if(r.p2>r.p1)return t[1];}return null;}
+function gKT(slot){if(!slot)return null;if(slot[0]==="W"){var mid=parseInt(slot.substring(1));var r=RS[mid];if(!r)return null;var t=gKM(mid);if(!t)return null;return koWin(r,t);}if(slot[0]==="L"){var mid=parseInt(slot.substring(1));var r=RS[mid];if(!r)return null;var t=gKM(mid);if(!t)return null;var w=koWin(r,t);if(!w)return null;return w===t[0]?t[1]:t[0];}if(slot.length===2&&slot[1]>="A"&&slot[1]<="L"){return slot[0]==="1"?gPos(slot[1],0):gPos(slot[1],1);}if(slot.indexOf("3rd")===0){var b3=gB3();if(!b3)return null;var gs=slot.replace("3rd(","").replace(")","").split("/");for(var i=0;i<b3.length;i++){for(var j=0;j<gs.length;j++){if(b3[i].group===gs[j])return b3[i].team;}}return null;}return null;}
 function gKM(mid){for(var i=0;i<KO.length;i++){if(KO[i][0]===mid)return[gKT(KO[i][2]),gKT(KO[i][3])];}return null;}
 function cFan(){var st={};for(var i=0;i<MO.length;i++)st[MO[i]]={p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};for(var i=0;i<MX.length;i++){var mx=MX[i];var r=RS[mx[0]];if(!r)continue;var t1=mx[2],t2=mx[3],s1=r.s1,s2=r.s2;var o1=CO[t1],o2=CO[t2];if(!o1||!o2)continue;if(o1===o2){st[o1].p++;st[o1].gf+=Math.max(s1,s2);st[o1].ga+=Math.min(s1,s2);if(s1!==s2){st[o1].w++;st[o1].pts+=3;}else{st[o1].d++;st[o1].pts+=1;}}else{st[o1].p++;st[o1].gf+=s1;st[o1].ga+=s2;st[o2].p++;st[o2].gf+=s2;st[o2].ga+=s1;if(s1>s2){st[o1].w++;st[o1].pts+=3;st[o2].l++;}else if(s1<s2){st[o2].w++;st[o2].pts+=3;st[o1].l++;}else{st[o1].d++;st[o1].pts+=1;st[o2].d++;st[o2].pts+=1;}}}for(var i=0;i<KO.length;i++){var k=KO[i];var r=RS[k[0]];if(!r)continue;var t=gKM(k[0]);if(!t||!t[0]||!t[1])continue;var s1=r.s1,s2=r.s2,o1=CO[t[0]],o2=CO[t[1]];if(!o1||!o2)continue;if(o1===o2){st[o1].p++;st[o1].gf+=Math.max(s1,s2);st[o1].ga+=Math.min(s1,s2);if(s1!==s2){st[o1].w++;st[o1].pts+=3;}else{st[o1].d++;st[o1].pts+=1;}}else{st[o1].p++;st[o1].gf+=s1;st[o1].ga+=s2;st[o2].p++;st[o2].gf+=s2;st[o2].ga+=s1;if(s1>s2){st[o1].w++;st[o1].pts+=3;st[o2].l++;}else if(s1<s2){st[o2].w++;st[o2].pts+=3;st[o1].l++;}else{st[o1].d++;st[o1].pts+=1;st[o2].d++;st[o2].pts+=1;}}}var arr=[];for(var m in st){st[m].gd=st[m].gf-st[m].ga;arr.push([m,st[m]]);}arr.sort(function(a,b){if(b[1].pts!==a[1].pts)return b[1].pts-a[1].pts;if(b[1].gd!==a[1].gd)return b[1].gd-a[1].gd;return b[1].gf-a[1].gf;});return arr;}
-function subR(id){if(!isAdm)return;var e1=document.getElementById("s1_"+id),e2=document.getElementById("s2_"+id);if(!e1||!e2)return;var s1=parseInt(e1.value),s2=parseInt(e2.value);if(isNaN(s1)||isNaN(s2)||s1<0||s2<0){alert("Enter valid scores");return;}RS[id]={s1:s1,s2:s2};sv();rAll();}
-function delR(id){if(!isAdm)return;delete RS[id];sv();rAll();}
+function subR(id){if(!isAdm)return;var e1=document.getElementById("s1_"+id),e2=document.getElementById("s2_"+id);if(!e1||!e2)return;var s1=parseInt(e1.value),s2=parseInt(e2.value);if(isNaN(s1)||isNaN(s2)||s1<0||s2<0){alert("Enter valid scores");return;}RSM[id]={s1:s1,s2:s2};sv();mergeRS();rAll();}
+function delR(id){if(!isAdm)return;if(RSM[id]){delete RSM[id];sv();mergeRS();rAll();}else if(RSA[id]){alert("This score comes from the live API feed and updates automatically. Use the pencil button to override it manually.");}}
+function editR(id){if(!isAdm)return;var cur=RS[id];var def=cur?cur.s1+"-"+cur.s2:"0-0";var v=prompt("Override score (home-away):",def);if(v===null)return;var mm=v.match(/^\s*(\d+)\s*[-: ]\s*(\d+)\s*$/);if(!mm){alert("Use the format 2-1");return;}RSM[id]={s1:parseInt(mm[1],10),s2:parseInt(mm[2],10)};sv();mergeRS();rAll();}
 var mcF="All";function setF(f){mcF=f;rMC();}
-function rAll(){rCD();rFL();rMC();rGR();rHI();rMT();rKO();rH2H();rFR();rBadges();rPosChart();tpUpdate();}
+function rAll(){rCD();rFL();rMC();rGR();rHI();rMT();rKO();rH2H();rFR();rBadges();rPosChart();}
 
 
-function chgLg(){curLg=document.getElementById("lgSel").value;sessionStorage.setItem("wc2026_league",curLg);setLeague();RS={};buildUSel();curU="";document.getElementById("uSel").value="";loadLeagueData(function(){rAll();});}
+function chgLg(){curLg=document.getElementById("lgSel").value;sessionStorage.setItem("wc2026_league",curLg);setLeague();RSM={};mergeRS();buildUSel();curU="";document.getElementById("uSel").value="";loadLeagueData(function(){rAll();});}
 function buildUSel(){var sel=document.getElementById("uSel");sel.innerHTML="<option value=''>-- Select --</option>";for(var i=0;i<MO.length;i++){var o=document.createElement("option");o.value=MO[i];o.textContent=MO[i];sel.appendChild(o);}}
 function tglExp(nm){
   var row=document.getElementById("exp_"+nm);
@@ -1133,8 +1138,8 @@ var nxList=[];var nxIdx=0;
 function rCD(){
   var bar=document.getElementById("nxBar");if(!bar)return;
   var allM=[];
-  for(var i=0;i<MX.length;i++){if(!RS[MX[i][0]]||isMatchLive(MX[i][4]))allM.push({id:MX[i][0],t1:MX[i][2],t2:MX[i][3],dt:MX[i][4],grp:MX[i][1]});}
-  for(var i=0;i<KO.length;i++){if(!RS[KO[i][0]]||isMatchLive(KO[i][4])){var t=gKM(KO[i][0]);allM.push({id:KO[i][0],t1:t?t[0]:null,t2:t?t[1]:null,dt:KO[i][4],grp:KO[i][1],s1l:KO[i][2],s2l:KO[i][3]});}}
+  for(var i=0;i<MX.length;i++){if(!RS[MX[i][0]]||isMatchLive(MX[i][4],MX[i][0]))allM.push({id:MX[i][0],t1:MX[i][2],t2:MX[i][3],dt:MX[i][4],grp:MX[i][1]});}
+  for(var i=0;i<KO.length;i++){if(!RS[KO[i][0]]||isMatchLive(KO[i][4],KO[i][0])){var t=gKM(KO[i][0]);allM.push({id:KO[i][0],t1:t?t[0]:null,t2:t?t[1]:null,dt:KO[i][4],grp:KO[i][1],s1l:KO[i][2],s2l:KO[i][3]});}}
   if(allM.length===0){bar.style.display="none";return;}
   allM.sort(function(a,b){return a.dt<b.dt?-1:1;});
   nxList=allM.slice(0,5);
@@ -1178,9 +1183,13 @@ function tickCD(){
   var now=new Date();var tgt=new Date(nx.dt.replace(" ","T")+":00");
   var diff=tgt.getTime()-now.getTime();
   var matchLen=6600000;
-  if(diff<=0&&diff>-matchLen){
+  var apiLive=!!FXST[nx.id];
+  var apiDone=RSA[nx.id]&&RSA[nx.id].st==="FT";
+  if(apiDone){if(bar)bar.classList.remove("live");el.textContent="FULL TIME";el.style.color="#ff6b6b";return;}
+  if(apiLive||(diff<=0&&diff>-matchLen)){
     if(bar)bar.classList.add("live");
     var elapsed=Math.floor((now.getTime()-tgt.getTime())/60000);
+    if(elapsed<0)elapsed=0;
     var half=elapsed<=45?"1st Half":elapsed<=60?"Half Time":"2nd Half";
     var mins=elapsed<=45?elapsed:elapsed<=60?45:elapsed-15;
     if(mins>90)mins=90;
@@ -1692,7 +1701,7 @@ function rFL(){
     tb.appendChild(er);
   }
 }
-function rMC(){var cont=document.getElementById("mcLs");cont.innerHTML="";var fC=document.getElementById("mcFl");fC.innerHTML="";var fls=["All","Upcoming","Completed","A","B","C","D","E","F","G","H","I","J","K","L","R32","R16","QF","SF","Final"];for(var i=0;i<fls.length;i++){var b=document.createElement("button");b.className="mfb"+(mcF===fls[i]?" on":"");b.textContent=fls[i];b.setAttribute("onclick","setF('"+fls[i]+"')");fC.appendChild(b);}var items=[];for(var i=0;i<MX.length;i++){var mx=MX[i];items.push({id:mx[0],grp:mx[1],t1:mx[2],t2:mx[3],dt:mx[4]});}for(var i=0;i<KO.length;i++){var k=KO[i];var t=gKM(k[0]);items.push({id:k[0],grp:k[1],t1:t?t[0]:null,t2:t?t[1]:null,dt:k[4],s1l:k[2],s2l:k[3]});}var byD={};for(var i=0;i<items.length;i++){var mx=items[i];var r=RS[mx.id];var pd=!!r;if(mcF==="Upcoming"&&pd)continue;if(mcF==="Completed"&&!pd)continue;if(mcF.length===1&&mcF>="A"&&mcF<="L"&&mx.grp!==mcF)continue;if(mcF==="R32"&&mx.grp!=="R32")continue;if(mcF==="R16"&&mx.grp!=="R16")continue;if(mcF==="QF"&&mx.grp!=="QF")continue;if(mcF==="SF"&&mx.grp!=="SF")continue;if(mcF==="Final"&&mx.grp!=="FIN"&&mx.grp!=="3RD")continue;if(mcFilter){var mc=mcFilter;var mn1=(mx.t1||"").toLowerCase();var mn2=(mx.t2||"").toLowerCase();var mg1=mx.t1&&CO[mx.t1]?CO[mx.t1].toLowerCase():"";var mg2=mx.t2&&CO[mx.t2]?CO[mx.t2].toLowerCase():"";if(mn1.indexOf(mc)<0&&mn2.indexOf(mc)<0&&mg1.indexOf(mc)<0&&mg2.indexOf(mc)<0)continue;}var dt=mx.dt.substring(0,10);if(!byD[dt])byD[dt]=[];byD[dt].push(mx);}var dts=[];for(var d in byD)dts.push(d);dts.sort();if(dts.length===0){cont.innerHTML="<div class='nm'>No matches found</div>";return;}var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];for(var d=0;d<dts.length;d++){var dd=document.createElement("div");dd.className="mdy";var dp=new Date(dts[d]+"T00:00:00");dd.innerHTML="<h3>"+dn[dp.getDay()]+" "+dp.getDate()+" "+mn[dp.getMonth()]+" "+dp.getFullYear()+"</h3>";var mxs=byD[dts[d]];for(var j=0;j<mxs.length;j++){var mx=mxs[j];var r=RS[mx.id];var pd=!!r;var time=mx.dt.substring(11,16);var t1n=mx.t1||mx.s1l||"TBD";var t2n=mx.t2||mx.s2l||"TBD";var t1f=mx.t1?fi(mx.t1,15):"";var t2f=mx.t2?fi(mx.t2,15):"";var row=document.createElement("div");row.className="mr";var h="<div class='mg2'>"+mx.grp+"</div><div class='mtm'>"+time+"</div><div class='tm r'><span>"+rkBadge(t1n)+" "+t1n+"</span> "+t1f+"<div class=\'mt-mgr\'>"+(mx.t1&&CO[mx.t1]?CO[mx.t1]:"")+"</div></div></div>";if(pd){h+="<div class='msc'><span class='mrs2'>"+r.s1+" - "+r.s2+"</span></div>";if(isAdm)h+="<div class='ma'><button class='bs bde' onclick='delR("+mx.id+")'>&#10005;</button></div>";}else if(isAdm&&mx.t1&&mx.t2){h+="<div class='msc'><input type='number' id='s1_"+mx.id+"' min='0' value='0'><span class='mvs'>-</span><input type='number' id='s2_"+mx.id+"' min='0' value='0'></div><div class='ma'><button class='bs bgo' onclick='subR("+mx.id+")'>&#10003;</button></div>";}else{h+="<div class='msc'><span class='mvs'>vs</span></div>";}h+="<div class='tm'><div>"+t2f+" <span>"+t2n+"</span>"+rkBadge(t2n)+"<div class='mt-mgr'>"+(mx.t2&&CO[mx.t2]?CO[mx.t2]:"")+"</div></div></div>";row.innerHTML=h;dd.appendChild(row);if(!pd&&mx.t1&&mx.t2){var pb=document.createElement('div');pb.className='mc-hover-panel';pb.innerHTML=wpBar(mx.t1,mx.t2)+gH2H(mx.t1,mx.t2);dd.appendChild(pb);(function(r,p){r.onmouseenter=function(){p.style.display='block';};r.onmouseleave=function(){p.style.display='none';};r.onclick=function(e){if(window.innerWidth<=768){p.style.display=p.style.display==='block'?'none':'block';e.stopPropagation();}};})(row,pb);}}cont.appendChild(dd);}}
+function rMC(){var cont=document.getElementById("mcLs");cont.innerHTML="";var fC=document.getElementById("mcFl");fC.innerHTML="";var fls=["All","Upcoming","Completed","A","B","C","D","E","F","G","H","I","J","K","L","R32","R16","QF","SF","Final"];for(var i=0;i<fls.length;i++){var b=document.createElement("button");b.className="mfb"+(mcF===fls[i]?" on":"");b.textContent=fls[i];b.setAttribute("onclick","setF('"+fls[i]+"')");fC.appendChild(b);}var items=[];for(var i=0;i<MX.length;i++){var mx=MX[i];items.push({id:mx[0],grp:mx[1],t1:mx[2],t2:mx[3],dt:mx[4]});}for(var i=0;i<KO.length;i++){var k=KO[i];var t=gKM(k[0]);items.push({id:k[0],grp:k[1],t1:t?t[0]:null,t2:t?t[1]:null,dt:k[4],s1l:k[2],s2l:k[3]});}var byD={};for(var i=0;i<items.length;i++){var mx=items[i];var r=RS[mx.id];var pd=!!r;if(mcF==="Upcoming"&&pd)continue;if(mcF==="Completed"&&!pd)continue;if(mcF.length===1&&mcF>="A"&&mcF<="L"&&mx.grp!==mcF)continue;if(mcF==="R32"&&mx.grp!=="R32")continue;if(mcF==="R16"&&mx.grp!=="R16")continue;if(mcF==="QF"&&mx.grp!=="QF")continue;if(mcF==="SF"&&mx.grp!=="SF")continue;if(mcF==="Final"&&mx.grp!=="FIN"&&mx.grp!=="3RD")continue;if(mcFilter){var mc=mcFilter;var mn1=(mx.t1||"").toLowerCase();var mn2=(mx.t2||"").toLowerCase();var mg1=mx.t1&&CO[mx.t1]?CO[mx.t1].toLowerCase():"";var mg2=mx.t2&&CO[mx.t2]?CO[mx.t2].toLowerCase():"";if(mn1.indexOf(mc)<0&&mn2.indexOf(mc)<0&&mg1.indexOf(mc)<0&&mg2.indexOf(mc)<0)continue;}var dt=mx.dt.substring(0,10);if(!byD[dt])byD[dt]=[];byD[dt].push(mx);}var dts=[];for(var d in byD)dts.push(d);dts.sort();if(dts.length===0){cont.innerHTML="<div class='nm'>No matches found</div>";return;}var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];for(var d=0;d<dts.length;d++){var dd=document.createElement("div");dd.className="mdy";var dp=new Date(dts[d]+"T00:00:00");dd.innerHTML="<h3>"+dn[dp.getDay()]+" "+dp.getDate()+" "+mn[dp.getMonth()]+" "+dp.getFullYear()+"</h3>";var mxs=byD[dts[d]];for(var j=0;j<mxs.length;j++){var mx=mxs[j];var r=RS[mx.id];var pd=!!r;var time=mx.dt.substring(11,16);var t1n=mx.t1||mx.s1l||"TBD";var t2n=mx.t2||mx.s2l||"TBD";var t1f=mx.t1?fi(mx.t1,15):"";var t2f=mx.t2?fi(mx.t2,15):"";var row=document.createElement("div");row.className="mr";var h="<div class='mg2'>"+mx.grp+"</div><div class='mtm'>"+time+"</div><div class='tm r'><span>"+rkBadge(t1n)+" "+t1n+"</span> "+t1f+"<div class=\'mt-mgr\'>"+(mx.t1&&CO[mx.t1]?CO[mx.t1]:"")+"</div></div></div>";if(pd){var isLv=r.st==="LIVE"&&!RSM[mx.id];var pens=(r.p1!=null&&r.p2!=null)?"<div style='font-size:.68em;color:#888'>("+r.p1+"-"+r.p2+" pens)</div>":"";h+="<div class='msc'><span class='mrs2'"+(isLv?" style='color:#ff4444'":"")+">"+r.s1+" - "+r.s2+"</span>"+(isLv?"<span class='live-badge'>LIVE</span>":"")+pens+"</div>";if(isAdm&&!isLv)h+="<div class='ma'><button class='bs' onclick='editR("+mx.id+")' title='Override score'>&#9998;</button>"+(RSM[mx.id]?"<button class='bs bde' onclick='delR("+mx.id+")' title='Remove manual override'>&#10005;</button>":"")+"</div>";}else if(isAdm&&mx.t1&&mx.t2){h+="<div class='msc'><input type='number' id='s1_"+mx.id+"' min='0' value='0'><span class='mvs'>-</span><input type='number' id='s2_"+mx.id+"' min='0' value='0'></div><div class='ma'><button class='bs bgo' onclick='subR("+mx.id+")'>&#10003;</button></div>";}else{h+="<div class='msc'><span class='mvs'>vs</span></div>";}h+="<div class='tm'><div>"+t2f+" <span>"+t2n+"</span>"+rkBadge(t2n)+"<div class='mt-mgr'>"+(mx.t2&&CO[mx.t2]?CO[mx.t2]:"")+"</div></div></div>";row.innerHTML=h;dd.appendChild(row);if(!pd&&mx.t1&&mx.t2){var pb=document.createElement('div');pb.className='mc-hover-panel';pb.innerHTML=wpBar(mx.t1,mx.t2)+gH2H(mx.t1,mx.t2);dd.appendChild(pb);(function(r,p){r.onmouseenter=function(){p.style.display='block';};r.onmouseleave=function(){p.style.display='none';};r.onclick=function(e){if(window.innerWidth<=768){p.style.display=p.style.display==='block'?'none':'block';e.stopPropagation();}};})(row,pb);}}cont.appendChild(dd);}}
 function rGR(){var grid=document.getElementById("gGrd");grid.innerHTML="";var allT=[];var allDn=true;for(var gi=0;gi<GL.length;gi++){var g=GL[gi];var data=cGrp(g);var st=data.st;var dn=data.done;if(!dn)allDn=false;var card=document.createElement("div");card.className="cd gc";var h="<h3>Group "+g+"</h3><table><thead><tr><th>#</th><th class='l'>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>";for(var i=0;i<st.length;i++){var t=st[i][0],s=st[i][1];var rc="";if(i===0)rc="r1";else if(i===1)rc="r2";else if(i===2)rc="r3";else rc="r4";var gc=s.gd>0?"gp":s.gd<0?"gn":"";var gs=s.gd>0?"+"+s.gd:""+s.gd;h+="<tr class='"+rc+"'><td>"+(i+1)+"</td><td class='l'>"+fi(t,12)+" "+t+"<div class=\'mt-mgr\'>"+(CO[t]||"")+"</div></td><td>"+s.p+"</td><td>"+s.w+"</td><td>"+s.d+"</td><td>"+s.l+"</td><td>"+s.gf+"</td><td>"+s.ga+"</td><td class='"+gc+"'>"+gs+"</td><td class='pc'>"+s.pts+"</td></tr>";if(i===2)allT.push({team:t,group:g,s:s,done:dn});}h+="</tbody></table>";card.innerHTML=h;grid.appendChild(card);}allT.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});var tpb=document.getElementById("tpB");tpb.innerHTML="";for(var i=0;i<allT.length;i++){var x=allT[i],s=x.s;var rc="";rc=i<8?"ti":"to";var gc=s.gd>0?"gp":s.gd<0?"gn":"";var gs=s.gd>0?"+"+s.gd:""+s.gd;var tr=document.createElement("tr");tr.className=rc;tr.innerHTML="<td>"+(i+1)+"</td><td class='l'>"+fi(x.team,12)+" "+x.team+"<div class=\'mt-mgr\'>"+(CO[x.team]||"")+"</div></td><td>"+x.group+"</td><td>"+s.p+"</td><td>"+s.w+"</td><td>"+s.d+"</td><td>"+s.l+"</td><td>"+s.gf+"</td><td>"+s.ga+"</td><td class='"+gc+"'>"+gs+"</td><td class='pc'>"+s.pts+"</td>";tpb.appendChild(tr);}}
 function rHI(){var list=document.getElementById("hLst");var pld=[];for(var i=0;i<MX.length;i++){if(RS[MX[i][0]])pld.push({id:MX[i][0],t1:MX[i][2],t2:MX[i][3]});}for(var i=0;i<KO.length;i++){if(RS[KO[i][0]]){var t=gKM(KO[i][0]);if(t&&t[0]&&t[1])pld.push({id:KO[i][0],t1:t[0],t2:t[1]});}}document.getElementById("hCnt").textContent="("+pld.length+")";if(pld.length===0){list.innerHTML="<div class='nm'>No results yet</div>";return;}list.innerHTML="";for(var i=pld.length-1;i>=0;i--){var mx=pld[i];var r=RS[mx.id];var div=document.createElement("div");div.className="hi";div.innerHTML="<div class='him'><div class='hit'><div class='htt'>"+fi(mx.t1,14)+"<div class='htn'>"+mx.t1+"</div><div class='mt-mgr'>"+(CO[mx.t1]||"")+"</div></div><span class='hsc'>"+r.s1+" - "+r.s2+"</span><div class='htt'>"+fi(mx.t2,14)+"<div class='htn'>"+mx.t2+"</div><div class='mt-mgr'>"+(CO[mx.t2]||"")+"</div></div></div><div class='hmg'>"+(CO[mx.t1]||"?")+" vs "+(CO[mx.t2]||"?")+"</div></div>";list.appendChild(div);}}
 function rMT(){var c=document.getElementById("myC");if(!curU||!MGR[curU]){c.innerHTML="<div class='nm'>Select your manager in Settings &#9881;</div>";return;}var teams=MGR[curU];c.innerHTML="";var tgf=0,tga=0,tw=0,td=0,tl=0,tp=0;var tdata=[];
@@ -1734,10 +1743,10 @@ function rMT(){var c=document.getElementById("myC");if(!curU||!MGR[curU]){c.inne
     bh+="</div>";bdDiv.innerHTML=bh;c.appendChild(bdDiv);
   }
 }
-function mkBk(k,ex){var t=gKM(k[0]);var t1=t?t[0]:null;var t2=t?t[1]:null;var r=RS[k[0]];var t1n=t1||k[2];var t2n=t2||k[3];var t1w="",t2w="";if(r){if(r.s1>r.s2)t1w=" w";if(r.s2>r.s1)t2w=" w";}var h="<div class='bk-m"+ex+"'><div class='bl'>M"+k[0]+"</div>";h+="<div class='bt"+t1w+"'>"+(t1?fi(t1,12):"")+" "+t1n;if(r)h+=" <b>"+r.s1+"</b>";h+="</div><div class='bt"+t2w+"'>"+(t2?fi(t2,12):"")+" "+t2n;if(r)h+=" <b>"+r.s2+"</b>";h+="</div>";if(!r&&isAdm&&t1&&t2){h+="<div style='display:flex;gap:2px;align-items:center;justify-content:center;margin-top:2px'><input type='number' id='s1_"+k[0]+"' min='0' value='0'>-<input type='number' id='s2_"+k[0]+"' min='0' value='0'><button class='bs bgo' onclick='subR("+k[0]+")'>&#10003;</button></div>";}if(r&&isAdm)h+="<div style='text-align:center;margin-top:1px'><button class='bs bde' onclick='delR("+k[0]+")'>&#10005;</button></div>";h+="</div>";return h;}
+function mkBk(k,ex){var t=gKM(k[0]);var t1=t?t[0]:null;var t2=t?t[1]:null;var r=RS[k[0]];var t1n=t1||k[2];var t2n=t2||k[3];var t1w="",t2w="";if(r){var kw=koWin(r,[t1n,t2n]);if(kw===t1n)t1w=" w";if(kw===t2n)t2w=" w";}var h="<div class='bk-m"+ex+"'><div class='bl'>M"+k[0]+"</div>";h+="<div class='bt"+t1w+"'>"+(t1?fi(t1,12):"")+" "+t1n;if(r)h+=" <b>"+r.s1+(r.p1!=null?" <span style='font-size:.85em;color:#888'>("+r.p1+")</span>":"")+"</b>";h+="</div><div class='bt"+t2w+"'>"+(t2?fi(t2,12):"")+" "+t2n;if(r)h+=" <b>"+r.s2+(r.p2!=null?" <span style='font-size:.85em;color:#888'>("+r.p2+")</span>":"")+"</b>";h+="</div>";if(!r&&isAdm&&t1&&t2){h+="<div style='display:flex;gap:2px;align-items:center;justify-content:center;margin-top:2px'><input type='number' id='s1_"+k[0]+"' min='0' value='0'>-<input type='number' id='s2_"+k[0]+"' min='0' value='0'><button class='bs bgo' onclick='subR("+k[0]+")'>&#10003;</button></div>";}if(r&&isAdm)h+="<div style='text-align:center;margin-top:1px'><button class='bs bde' onclick='delR("+k[0]+")'>&#10005;</button></div>";h+="</div>";return h;}
 function rKO(){var el=document.getElementById("brEl");el.innerHTML="";var rounds=[[74,77,73,75,83,84,81,82,"R32","Round of 32"],[89,90,93,94,"R16","Round of 16"],[97,98,"QF","Quarter-Finals"],[101,"SF","Semi-Final"],["FIN"],[102,"SF","Semi-Final"],[99,100,"QF","Quarter-Finals"],[91,92,95,96,"R16","Round of 16"],[76,78,79,80,86,88,85,87,"R32","Round of 32"]];for(var ri=0;ri<rounds.length;ri++){var rnd=rounds[ri];var col=document.createElement("div");if(rnd[0]==="FIN"){col.className="bk-rnd fin";col.innerHTML="<div class='bk-hd'>Final</div>";var wrap=document.createElement("div");wrap.className="bk-fin";var kf=null,k3=null;for(var ki=0;ki<KO.length;ki++){if(KO[ki][0]===104)kf=KO[ki];if(KO[ki][0]===103)k3=KO[ki];}if(kf){wrap.innerHTML+="<div class='bk-cl'>FINAL</div>"+mkBk(kf,"");}if(k3){wrap.innerHTML+="<div class='bk-cl'>3RD PLACE</div>"+mkBk(k3," trd");}col.appendChild(wrap);}else{var ids=[];var label="";for(var k=0;k<rnd.length;k++){if(typeof rnd[k]==="number")ids.push(rnd[k]);else if(k===rnd.length-1)label=rnd[k];else if(k===rnd.length-2&&typeof rnd[k]==="string"&&rnd[k].length>3)label=rnd[k];}col.className="bk-rnd";col.innerHTML="<div class='bk-hd'>"+label+"</div>";for(var mi=0;mi<ids.length;mi++){var kk=null;for(var ki=0;ki<KO.length;ki++){if(KO[ki][0]===ids[mi])kk=KO[ki];}if(kk)col.innerHTML+="<div>"+mkBk(kk,"")+"</div>";}}el.appendChild(col);}}
 function expJ(){var k=Object.keys(RS);if(k.length===0){alert("No data");return;}var d=JSON.stringify(RS,null,2);var b=new Blob([d],{type:"application/json"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download="wc2026_"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
-function impJ(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(Object.keys(RS).length>0&&!confirm("Replace existing data?"))return;RS=d;sv();rAll();alert("Imported!");}catch(err){alert("Error: "+err.message);}};rd.readAsText(f);e.target.value="";}
+function impJ(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(Object.keys(RSM).length>0&&!confirm("Replace existing manual overrides?"))return;RSM=d;sv();mergeRS();rAll();alert("Imported as manual overrides!");}catch(err){alert("Error: "+err.message);}};rd.readAsText(f);e.target.value="";}
 
 var NM={"Curacao":"Curacao","Cote d'Ivoire":"Ivory Coast","Cabo Verde":"Cape Verde","Congo DR":"DR Congo","Korea Republic":"South Korea","Bosnia-Herzegovina":"Bosnia & Herzegovina","IR Iran":"Iran","Turkiye":"Turkey","Côte d'Ivoire":"Ivory Coast","Czechia":"Czech Republic","Türkiye":"Turkey","United States":"USA","Korea DPR":"North Korea","Saudi-Arabia":"Saudi Arabia"};
 function mapN(n){return NM[n]||n;}
@@ -1745,7 +1754,11 @@ function loadLeagueData(cb){
   fetch("/api/league-data?league="+encodeURIComponent(curLg))
   .then(function(r){return r.json();})
   .then(function(data){
-    if(data.results)RS=data.results;
+    if(data.auto||data.manual){RSA=data.auto||{};RSM=data.manual||{};}
+    else if(data.results){RSM=data.results;} // legacy server response
+    if(data.times)FXTIMES=data.times;
+    if(data.syncedAt)lastSyncAt=data.syncedAt;
+    applyTimes();mergeRS();
     if(data.theme){curTh=data.theme;}else{curTh=(window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";}
     appTh();
     var su=sessionStorage.getItem("wc2026_user_"+curLg)||"";
@@ -1767,52 +1780,42 @@ function appSync(){
   if(autoSy){t.classList.add("on");d.classList.add("on");}
   else{t.classList.remove("on");d.classList.remove("on");}
   sessionStorage.setItem("wc2026_autosync",autoSy?"true":"false");
-  if(autoSy&&!syncTmr){syncTmr=setInterval(function(){if(autoSy)doSync();},60000);}
+  if(autoSy&&!syncTmr){syncTmr=setInterval(function(){if(autoSy)doSync();},syncInterval);}
   if(!autoSy&&syncTmr){clearInterval(syncTmr);syncTmr=null;}
 }
 function tglSync(){if(!isAdm){alert('Admin mode required to change sync settings');return;}autoSy=!autoSy;appSync();if(autoSy)doSync();}
 
-function isMatchLive(dt){var now=new Date();var start=new Date(dt.replace(" ","T")+":00");var diff=(now.getTime()-start.getTime())/60000;return diff>=-5&&diff<=130;}
-function getMgrLiveTeams(mgrName){var teams=MGR[mgrName];if(!teams)return[];var live=[];for(var ti=0;ti<teams.length;ti++){var tn=teams[ti];for(var i=0;i<MX.length;i++){var mx=MX[i];if((mx[2]===tn||mx[3]===tn)&&isMatchLive(mx[4])&&!RS[mx[0]])live.push(tn);}for(var i=0;i<KO.length;i++){var ko=KO[i];var tm=gKM(ko[0]);if(tm&&(tm[0]===tn||tm[1]===tn)&&isMatchLive(ko[4])&&!RS[ko[0]])live.push(tn);}}return live;}
-function anyMatchLive(){for(var i=0;i<MX.length;i++){if(isMatchLive(MX[i][4]))return true;}for(var i=0;i<KO.length;i++){if(isMatchLive(KO[i][4]))return true;}return false;}
+function isMatchLive(dt,id){if(id!=null){if(FXST[id])return true;if(RSM[id])return false;if(RSA[id]&&RSA[id].st==="FT")return false;}var now=new Date();var start=new Date(dt.replace(" ","T")+":00");var diff=(now.getTime()-start.getTime())/60000;return diff>=-5&&diff<=130;}
+function getMgrLiveTeams(mgrName){var teams=MGR[mgrName];if(!teams)return[];var live=[];for(var ti=0;ti<teams.length;ti++){var tn=teams[ti];for(var i=0;i<MX.length;i++){var mx=MX[i];if((mx[2]===tn||mx[3]===tn)&&isMatchLive(mx[4],mx[0]))live.push(tn);}for(var i=0;i<KO.length;i++){var ko=KO[i];var tm=gKM(ko[0]);if(tm&&(tm[0]===tn||tm[1]===tn)&&isMatchLive(ko[4],ko[0]))live.push(tn);}}return live;}
+function anyMatchLive(){for(var i=0;i<MX.length;i++){if(isMatchLive(MX[i][4],MX[i][0]))return true;}for(var i=0;i<KO.length;i++){if(isMatchLive(KO[i][4],KO[i][0]))return true;}return false;}
+function anyMatchSoon(){var now=Date.now();var all=MX.concat(KO);for(var i=0;i<all.length;i++){var id=all[i][0];if(RSM[id]||(RSA[id]&&RSA[id].st==="FT"))continue;var t=new Date(all[i][4].replace(" ","T")+":00").getTime();if(isNaN(t))continue;var diff=t-now;if(diff<15*60000&&diff>-160*60000)return true;}return false;}
 function doSync(){
   var st=document.getElementById("syncSt");
-  st.textContent="Syncing...";st.className="sync-status";
-  var apiKey=true; // key is server-side via /api/matches
-  if(apiKey){
-    fetch("/api/matches")
-    .then(function(r){if(!r.ok)throw new Error("API "+r.status);return r.json();})
-    .then(function(data){
-      if(!data||!data.matches){st.textContent="No API data";st.className="sync-status err";return;}
-      var cnt=0;
-      for(var i=0;i<data.matches.length;i++){
-        var am=data.matches[i];
-        var status=am.status||"";
-        if(status==="TIMED"||status==="SCHEDULED"||status==="POSTPONED"||status==="CANCELLED")continue;
-        var sc=am.score||{};var ft=sc.fullTime||{};var ht=sc.halfTime||{};
-        var s1=ft.home!==null&&ft.home!==undefined?ft.home:(ht.home!==null&&ht.home!==undefined?ht.home:null);
-        var s2=ft.away!==null&&ft.away!==undefined?ft.away:(ht.away!==null&&ht.away!==undefined?ht.away:null);
-        if(s1===null||s2===null)continue;
-        var an1=mapN(am.homeTeam.name||am.homeTeam.shortName||"");
-        var an2=mapN(am.awayTeam.name||am.awayTeam.shortName||"");
-        var allMx=MX.concat(KO);
-        for(var j=0;j<allMx.length;j++){
-          var mx=allMx[j];
-          if((mx[2]===an1&&mx[3]===an2)||(mx[3]===an1&&mx[2]===an2)){
-            var ns1=mx[2]===an1?s1:s2;var ns2=mx[2]===an1?s2:s1;
-            if(!RS[mx[0]]||RS[mx[0]].s1!==ns1||RS[mx[0]].s2!==ns2){RS[mx[0]]={s1:ns1,s2:ns2};cnt++;}
-            break;
-          }
-        }
-      }
-      if(cnt>0){sv();rAll();}
+  if(st){st.textContent="Syncing...";st.className="sync-status";}
+  fetch("/api/matches")
+  .then(function(r){if(!r.ok)throw new Error("API "+r.status);return r.json();})
+  .then(function(data){
+    if(!data||!data.results){if(st){st.textContent="No API data";st.className="sync-status err";}return;}
+    // Results are matched to fixtures and persisted server-side — every
+    // league sees the same scores with no admin needed.
+    var cnt=0;
+    for(var k in data.results){var nr=data.results[k];var or=RSA[k];if(!or||or.s1!==nr.s1||or.s2!==nr.s2||or.st!==nr.st)cnt++;}
+    for(var k in RSA){if(!data.results[k])cnt++;}
+    RSA=data.results;
+    if(data.times)FXTIMES=data.times;
+    if(data.syncedAt)lastSyncAt=data.syncedAt;
+    applyTimes();mergeRS();
+    if(cnt>0)rAll();
+    if(st){
+      var liveCnt=0;for(var k in FXST)liveCnt++;
       var now=new Date();var ts=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");
-      st.textContent="\u26a1 "+ts+" | "+cnt+" update"+(cnt!==1?"s":"")+" (Live API)";
+      st.textContent="\u26a1 "+ts+" | "+cnt+" update"+(cnt!==1?"s":"")+(liveCnt>0?" | "+liveCnt+" LIVE":"")+" (Auto)";
       st.className="sync-status ok";
-      adjustSyncInterval();
-    })
-    .catch(function(e){st.textContent="API err, trying fallback...";st.className="sync-status err";doSyncFallback();});
-  } else { doSyncFallback(); }
+    }
+    hdrSyncStatus();
+    adjustSyncInterval();
+  })
+  .catch(function(e){if(st){st.textContent="API err, trying fallback...";st.className="sync-status err";}doSyncFallback();});
 }
 function doSyncFallback(){
   var st=document.getElementById("syncSt");
@@ -1829,20 +1832,20 @@ function doSyncFallback(){
       for(var j=0;j<MX.length;j++){
         var mx=MX[j];
         if(mx[2]===an1&&mx[3]===an2){
-          if(!RS[mx[0]]||RS[mx[0]].s1!==am.score1||RS[mx[0]].s2!==am.score2){
-            RS[mx[0]]={s1:am.score1,s2:am.score2};cnt++;
+          if(!RSA[mx[0]]||RSA[mx[0]].s1!==am.score1||RSA[mx[0]].s2!==am.score2){
+            RSA[mx[0]]={s1:am.score1,s2:am.score2,st:"FT"};cnt++;
           }
           break;
         }
         if(mx[3]===an1&&mx[2]===an2){
-          if(!RS[mx[0]]||RS[mx[0]].s1!==am.score2||RS[mx[0]].s2!==am.score1){
-            RS[mx[0]]={s1:am.score2,s2:am.score1};cnt++;
+          if(!RSA[mx[0]]||RSA[mx[0]].s1!==am.score2||RSA[mx[0]].s2!==am.score1){
+            RSA[mx[0]]={s1:am.score2,s2:am.score1,st:"FT"};cnt++;
           }
           break;
         }
       }
     }
-    if(cnt>0){sv();rAll();}
+    if(cnt>0){mergeRS();rAll();}
     var now=new Date();var ts=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");
     st.textContent="Last sync: "+ts+" | "+cnt+" update"+(cnt!==1?"s":"");
     st.className="sync-status ok";
@@ -1853,8 +1856,9 @@ function doSyncFallback(){
 }
 var syncInterval=60000;
 function adjustSyncInterval(){
-  var live=anyMatchLive();
-  var newInt=live?30000:60000;
+  // 1 poll/min while matches are live or about to kick off; the server edge
+  // cache means upstream football-data.org still only sees ~1 req/min total.
+  var newInt=(anyMatchLive()||anyMatchSoon())?60000:300000;
   if(newInt!==syncInterval&&syncTmr){
     syncInterval=newInt;
     clearInterval(syncTmr);
@@ -1863,20 +1867,11 @@ function adjustSyncInterval(){
 }
 
 
-function hdrSync(){
-  var btn=document.getElementById("hdrSyncBtn");
-  var st=document.getElementById("hdrSyncSt");
-  btn.classList.add("syncing");
-  btn.innerHTML="&#128260; Syncing...";
-  doSync();
-  setTimeout(function(){
-    btn.classList.remove("syncing");
-    btn.innerHTML="&#128260; Sync";
-    var now=new Date();
-    st.textContent="Updated "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");
-    st.classList.add("show");
-    setTimeout(function(){st.classList.remove("show");},3000);
-  },1500);
+function hdrSyncStatus(){
+  var st=document.getElementById("hdrSyncSt");if(!st)return;
+  var liveCnt=0;for(var k in FXST)liveCnt++;
+  var now=new Date();
+  st.innerHTML=(liveCnt>0?"<span class='live-dot'></span>":"\u26a1 ")+"Auto \u00b7 "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");
 }
 
 // ── Boot sequence ──

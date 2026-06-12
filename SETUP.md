@@ -114,7 +114,35 @@ If /api/matches errors the first time, wait 60s (rate limit) — caching kicks i
   Direct calls to football-data.org         Proxied via /api/matches
   Scores lost on browser clear              Scores live in KV forever
   Everyone had to sync separately           One sync updates everyone
-  Auto-sync every 30s always                25s when live, 5min when idle
+  Admin tab had to stay open to save        Fully automatic server-side sync
+
+---
+
+## How the automatic sync works
+
+  /api/matches does everything server-side on each request:
+
+  1. Edge cache (Cloudflare Cache API) absorbs all traffic for 55s while
+     matches are live (or kicking off within 15 min), 5 min otherwise.
+     football-data.org sees ~1 request/min worst case — well inside the
+     free tier's 10 req/min.
+  2. On refresh, the upstream payload is trimmed (~90% smaller) and every
+     API match is mapped onto fixture IDs 1-104 — including knockout
+     bracket slots (2A, W73, 3rd(A/B/C/D/F)...) resolved from standings,
+     with penalty shootouts handled.
+  3. Computed results are saved to KV (global:auto), shared by all three
+     leagues (Work, The Boys, Gogi Gang). Nobody needs to be in admin
+     mode — any visitor's poll keeps scores fresh for everyone.
+     KV is only written when a score actually changes, so the free tier's
+     1k writes/day is never threatened.
+
+  The per-league league:<id>:results key now only stores manual admin
+  overrides (pencil button in Match Centre). An override always wins over
+  the API feed; remove it (✕) to fall back to automatic scores.
+
+  Browsers poll /api/matches every 60s when matches are live or imminent
+  and every 5 min otherwise. Note the free tier's live scores lag ~5 min
+  behind real time.
 
 ---
 
