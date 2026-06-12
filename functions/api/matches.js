@@ -234,6 +234,7 @@ function trimMatch(m) {
     id: m.id,
     utcDate: m.utcDate,
     status: m.status,
+    minute: typeof m.minute === "number" ? m.minute : undefined,
     matchday: m.matchday,
     stage: m.stage,
     group: m.group,
@@ -258,6 +259,12 @@ function extractScore(m) {
   let s2 = ft.away != null ? ft.away : ht.away != null ? ht.away : (live ? 0 : null);
   if (s1 == null || s2 == null) return null;
   const out = { s1, s2, st: live ? "LIVE" : "FT" };
+  if (live) {
+    /* The feed's own match clock lags with its scores, so the client can
+       show a clock consistent with the (delayed) scoreline. */
+    if (typeof m.minute === "number") out.min = m.minute;
+    if (status === "PAUSED") out.pp = 1;
+  }
   const pen = sc.penalties;
   if (pen && pen.home != null && pen.away != null) { out.p1 = pen.home; out.p2 = pen.away; }
   return out;
@@ -421,8 +428,19 @@ export async function onRequestGet(context) {
         const prevRaw = await kv.get(KV_AUTO);
         if (prevRaw) prev = JSON.parse(prevRaw);
       } catch { /* rewrite below */ }
+      /* Ignore the live match clock (min/pp) when deciding whether to
+         write — otherwise every refresh during a live match would burn a
+         KV write even with no goals. */
+      const stripClock = (rs) => {
+        const out = {};
+        for (const id in rs || {}) {
+          const { min, pp, ...rest } = rs[id];
+          out[id] = rest;
+        }
+        return out;
+      };
       const changed = !prev ||
-        JSON.stringify({ r: prev.results, t: prev.times }) !== JSON.stringify({ r: results, t: times });
+        JSON.stringify({ r: stripClock(prev.results), t: prev.times }) !== JSON.stringify({ r: stripClock(results), t: times });
       if (changed) {
         await kv.put(KV_AUTO, JSON.stringify({ results, times, syncedAt: now }));
       }
