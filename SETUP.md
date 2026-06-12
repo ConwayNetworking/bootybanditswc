@@ -18,7 +18,7 @@ SETUP.md                    ← You are here
 
 ---
 
-## Step 1 — Get a free football-data.org API key (2 min)
+## Step 1 — Get a free football-data.org API key (2 min)!
 
 1. Go to https://www.football-data.org/client/register
 2. Enter your email — no card, no phone number
