@@ -50,6 +50,8 @@ export async function onRequestGet({ request, env }) {
     manual,
     auto: autoResults,
     times: auto.times || {},
+    statuses: auto.statuses || {},
+    refs: auto.refs || {},
     syncedAt: auto.syncedAt || 0,
     autosync: autosync !== null ? autosync === "true" : true,
     theme: theme || "dark",
