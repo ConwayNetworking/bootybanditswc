@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en"><head><meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -531,18 +530,23 @@ body.light .mt-status.c{color:#059669}body.light .mt-status.e{color:#c62828}
 /* Goal Flash on match rows */
 @keyframes goalFlash{0%{box-shadow:0 0 0 0 rgba(245,158,11,.5)}50%{box-shadow:0 0 20px 4px rgba(245,158,11,.3)}100%{box-shadow:none}}
 .mr.goal-flash{animation:goalFlash 1.2s ease-out}
+
+.aet-label{font-size:.6em;background:#f59e0b;color:#000;padding:1px 6px;border-radius:4px;margin-left:5px;font-weight:700;letter-spacing:.5px}
+.pen-label{font-size:.75em;color:#f59e0b;font-weight:600;margin-left:4px}
+.bdg-count{position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:.55em;font-weight:700;min-width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;padding:0 3px;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.bdg-card{position:relative}
 </style>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV0MyMDI2IEZhbnRhc3kgTGVhZ3VlIiwic2hvcnRfbmFtZSI6IldDMjAyNiIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzExMTMxOCIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSJ9">
 <meta name="theme-color" content="#10b981">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<body>
+<body class="">
 <div id="evtBanner" class="evt-banner"></div>
 <div class="hdr">
 
 <h1>2026 World Cup Fantasy League</h1>
-<div class="hdr-left"><span class="hdr-sync-st show" id="hdrSyncSt">⚡ Auto-sync</span></div>
+<div class="hdr-left"><span class="hdr-sync-st show" id="hdrSyncSt"><span class="live-dot"></span>Auto · 14:24</span></div>
 <div class="gear" onclick="tglM()">⚙</div>
 </div>
 <div class="mbg" id="mBg" onclick="clsM(event)">
@@ -551,21 +555,21 @@ body.light .mt-status.c{color:#059669}body.light .mt-status.e{color:#c62828}
 <div class="mw"><span>🌙 Dark / Light Mode</span><div class="tgl" id="thTgl" onclick="tglT()"></div></div>
 <hr class="mdv">
 <div class="admin-only"><label>🏟 League</label>
-<select id="lgSel" onchange="chgLg()"><option value="boys">The Boys</option><option value="work">Work</option><option value="family">Gogi Gang</option></select>
+<select id="lgSel" onchange="chgLg()"><option value="boys" selected>The Boys</option><option value="work">Work</option><option value="family">Gogi Gang</option></select>
 
 <button class="mb" style="width:100%;margin-top:6px" onclick="setDefaultDL()">Set as Default &amp; Download</button>
 <hr class="mdv"></div>
 <label>👤 Select Your Manager</label>
-<select id="uSel" onchange="setU()"><option value="">-- Select --</option><option value="Cameron">Cameron</option><option value="Dan">Dan</option><option value="Ollie">Ollie</option><option value="Reilly">Reilly</option><option value="Jack">Jack</option><option value="Jackson">Jackson</option><option value="Mitchell">Mitchell</option><option value="Sam">Sam</option></select>
+<select id="uSel" onchange="setU()"><option value="">-- Select --</option><option value="Cameron">Cameron</option><option value="Dan">Dan</option><option value="Jack">Jack</option><option value="Jackson">Jackson</option><option value="Mitchell">Mitchell</option><option value="Ollie">Ollie</option><option value="Reilly">Reilly</option><option value="Sam">Sam</option></select>
 <hr class="mdv">
-<label>🔒 Admin Access <span class="abg" id="aBdg">LOCKED</span></label>
+<label>🔒 Admin Access <span class="abg on" id="aBdg">UNLOCKED</span></label>
 <input type="password" id="aPw" placeholder="Enter admin password" onkeyup="chkA(event)">
 <div class="admin-only"><button class="lock-btn" onclick="lckA()">🔒 Lock Admin Mode</button></div>
 <hr class="mdv">
 <label>📁 File Backup</label>
 <div style="display:flex;gap:6px;margin:6px 0">
 <button class="mb" onclick="expJ()">📥 Export</button>
-<button class="mb mbg2" onclick="document.getElementById(&#39;impF&#39;).click()">📤 Import</button>
+<button class="mb mbg2" onclick="document.getElementById('impF').click()">📤 Import</button>
 <input type="file" id="impF" accept=".json" onchange="impJ(event)" style="display:none">
 </div>
 <hr class="mdv">
@@ -576,9 +580,9 @@ body.light .mt-status.c{color:#059669}body.light .mt-status.e{color:#c62828}
 <div><span class="sync-dot on" id="syncDot"></span><span style="font-size:.85em">Auto-Sync</span></div>
 <div class="tgl on" id="syncTgl" onclick="tglSync()"></div>
 </div>
-<div class="sync-status ok" id="syncSt">⚡ 16:54:47 | 0 updates (Auto)</div>
+<div class="sync-status ok" id="syncSt">⚡ 14:24:08 | 0 updates | 1 LIVE (Auto)</div>
 <hr class="mdv">
-<button class="cl-btn" onclick="document.getElementById(&#39;clWrap&#39;).classList.toggle(&#39;open&#39;)">Version History</button>
+<button class="cl-btn" onclick="document.getElementById('clWrap').classList.toggle('open')">Version History</button>
 <div class="cl-wrap" id="clWrap">
 <div class="cl-ver"><h4>v3.0 — Visual Overhaul (Jun 10)</h4><ul>
 <li>Renamed Standings tab to Statistics</li>
@@ -735,29 +739,29 @@ body.light .mt-status.c{color:#059669}body.light .mt-status.e{color:#c62828}
 </div>
 </div>
 <div class="tabs">
-<button class="tb" id="btn_fantasy" onclick="stab(&#39;fantasy&#39;)">⚽ Fantasy League</button>
-<button class="tb" id="btn_myteams" onclick="stab(&#39;myteams&#39;)">🏅 My Teams</button>
-<button class="tb" id="btn_matches" onclick="stab(&#39;matches&#39;)">📅 Match Centre</button>
-<button class="tb" id="btn_groups" onclick="stab(&#39;groups&#39;)">🌐 Groups</button>
-<button class="tb" id="btn_knockout" onclick="stab(&#39;knockout&#39;)">🏆 Knockout</button>
-<button class="tb" id="btn_h2h" onclick="stab(&#39;h2h&#39;)">⚔️ Head to Head</button>
-<button class="tb" id="btn_rankings" onclick="stab(&#39;rankings&#39;)">🏆 FIFA Rankings</button>
-<button class="tb" id="btn_badges" onclick="stab(&#39;badges&#39;)">🏅 Badges</button>
-<button class="tb" id="btn_tracker" onclick="stab(&#39;tracker&#39;)">📈 Statistics</button>
+<button class="tb on" id="btn_fantasy" onclick="stab('fantasy')">⚽ Fantasy League</button>
+<button class="tb" id="btn_myteams" onclick="stab('myteams')">🏅 My Teams</button>
+<button class="tb" id="btn_matches" onclick="stab('matches')">📅 Match Centre</button>
+<button class="tb" id="btn_groups" onclick="stab('groups')">🌐 Groups</button>
+<button class="tb" id="btn_knockout" onclick="stab('knockout')">🏆 Knockout</button>
+<button class="tb" id="btn_h2h" onclick="stab('h2h')">⚔️ Head to Head</button>
+<button class="tb" id="btn_rankings" onclick="stab('rankings')">🏆 FIFA Rankings</button>
+<button class="tb" id="btn_badges" onclick="stab('badges')">🏅 Badges</button>
+<button class="tb" id="btn_tracker" onclick="stab('tracker')">📈 Statistics</button>
 </div>
 
 <div class="tp-bar-wrap"><div class="tp-bar"><div class="tp-bar-fill" id="tpFill" style="width:0%"></div></div><div class="tp-bar-txt" id="tpTxt"></div></div>
-<div class="nx-bar" id="nxBar" style="display:none">
+<div class="nx-bar live" id="nxBar" style="display: none;">
 <div class="nx-title">Upcoming Matches</div>
 <div class="nx-nav">
 <div class="nx-arrow dis" id="nxPrev" onclick="nxNav(-1)">◀</div>
 <div class="nx-match-inner">
 <div class="nx-teams">
-<div class="nx-t" id="nxT1"></div>
-<div class="nx-mid"><div class="nx-vs">VS</div><div class="nx-timer" id="nxTmr" style="color: rgb(16, 185, 129);">--:--:--</div></div>
-<div class="nx-t" id="nxT2"></div>
+<div class="nx-t" id="nxT1"><img src="https://flagcdn.com/w80/us.png" alt="USA" style="height:24px;vertical-align:middle;border-radius:2px"><div class="nx-country"><span class="rk-badge">#17</span> USA</div><div class="nx-mgr">Jackson</div></div>
+<div class="nx-mid"><div class="nx-vs"><span style="font-size:1.6em;font-weight:700;color:#fff">3 – 0</span></div><div class="nx-timer" id="nxTmr" style="color: rgb(255, 68, 68);"><span class="live-dot"></span>LIVE <span class="live-badge">Half Time</span></div></div>
+<div class="nx-t" id="nxT2"><img src="https://flagcdn.com/w80/py.png" alt="Paraguay" style="height:24px;vertical-align:middle;border-radius:2px"><div class="nx-country">Paraguay <span class="rk-badge">#40</span></div><div class="nx-mgr">Cameron</div></div>
 </div>
-<div class="nx-info" id="nxInf"></div>
+<div class="nx-info" id="nxInf">D | Sat 13 Jun | 13:00 NZT<div style="max-width:280px;margin:6px auto 0"><div class="wp-wrap"><div class="wp-w1" style="width:53%">53%</div><div class="wp-d" style="width:19%">19%</div><div class="wp-w2" style="width:28%">28%</div></div></div></div>
 <div class="nx-page" id="nxPage">1 / 5</div>
 </div>
 <div class="nx-arrow" id="nxNext" onclick="nxNav(1)">▶</div>
@@ -1222,6 +1226,20 @@ function nxNav(dir){
   if(ni<0||ni>=nxList.length)return;
   showNx(ni);
 }
+
+function getLivePeriod(id){
+  var st=FXST[id];
+  if(st==="HT"||st==="PAUSED")return"Half Time";
+  if(st==="ET")return"Extra Time";
+  if(st==="P"||st==="PEN")return"Penalties";
+  if(st==="BT")return"Break";
+  if(st==="2H")return"2nd Half";
+  if(st==="1H"||st==="LIVE")return"1st Half";
+  var lr=RSL[id];
+  if(lr&&lr.pp)return"Half Time";
+  return"In Play";
+}
+
 function tickCD(){
   if(!nxList.length)return;
   var el=document.getElementById("nxTmr");if(!el)return;
@@ -1231,24 +1249,12 @@ function tickCD(){
   var diff=tgt.getTime()-now.getTime();
   var matchLen=6600000;
   var apiLive=!!FXST[nx.id];
-  var apiDone=RSA[nx.id]&&RSA[nx.id].st==="FT";
-  if(apiDone){if(bar)bar.classList.remove("live");el.textContent="FULL TIME";el.style.color="#ff6b6b";return;}
+  var apiDone=RSA[nx.id]&&(RSA[nx.id].st==="FT"||RSA[nx.id].st==="AET"||RSA[nx.id].st==="FT_PEN"||RSA[nx.id].st==="AP");
+  if(apiDone){if(bar)bar.classList.remove("live");var r=RSA[nx.id];if(r&&r.p1!=null){el.innerHTML="<span style='color:#ff6b6b'>FULL TIME</span> <span class='pen-label'>("+r.p1+"-"+r.p2+" pens)</span>";}else{el.textContent="FULL TIME";}el.style.color="#ff6b6b";return;}
   if(apiLive||(diff<=0&&diff>-matchLen)){
     if(bar)bar.classList.add("live");
-    var lr=RSL[nx.id];var mins,half;
-    if(lr&&lr.pp){mins=45;half="Half Time";}
-    else if(lr&&lr.min!=null){
-      // Use the feed's own match clock so it stays in step with the
-      // (~5 min delayed) scores instead of running ahead of them.
-      mins=lr.min;half=mins<=45?"1st Half":"2nd Half";
-    }else{
-      var elapsed=Math.floor((now.getTime()-tgt.getTime())/60000);
-      if(elapsed<0)elapsed=0;
-      half=elapsed<=45?"1st Half":elapsed<=60?"Half Time":"2nd Half";
-      mins=elapsed<=45?elapsed:elapsed<=60?45:elapsed-15;
-      if(mins>90)mins=90;
-    }
-    el.innerHTML="<span class='live-dot'></span>LIVE <span class='live-badge'>"+(lr&&lr.pp?half:mins+"' "+half)+"</span>";
+    var period=getLivePeriod(nx.id);
+    el.innerHTML="<span class='live-dot'></span>LIVE <span class='live-badge'>"+period+"</span>";
     el.style.color="#ff4444";return;
   }
   if(bar)bar.classList.remove("live");
@@ -1257,7 +1263,6 @@ function tickCD(){
   var d=Math.floor(diff/86400000);var h=Math.floor((diff%86400000)/3600000);var m=Math.floor((diff%3600000)/60000);var s=Math.floor((diff%60000)/1000);
   var str="";if(d>0)str+=d+"d ";str+=(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
   el.textContent=str;
-
   var vsE=document.querySelector('.nx-vs');
   if(vsE&&nx.id){var scr=RS[nx.id]||RSL[nx.id]||RSA[nx.id];if(scr&&scr.s1!=null){vsE.innerHTML="<span style='font-size:1.6em;font-weight:700;color:#fff'>"+scr.s1+" &#8211; "+scr.s2+"</span>";}}
 }
@@ -1543,14 +1548,15 @@ function calcBadges(mgrName){
     }
     if(maxStreak>=3)earned.push("dynasty");
   }
-  return[...new Set(earned)];
+  var counts={};for(var ei=0;ei<earned.length;ei++){counts[earned[ei]]=(counts[earned[ei]]||0)+1;}var unique=[];var seen2={};for(var ei=0;ei<earned.length;ei++){if(!seen2[earned[ei]]){seen2[earned[ei]]=1;unique.push({id:earned[ei],count:counts[earned[ei]]});}}return unique;
 }
 
-function bdgHTML(badgeId,sz){
+function bdgHTML(badgeId,sz,count){
   var b=null;for(var i=0;i<BADGE_DEFS.length;i++){if(BADGE_DEFS[i].id===badgeId){b=BADGE_DEFS[i];break;}}
   if(!b)return"";
   var s=sz||"1.8em";
-  return"<div class='bdg-card'><span class='bdg-icon' style='font-size:"+s+"'>"+b.icon+"</span><div class='bdg-name'>"+b.name+"</div><div class='bdg-tip'>"+b.icon+" <b>"+b.name+"</b><br>"+b.desc+"</div></div>";
+  var cBadge=(count&&count>1)?"<span class='bdg-count'>"+count+"</span>":"";
+  return"<div onclick=\"this.classList.toggle('tapped');event.stopPropagation()\" class='bdg-card'><span class='bdg-icon' style='font-size:"+s+"'>"+b.icon+"</span>"+cBadge+"<div class='bdg-name'>"+b.name+"</div><div class='bdg-tip'>"+b.icon+" <b>"+b.name+"</b>"+(count&&count>1?" <span style='color:#ef4444'>x"+count+"</span>":"")+"<br>"+b.desc+"</div></div>";
 }
 
 function rBadges(){
@@ -1563,7 +1569,7 @@ function rBadges(){
     h+="<div class='bdg-mgr-section'><div class='bdg-mgr-name'>"+nm+"</div>";
     if(earned.length>0){
       h+="<div class='bdg-grid'>";
-      for(var j=0;j<earned.length;j++)h+=bdgHTML(earned[j]);
+      for(var j=0;j<earned.length;j++)h+=bdgHTML(earned[j].id,null,earned[j].count);
       h+="</div>";
     }else{
       h+="<div class='bdg-mgr-none'>No badges earned yet</div>";
@@ -1864,7 +1870,7 @@ function rFL(){
     tb.appendChild(er);
   }
 }
-function rMC(){var cont=document.getElementById("mcLs");cont.innerHTML="";var fC=document.getElementById("mcFl");fC.innerHTML="";var fls=["All","Upcoming","Live","Completed","MD1","MD2","MD3","A","B","C","D","E","F","G","H","I","J","K","L","R32","R16","QF","SF","Final"];var flLabels={"MD1":"MD 1","MD2":"MD 2","MD3":"MD 3"};for(var i=0;i<fls.length;i++){var b=document.createElement("button");b.className="mfb"+(mcF===fls[i]?" on":"");b.textContent=flLabels[fls[i]]||fls[i];b.setAttribute("onclick","setF('"+fls[i]+"')");fC.appendChild(b);}var items=[];for(var i=0;i<MX.length;i++){var mx=MX[i];items.push({id:mx[0],grp:mx[1],t1:mx[2],t2:mx[3],dt:mx[4]});}for(var i=0;i<KO.length;i++){var k=KO[i];var t=gKM(k[0]);items.push({id:k[0],grp:k[1],t1:t?t[0]:null,t2:t?t[1]:null,dt:k[4],s1l:k[2],s2l:k[3]});}var roundLabels={"1_MD1":"\u26bd Matchday 1 \u2014 Group Stage","2_MD2":"\u26bd Matchday 2 \u2014 Group Stage","3_MD3":"\u26bd Matchday 3 \u2014 Group Stage","4_R32":"\ud83c\udfc6 Round of 32","5_R16":"\ud83c\udfc6 Round of 16","6_QF":"\ud83c\udfc6 Quarter-Finals","7_SF":"\ud83c\udfc6 Semi-Finals","8_3RD":"\ud83e\udd49 3rd Place Play-off","9_FIN":"\ud83c\udfc6 Final"};var byR={};for(var i=0;i<items.length;i++){var mx=items[i];var r=gRes(mx.id);var pd=!!r;if(mcF==="Upcoming"&&pd)continue;if(mcF==="Completed"&&(!pd||(!isMatchFinished(mx.id)&&isMatchLive(mx.dt,mx.id))))continue;if(mcF==="Live"&&!(isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id)))continue;if(mcF==="MD1"&&mx.id>24)continue;if(mcF==="MD2"&&(mx.id<25||mx.id>48))continue;if(mcF==="MD3"&&(mx.id<49||mx.id>72))continue;if(mcF.length===1&&mcF>="A"&&mcF<="L"&&mx.grp!==mcF)continue;if(mcF==="R32"&&mx.grp!=="R32")continue;if(mcF==="R16"&&mx.grp!=="R16")continue;if(mcF==="QF"&&mx.grp!=="QF")continue;if(mcF==="SF"&&mx.grp!=="SF")continue;if(mcF==="Final"&&mx.grp!=="FIN"&&mx.grp!=="3RD")continue;if(mcFilter){var mc=mcFilter;var mn1=(mx.t1||"").toLowerCase();var mn2=(mx.t2||"").toLowerCase();var mg1=mx.t1&&CO[mx.t1]?CO[mx.t1].toLowerCase():"";var mg2=mx.t2&&CO[mx.t2]?CO[mx.t2].toLowerCase():"";if(mn1.indexOf(mc)<0&&mn2.indexOf(mc)<0&&mg1.indexOf(mc)<0&&mg2.indexOf(mc)<0)continue;}var rKey;if(mx.id<=24)rKey="1_MD1";else if(mx.id<=48)rKey="2_MD2";else if(mx.id<=72)rKey="3_MD3";else if(mx.grp==="R32")rKey="4_R32";else if(mx.grp==="R16")rKey="5_R16";else if(mx.grp==="QF")rKey="6_QF";else if(mx.grp==="SF")rKey="7_SF";else if(mx.grp==="3RD")rKey="8_3RD";else if(mx.grp==="FIN")rKey="9_FIN";else rKey="9_"+mx.grp;if(!byR[rKey])byR[rKey]=[];byR[rKey].push(mx);}var rKeys=[];for(var k in byR)rKeys.push(k);rKeys.sort();if(rKeys.length===0){cont.innerHTML="<div class='nm'>No matches found</div>";return;}var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];for(var ri=0;ri<rKeys.length;ri++){var rk=rKeys[ri];var dd=document.createElement("div");dd.className="mdy";dd.innerHTML="<h3>"+(roundLabels[rk]||rk)+"</h3>";var mxs=byR[rk];mxs.sort(function(a,b){return a.dt<b.dt?-1:a.dt>b.dt?1:0;});var lastDate="";for(var j=0;j<mxs.length;j++){var mx=mxs[j];var r=gRes(mx.id);var pd=!!r;var dt=mx.dt.substring(0,10);if(dt!==lastDate){lastDate=dt;var dp=new Date(dt+"T00:00:00");var dateDiv=document.createElement("div");dateDiv.className="mc-date-sub";dateDiv.textContent=dn[dp.getDay()]+" "+dp.getDate()+" "+mn[dp.getMonth()]+" "+dp.getFullYear();dd.appendChild(dateDiv);}var time=mx.dt.substring(11,16);var t1n=mx.t1||mx.s1l||"TBD";var t2n=mx.t2||mx.s2l||"TBD";var t1f=mx.t1?fi(mx.t1,15):"";var t2f=mx.t2?fi(mx.t2,15):"";var row=document.createElement("div");row.className="mr";var h="<div class='mg2'>"+mx.grp+"</div><div class='mtm'>"+time+"</div><div class='tm r'><span>"+rkBadge(t1n)+" "+t1n+(isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id)?" <span class='live-mgr-dot'></span>":"")+"</span> "+t1f+"<div class='mt-mgr'>"+(mx.t1&&CO[mx.t1]?CO[mx.t1]:"")+"</div></div></div>";if(pd){var isLv=isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id);var pens=(r.p1!=null&&r.p2!=null)?"<div style='font-size:.68em;color:#888'>("+r.p1+"-"+r.p2+" pens)</div>":"";h+="<div class='msc'><span class='mrs2'"+(isLv?" style='color:#ff4444'":"")+">"+r.s1+" - "+r.s2+"</span>"+(isLv?"<span class='live-badge'>LIVE</span>":"")+(isMatchFinished(mx.id)?"<span class='ft-badge'>FT</span>":"")+pens+"</div>";if(isAdm&&!isLv)h+="<div class='ma'><button class='bs' onclick='editR("+mx.id+")' title='Override score'>&#9998;</button>"+(RSM[mx.id]?"<button class='bs bde' onclick='delR("+mx.id+")' title='Remove manual override'>&#10005;</button>":"")+"</div>";}else if(isAdm&&mx.t1&&mx.t2){h+="<div class='msc'><input type='number' id='s1_"+mx.id+"' min='0' value='0'><span class='mvs'>-</span><input type='number' id='s2_"+mx.id+"' min='0' value='0'></div><div class='ma'><button class='bs bgo' onclick='subR("+mx.id+")'>&#10003;</button></div>";}else{h+="<div class='msc'><span class='mvs'>vs</span></div>";}h+="<div class='tm'><div>"+t2f+" <span>"+t2n+(isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id)?" <span class='live-mgr-dot'></span>":"")+"</span>"+rkBadge(t2n)+"<div class='mt-mgr'>"+(mx.t2&&CO[mx.t2]?CO[mx.t2]:"")+"</div></div></div>";row.innerHTML=h;if(!pd&&mx.t1&&mx.t2){var wrap=document.createElement('div');wrap.className='mc-wrap';wrap.appendChild(row);var pb=document.createElement('div');pb.className='mc-hover-panel';pb.innerHTML=wpBar(mx.t1,mx.t2)+gH2H(mx.t1,mx.t2);wrap.appendChild(pb);wrap.onclick=function(e){if(window.innerWidth<=768){this.querySelector('.mc-hover-panel').classList.toggle('tapped');e.stopPropagation();}};dd.appendChild(wrap);}else{dd.appendChild(row);}}cont.appendChild(dd);}}
+function rMC(){var cont=document.getElementById("mcLs");cont.innerHTML="";var fC=document.getElementById("mcFl");fC.innerHTML="";var fls=["All","Upcoming","Live","Completed","MD1","MD2","MD3","A","B","C","D","E","F","G","H","I","J","K","L","R32","R16","QF","SF","Final"];var flLabels={"MD1":"MD 1","MD2":"MD 2","MD3":"MD 3"};for(var i=0;i<fls.length;i++){var b=document.createElement("button");b.className="mfb"+(mcF===fls[i]?" on":"");b.textContent=flLabels[fls[i]]||fls[i];b.setAttribute("onclick","setF('"+fls[i]+"')");fC.appendChild(b);}var items=[];for(var i=0;i<MX.length;i++){var mx=MX[i];items.push({id:mx[0],grp:mx[1],t1:mx[2],t2:mx[3],dt:mx[4]});}for(var i=0;i<KO.length;i++){var k=KO[i];var t=gKM(k[0]);items.push({id:k[0],grp:k[1],t1:t?t[0]:null,t2:t?t[1]:null,dt:k[4],s1l:k[2],s2l:k[3]});}var roundLabels={"1_MD1":"\u26bd Matchday 1 \u2014 Group Stage","2_MD2":"\u26bd Matchday 2 \u2014 Group Stage","3_MD3":"\u26bd Matchday 3 \u2014 Group Stage","4_R32":"\ud83c\udfc6 Round of 32","5_R16":"\ud83c\udfc6 Round of 16","6_QF":"\ud83c\udfc6 Quarter-Finals","7_SF":"\ud83c\udfc6 Semi-Finals","8_3RD":"\ud83e\udd49 3rd Place Play-off","9_FIN":"\ud83c\udfc6 Final"};var byR={};for(var i=0;i<items.length;i++){var mx=items[i];var r=gRes(mx.id);var pd=!!r;if(mcF==="Upcoming"&&pd)continue;if(mcF==="Completed"&&(!pd||(!isMatchFinished(mx.id)&&isMatchLive(mx.dt,mx.id))))continue;if(mcF==="Live"&&!(isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id)))continue;if(mcF==="MD1"&&mx.id>24)continue;if(mcF==="MD2"&&(mx.id<25||mx.id>48))continue;if(mcF==="MD3"&&(mx.id<49||mx.id>72))continue;if(mcF.length===1&&mcF>="A"&&mcF<="L"&&mx.grp!==mcF)continue;if(mcF==="R32"&&mx.grp!=="R32")continue;if(mcF==="R16"&&mx.grp!=="R16")continue;if(mcF==="QF"&&mx.grp!=="QF")continue;if(mcF==="SF"&&mx.grp!=="SF")continue;if(mcF==="Final"&&mx.grp!=="FIN"&&mx.grp!=="3RD")continue;if(mcFilter){var mc=mcFilter;var mn1=(mx.t1||"").toLowerCase();var mn2=(mx.t2||"").toLowerCase();var mg1=mx.t1&&CO[mx.t1]?CO[mx.t1].toLowerCase():"";var mg2=mx.t2&&CO[mx.t2]?CO[mx.t2].toLowerCase():"";if(mn1.indexOf(mc)<0&&mn2.indexOf(mc)<0&&mg1.indexOf(mc)<0&&mg2.indexOf(mc)<0)continue;}var rKey;if(mx.id<=24)rKey="1_MD1";else if(mx.id<=48)rKey="2_MD2";else if(mx.id<=72)rKey="3_MD3";else if(mx.grp==="R32")rKey="4_R32";else if(mx.grp==="R16")rKey="5_R16";else if(mx.grp==="QF")rKey="6_QF";else if(mx.grp==="SF")rKey="7_SF";else if(mx.grp==="3RD")rKey="8_3RD";else if(mx.grp==="FIN")rKey="9_FIN";else rKey="9_"+mx.grp;if(!byR[rKey])byR[rKey]=[];byR[rKey].push(mx);}var rKeys=[];for(var k in byR)rKeys.push(k);rKeys.sort();if(rKeys.length===0){cont.innerHTML="<div class='nm'>No matches found</div>";return;}var dn=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];var mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];for(var ri=0;ri<rKeys.length;ri++){var rk=rKeys[ri];var dd=document.createElement("div");dd.className="mdy";dd.innerHTML="<h3>"+(roundLabels[rk]||rk)+"</h3>";var mxs=byR[rk];mxs.sort(function(a,b){return a.dt<b.dt?-1:a.dt>b.dt?1:0;});var lastDate="";for(var j=0;j<mxs.length;j++){var mx=mxs[j];var r=gRes(mx.id);var pd=!!r;var dt=mx.dt.substring(0,10);if(dt!==lastDate){lastDate=dt;var dp=new Date(dt+"T00:00:00");var dateDiv=document.createElement("div");dateDiv.className="mc-date-sub";dateDiv.textContent=dn[dp.getDay()]+" "+dp.getDate()+" "+mn[dp.getMonth()]+" "+dp.getFullYear();dd.appendChild(dateDiv);}var time=mx.dt.substring(11,16);var t1n=mx.t1||mx.s1l||"TBD";var t2n=mx.t2||mx.s2l||"TBD";var t1f=mx.t1?fi(mx.t1,15):"";var t2f=mx.t2?fi(mx.t2,15):"";var row=document.createElement("div");row.className="mr";var h="<div class='mg2'>"+mx.grp+"</div><div class='mtm'>"+time+"</div><div class='tm r'><span>"+rkBadge(t1n)+" "+t1n+(isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id)?" <span class='live-mgr-dot'></span>":"")+"</span> "+t1f+"<div class='mt-mgr'>"+(mx.t1&&CO[mx.t1]?CO[mx.t1]:"")+"</div></div></div>";if(pd){var isLv=isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id);var pens=(r.p1!=null&&r.p2!=null)?"<div style='font-size:.68em;color:#888'>("+r.p1+"-"+r.p2+" pens)</div>":"";h+="<div class='msc'><span class='mrs2'"+(isLv?" style='color:#ff4444'":"")+">"+r.s1+" - "+r.s2+"</span>"+(isLv?"<span class='live-badge'>LIVE \u00b7 "+getLivePeriod(mx.id)+"</span>":"")+(isMatchFinished(mx.id)?"<span class='ft-badge'>FT</span>":"")+pens+"</div>";if(isAdm&&!isLv)h+="<div class='ma'><button class='bs' onclick='editR("+mx.id+")' title='Override score'>&#9998;</button>"+(RSM[mx.id]?"<button class='bs bde' onclick='delR("+mx.id+")' title='Remove manual override'>&#10005;</button>":"")+"</div>";}else if(isAdm&&mx.t1&&mx.t2){h+="<div class='msc'><input type='number' id='s1_"+mx.id+"' min='0' value='0'><span class='mvs'>-</span><input type='number' id='s2_"+mx.id+"' min='0' value='0'></div><div class='ma'><button class='bs bgo' onclick='subR("+mx.id+")'>&#10003;</button></div>";}else{h+="<div class='msc'><span class='mvs'>vs</span></div>";}h+="<div class='tm'><div>"+t2f+" <span>"+t2n+(isMatchLive(mx.dt,mx.id)&&!isMatchFinished(mx.id)?" <span class='live-mgr-dot'></span>":"")+"</span>"+rkBadge(t2n)+"<div class='mt-mgr'>"+(mx.t2&&CO[mx.t2]?CO[mx.t2]:"")+"</div></div></div>";row.innerHTML=h;if(!pd&&mx.t1&&mx.t2){var wrap=document.createElement('div');wrap.className='mc-wrap';wrap.appendChild(row);var pb=document.createElement('div');pb.className='mc-hover-panel';pb.innerHTML=wpBar(mx.t1,mx.t2)+gH2H(mx.t1,mx.t2);wrap.appendChild(pb);wrap.onclick=function(e){if(window.innerWidth<=768){this.querySelector('.mc-hover-panel').classList.toggle('tapped');e.stopPropagation();}};dd.appendChild(wrap);}else{dd.appendChild(row);}}cont.appendChild(dd);}}
 function rGR(){var grid=document.getElementById("gGrd");grid.innerHTML="";var allT=[];var allDn=true;for(var gi=0;gi<GL.length;gi++){var g=GL[gi];var data=cGrp(g);var st=data.st;var dn=data.done;if(!dn)allDn=false;var card=document.createElement("div");card.className="cd gc";var h="<h3>Group "+g+"</h3><table><thead><tr><th>#</th><th class='l'>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>";for(var i=0;i<st.length;i++){var t=st[i][0],s=st[i][1];var rc="";if(i===0)rc="r1";else if(i===1)rc="r2";else if(i===2)rc="r3";else rc="r4";var gc=s.gd>0?"gp":s.gd<0?"gn":"";var gs=s.gd>0?"+"+s.gd:""+s.gd;h+="<tr class='"+rc+"'><td>"+(i+1)+"</td><td class='l'>"+fi(t,12)+" "+t+"<div class=\'mt-mgr\'>"+(CO[t]||"")+"</div></td><td>"+s.p+"</td><td>"+s.w+"</td><td>"+s.d+"</td><td>"+s.l+"</td><td>"+s.gf+"</td><td>"+s.ga+"</td><td class='"+gc+"'>"+gs+"</td><td class='pc'>"+s.pts+"</td></tr>";if(i===2)allT.push({team:t,group:g,s:s,done:dn});}h+="</tbody></table>";card.innerHTML=h;grid.appendChild(card);}allT.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});var tpb=document.getElementById("tpB");tpb.innerHTML="";for(var i=0;i<allT.length;i++){var x=allT[i],s=x.s;var rc="";rc=i<8?"ti":"to";var gc=s.gd>0?"gp":s.gd<0?"gn":"";var gs=s.gd>0?"+"+s.gd:""+s.gd;var tr=document.createElement("tr");tr.className=rc;tr.innerHTML="<td>"+(i+1)+"</td><td class='l'>"+fi(x.team,12)+" "+x.team+"<div class=\'mt-mgr\'>"+(CO[x.team]||"")+"</div></td><td>"+x.group+"</td><td>"+s.p+"</td><td>"+s.w+"</td><td>"+s.d+"</td><td>"+s.l+"</td><td>"+s.gf+"</td><td>"+s.ga+"</td><td class='"+gc+"'>"+gs+"</td><td class='pc'>"+s.pts+"</td>";tpb.appendChild(tr);}}
 function rHI(){var list=document.getElementById("hLst");var pld=[];for(var i=0;i<MX.length;i++){if(RS[MX[i][0]]&&!(isMatchLive(MX[i][4],MX[i][0])&&!isMatchFinished(MX[i][0])))pld.push({id:MX[i][0],t1:MX[i][2],t2:MX[i][3]});}for(var i=0;i<KO.length;i++){if(RS[KO[i][0]]&&!(isMatchLive(KO[i][4],KO[i][0])&&!isMatchFinished(KO[i][0]))){var t=gKM(KO[i][0]);if(t&&t[0]&&t[1])pld.push({id:KO[i][0],t1:t[0],t2:t[1]});}}document.getElementById("hCnt").textContent="("+pld.length+")";if(pld.length===0){list.innerHTML="<div class='nm'>No results yet</div>";return;}list.innerHTML="";for(var i=pld.length-1;i>=0;i--){var mx=pld[i];var r=RS[mx.id];var div=document.createElement("div");div.className="hi";div.innerHTML="<div class='him'><div class='hit'><div class='htt'>"+fi(mx.t1,14)+"<div class='htn'>"+mx.t1+"</div><div class='mt-mgr'>"+(CO[mx.t1]||"")+"</div></div><span class='hsc'>"+r.s1+" - "+r.s2+htLbl(r)+"</span><div class='htt'>"+fi(mx.t2,14)+"<div class='htn'>"+mx.t2+"</div><div class='mt-mgr'>"+(CO[mx.t2]||"")+"</div></div></div><div class='hmg'>"+(CO[mx.t1]||"?")+" vs "+(CO[mx.t2]||"?")+"</div></div>";list.appendChild(div);}}
 function rMT(){var c=document.getElementById("myC");if(!curU||!MGR[curU]){c.innerHTML="<div class='nm'>Select your manager in Settings &#9881;</div>";return;}var teams=MGR[curU];c.innerHTML="";var tgf=0,tga=0,tw=0,td=0,tl=0,tp=0;var tdata=[];
@@ -1902,7 +1908,7 @@ function rMT(){var c=document.getElementById("myC");if(!curU||!MGR[curU]){c.inne
   if(myBadges.length>0){
     var bdDiv=document.createElement("div");bdDiv.className="my-badges";
     var bh="<h4>Your Badges</h4><div class='bdg-grid'>";
-    for(var bi=0;bi<myBadges.length;bi++)bh+=bdgHTML(myBadges[bi],"1.4em");
+    for(var bi=0;bi<myBadges.length;bi++)bh+=bdgHTML(myBadges[bi].id,"1.4em",myBadges[bi].count);
     bh+="</div>";bdDiv.innerHTML=bh;c.appendChild(bdDiv);
   }
 }
@@ -2105,7 +2111,7 @@ loadLeagueData(function(){rAll();setTimeout(function(){if(autoSy)doSync();},2000
 <span style="font-size:.82em;color:#ccc">📱 Install this app for quick access</span>
 <div style="display:flex;gap:8px">
 <button onclick="pwaInstall()" style="padding:6px 16px;border-radius:6px;border:none;background:#10b981;color:#fff;font-size:.8em;font-weight:600;cursor:pointer">Install</button>
-<button onclick="document.getElementById(&#39;pwaBar&#39;).style.display=&#39;none&#39;" style="padding:6px 12px;border-radius:6px;border:1px solid #444;background:none;color:#888;font-size:.8em;cursor:pointer">✕</button>
+<button onclick="document.getElementById('pwaBar').style.display='none'" style="padding:6px 12px;border-radius:6px;border:1px solid #444;background:none;color:#888;font-size:.8em;cursor:pointer">✕</button>
 </div></div></div>
 <script>
 var deferredPrompt;
