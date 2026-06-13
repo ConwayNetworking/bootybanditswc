@@ -26,6 +26,10 @@ const KV_AUTO = "global:auto";
 const LIVE_TTL_S = 55;
 const IDLE_TTL_S = 300;
 const KV_REWRITE_MS = 10 * 60 * 1000;
+const KV_SCORERS  = "cache:scorers:v1";
+const KV_SQUADS   = "cache:squads:v1";
+const SCORERS_TTL_MS = 10 * 60 * 1000;   // refresh scorers every 10 min
+const SQUADS_TTL_MS  = 60 * 60 * 1000;   // refresh squads every 1 hour
 const KICKOFF_SOON_MS = 15 * 60 * 1000;
 const MATCH_WINDOW_MS = 150 * 60 * 1000;
 
@@ -256,6 +260,16 @@ function extractRef(m) {
   return main.nationality ? main.name + " (" + main.nationality + ")" : main.name;
 }
 
+function extractVenue(m) {
+  /* venue may be a string or an object depending on API version */
+  if (!m.venue) return null;
+  if (typeof m.venue === "string") return { name: m.venue };
+  return {
+    name: m.venue.name || m.venue,
+    city: m.venue.city || (m.area && m.area.name) || undefined,
+  };
+}
+
 function orientScore(sc, homeIsFirst) {
   if (homeIsFirst) return sc;
   const out = { ...sc, s1: sc.s2, s2: sc.s1 };
@@ -296,6 +310,7 @@ function computeAuto(matches) {
   const times = {};
   const statuses = {};
   const refs = {};
+  const venues = {};
 
   const groupApi = [];
   const koApi = [];
@@ -310,6 +325,8 @@ function computeAuto(matches) {
     if (m.utcDate) times[fx[0]] = m.utcDate;
     const ref = extractRef(m);
     if (ref) refs[fx[0]] = ref;
+    const ven = extractVenue(m);
+    if (ven) venues[fx[0]] = ven;
     if (m.status === "POSTPONED" || m.status === "CANCELLED") statuses[fx[0]] = m.status;
     const sc = extractScore(m);
     if (!sc) continue;
@@ -339,6 +356,8 @@ function computeAuto(matches) {
         if (m.utcDate) times[k[0]] = m.utcDate;
         const ref = extractRef(m);
         if (ref) refs[k[0]] = ref;
+        const ven = extractVenue(m);
+        if (ven) venues[k[0]] = ven;
         if (m.status === "POSTPONED" || m.status === "CANCELLED") statuses[k[0]] = m.status;
         const sc = extractScore(m);
         if (sc) {
@@ -353,7 +372,7 @@ function computeAuto(matches) {
     if (!progress) break;
   }
 
-  return { results, times, statuses, refs };
+  return { results, times, statuses, refs, venues };
 }
 
 function anyLiveOrSoon(matches, now) {
@@ -364,6 +383,86 @@ function anyLiveOrSoon(matches, now) {
     if (diff < KICKOFF_SOON_MS && diff > -MATCH_WINDOW_MS) return true;
   }
   return false;
+}
+
+/* ── Scorers + Squads (cached separately, lower refresh rate) ───── */
+
+async function fetchScorers(env, kv, now) {
+  /* Return cached scorers if fresh enough */
+  if (kv) {
+    try {
+      const raw = await kv.get(KV_SCORERS);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached.ts && now - cached.ts < SCORERS_TTL_MS) return cached.data;
+      }
+    } catch { /* refetch below */ }
+  }
+
+  const apiKey = env.FOOTBALL_DATA_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const url = (env.FOOTBALL_DATA_URL || "https://api.football-data.org")
+      + "/v4/competitions/WC/scorers?limit=30";
+    const res = await fetch(url, { headers: { "X-Auth-Token": apiKey } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const scorers = (json.scorers || []).map((s) => {
+      const teamName = s.team ? canonTeam(s.team) || s.team.name || s.team.shortName : "Unknown";
+      return {
+        name: s.player ? s.player.name : "Unknown",
+        team: teamName,
+        goals: s.goals || 0,
+        assists: s.assists || 0,
+        penalties: s.penalties || 0,
+        matchesPlayed: s.playedMatches || 0,
+      };
+    });
+    if (kv && scorers.length) {
+      try { await kv.put(KV_SCORERS, JSON.stringify({ ts: now, data: scorers })); } catch {}
+    }
+    return scorers;
+  } catch { return null; }
+}
+
+async function fetchSquads(env, kv, now) {
+  /* Return cached squads if fresh enough */
+  if (kv) {
+    try {
+      const raw = await kv.get(KV_SQUADS);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        if (cached.ts && now - cached.ts < SQUADS_TTL_MS) return cached.data;
+      }
+    } catch { /* refetch below */ }
+  }
+
+  const apiKey = env.FOOTBALL_DATA_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const url = (env.FOOTBALL_DATA_URL || "https://api.football-data.org")
+      + "/v4/competitions/WC/teams";
+    const res = await fetch(url, { headers: { "X-Auth-Token": apiKey } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const squads = {};
+    for (const team of (json.teams || [])) {
+      const name = canonTeam(team) || team.name || team.shortName;
+      if (!name || !team.squad || !team.squad.length) continue;
+      squads[name] = team.squad.map((p) => ({
+        name: p.name,
+        position: p.position || "Other",
+        number: p.shirtNumber || null,
+        nationalityCode: p.nationality ? p.nationality.substring(0, 2).toLowerCase() : null,
+      }));
+    }
+    if (kv && Object.keys(squads).length) {
+      try { await kv.put(KV_SQUADS, JSON.stringify({ ts: now, data: squads })); } catch {}
+    }
+    return squads;
+  } catch { return null; }
 }
 
 /* ── Request handling ────────────────────────────────────────────────── */
@@ -453,9 +552,15 @@ export async function onRequestGet(context) {
   }
 
   const matches = upstreamJson.matches.map(trimMatch);
-  const { results, times, statuses, refs } = computeAuto(matches);
+  const { results, times, statuses, refs, venues } = computeAuto(upstreamJson.matches);
+
+  /* Fetch scorers + squads in parallel (non-blocking, cached) */
+  const [scorers, squads] = await Promise.all([
+    fetchScorers(env, kv, now).catch(() => null),
+    fetchSquads(env, kv, now).catch(() => null),
+  ]);
   const live = anyLiveOrSoon(matches, now);
-  const payload = { syncedAt: now, live, results, times, statuses, refs, matches, source: "api" };
+  const payload = { syncedAt: now, live, results, times, statuses, refs, venues, scorers: scorers || [], squads: squads || {}, matches, source: "api" };
   const ttl = live ? LIVE_TTL_S : IDLE_TTL_S;
 
   const resp = jsonResp(payload, {
@@ -486,10 +591,10 @@ export async function onRequestGet(context) {
         return out;
       };
       const changed = !prev ||
-        JSON.stringify({ r: stripClock(prev.results), t: prev.times, s: prev.statuses, rf: prev.refs }) !==
-        JSON.stringify({ r: stripClock(results), t: times, s: statuses, rf: refs });
+        JSON.stringify({ r: stripClock(prev.results), t: prev.times, s: prev.statuses, rf: prev.refs, v: prev.venues }) !==
+        JSON.stringify({ r: stripClock(results), t: times, s: statuses, rf: refs, v: venues });
       if (changed) {
-        await kv.put(KV_AUTO, JSON.stringify({ results, times, statuses, refs, syncedAt: now }));
+        await kv.put(KV_AUTO, JSON.stringify({ results, times, statuses, refs, venues, syncedAt: now }));
       }
       const kvStaleAge = kvBlob && kvBlob.ts ? now - kvBlob.ts : Infinity;
       if (changed || kvStaleAge > KV_REWRITE_MS) {
