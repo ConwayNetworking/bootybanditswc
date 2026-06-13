@@ -1257,6 +1257,9 @@ function tickCD(){
   var d=Math.floor(diff/86400000);var h=Math.floor((diff%86400000)/3600000);var m=Math.floor((diff%3600000)/60000);var s=Math.floor((diff%60000)/1000);
   var str="";if(d>0)str+=d+"d ";str+=(h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
   el.textContent=str;
+
+  var vsE=document.querySelector('.nx-vs');
+  if(vsE&&nx.id){var scr=RS[nx.id]||RSL[nx.id]||RSA[nx.id];if(scr&&scr.s1!=null){vsE.innerHTML="<span style='font-size:1.6em;font-weight:700;color:#fff'>"+scr.s1+" &#8211; "+scr.s2+"</span>";}}
 }
 setInterval(tickCD,1000);
 
