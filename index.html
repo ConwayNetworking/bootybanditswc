@@ -1210,7 +1210,7 @@ function showNx(idx){
   nBtn.className=nxIdx>=nxList.length-1?"nx-arrow dis":"nx-arrow";
   tickCD();
   var vsEl=document.querySelector('.nx-vs');
-  var nxr=nx.id?(RS[nx.id]||RSL[nx.id]):null;
+  var nxr=nx.id?(RS[nx.id]||RSL[nx.id]||RSA[nx.id]):null;
   if(vsEl&&nxr){
     vsEl.innerHTML="<span style='font-size:1.6em;font-weight:700;color:#fff'>"+nxr.s1+" &#8211; "+nxr.s2+"</span>";
   } else if(vsEl){
