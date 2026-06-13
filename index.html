@@ -1017,8 +1017,8 @@ var FXST={};    // fixtureId -> "LIVE" while in play per the API
 var FXSTAT={};  // fixtureId -> POSTPONED | CANCELLED from the API
 var FXREF={};   // fixtureId -> referee name from the API
 var lastSyncAt=0;
-function mergeRS(){RS={};RSL={};FXST={};for(var k in RSA){if(RSM[k])continue;if(RSA[k].st==="LIVE"){RSL[k]=RSA[k];FXST[k]="LIVE";}else{RS[k]=RSA[k];}}for(var k in RSM)RS[k]=RSM[k];}
-function gRes(id){return RS[id]||RSL[id]||null;}
+function mergeRS(){RS={};RSL={};FXST={};var LS={"LIVE":1,"1H":1,"2H":1,"HT":1,"ET":1,"P":1,"BT":1,"PEN":1};for(var k in RSA){if(RSM[k])continue;var st=RSA[k].st;if(st&&LS[st]){RSL[k]=RSA[k];FXST[k]=st;}else{RS[k]=RSA[k];}}for(var k in RSM)RS[k]=RSM[k];}
+function gRes(id){return RS[id]||RSL[id]||RSA[id]||null;}
 
 function toNZ(utc){try{var d=new Date(utc);if(isNaN(d.getTime()))return null;var parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Pacific/Auckland",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(d);var o={};for(var i=0;i<parts.length;i++)o[parts[i].type]=parts[i].value;if(o.hour==="24")o.hour="00";return o.year+"-"+o.month+"-"+o.day+" "+o.hour+":"+o.minute;}catch(e){return null;}}
 function applyTimes(){for(var k in FXTIMES){var nz=toNZ(FXTIMES[k]);if(!nz)continue;var idn=parseInt(k,10);for(var i=0;i<MX.length;i++){if(MX[i][0]===idn){MX[i][4]=nz;break;}}for(var i=0;i<KO.length;i++){if(KO[i][0]===idn){KO[i][4]=nz;break;}}}}
