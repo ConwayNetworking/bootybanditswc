@@ -453,7 +453,7 @@ async function fetchSquads(env, kv, now) {
       if (!name || !team.squad || !team.squad.length) continue;
       squads[name] = team.squad.map((p) => ({
         name: p.name,
-        position: p.position || "Other",
+        position: ({"Defence":"Defender","Midfield":"Midfielder","Offence":"Forward"})[p.position] || p.position || "Other",
         number: p.shirtNumber || null,
         nationalityCode: p.nationality ? p.nationality.substring(0, 2).toLowerCase() : null,
       }));
