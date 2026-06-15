@@ -2135,9 +2135,9 @@ function rGoldenBoot(){
   var aA=gbSort==='assists'?' sorted':'';
   var gaA=gbSort==='ga'?' sorted':'';
   var h="<table class='st-tbl st-tbl-sort'><thead><tr><th>#</th><th class='l'>Player</th><th class='l'>Team</th>";
-  h+="<th class='"+gA+"' onclick='gbSort="goals";rGoldenBoot()'>G<span class='sort-arrow'>"+(gbSort==='goals'?'\u25BC':'')+"</span></th>";
-  h+="<th class='"+aA+"' onclick='gbSort="assists";rGoldenBoot()'>A<span class='sort-arrow'>"+(gbSort==='assists'?'\u25BC':'')+"</span></th>";
-  h+="<th class='"+gaA+"' onclick='gbSort="ga";rGoldenBoot()'>G+A<span class='sort-arrow'>"+(gbSort==='ga'?'\u25BC':'')+"</span></th>";
+  h+="<th class='"+gA+"' onclick='gbSortBy(0)'>G<span class='sort-arrow'>"+(gbSort==='goals'?'\u25BC':'')+"</span></th>";
+  h+="<th class='"+aA+"' onclick='gbSortBy(1)'>A<span class='sort-arrow'>"+(gbSort==='assists'?'\u25BC':'')+"</span></th>";
+  h+="<th class='"+gaA+"' onclick='gbSortBy(2)'>G+A<span class='sort-arrow'>"+(gbSort==='ga'?'\u25BC':'')+"</span></th>";
   h+="<th>MP</th></tr></thead><tbody>";
   for(var i=0;i<sorted.length;i++){var sc=sorted[i];
     var rc=i===0?"gold":i===1?"silver":i===2?"bronze":"";
