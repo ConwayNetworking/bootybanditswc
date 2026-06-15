@@ -1876,21 +1876,22 @@ function calcBadges(mgrName){
     }
     if(maxStreak>=3)earned.push("dynasty");
   }
-  var counts={};for(var ei=0;ei<earned.length;ei++){counts[earned[ei]]=(counts[earned[ei]]||0)+1;}var unique=[];var seen2={};for(var ei=0;ei<earned.length;ei++){if(!seen2[earned[ei]]){seen2[earned[ei]]=1;unique.push({id:earned[ei],count:counts[earned[ei]]});}}
-  /* Brazil'd: win a match 7-1 */
+    /* Brazil'd: win a match 7-1 */
   for(var ti9=0;ti9<teams.length;ti9++){var tn9=teams[ti9];
     for(var mi9=0;mi9<MX.length;mi9++){var mx9=MX[mi9];var r9=gRes(mx9[0]);if(!r9)continue;
       var isH9=mx9[2]===tn9,isA9=mx9[3]===tn9;if(!isH9&&!isA9)continue;
       var gf9=isH9?r9.s1:r9.s2,ga9=isH9?r9.s2:r9.s1;
-      if(gf9===7&&ga9===1)earned.push({id:"brazild",count:1});
+      if(gf9===7&&ga9===1)earned.push("brazild");
     }
     for(var ki9=0;ki9<KO.length;ki9++){var k9=KO[ki9];var r9k=gRes(k9[0]);if(!r9k)continue;
       var tk9=gKM(k9[0]);if(!tk9||!tk9[0]||!tk9[1])continue;
       var isHk9=tk9[0]===tn9,isAk9=tk9[1]===tn9;if(!isHk9&&!isAk9)continue;
       var gf9k=isHk9?r9k.s1:r9k.s2,ga9k=isHk9?r9k.s2:r9k.s1;
-      if(gf9k===7&&ga9k===1)earned.push({id:"brazild",count:1});
+      if(gf9k===7&&ga9k===1)earned.push("brazild");
     }
   }
+
+  var counts={};for(var ei=0;ei<earned.length;ei++){counts[earned[ei]]=(counts[earned[ei]]||0)+1;}var unique=[];var seen2={};for(var ei=0;ei<earned.length;ei++){if(!seen2[earned[ei]]){seen2[earned[ei]]=1;unique.push({id:earned[ei],count:counts[earned[ei]]});}}
   return unique;
 }
 
@@ -2613,7 +2614,8 @@ loadLeagueData(function(){rAll();setTimeout(function(){if(autoSy)doSync();},2000
 /* Global tap-outside-to-close for badges and match centre panels */
 function closeTapped(e){
   if(e.target.closest&&e.target.closest('.bdg-card'))return;
-    var pcTip=document.getElementById('pcTip');if(pcTip&&!(e.target.closest&&e.target.closest('#pcChart')))pcTip.style.display='none';
+  if(e.target.closest&&e.target.closest('.mc-wrap'))return;
+  var pcTip=document.getElementById('pcTip');if(pcTip&&!(e.target.closest&&e.target.closest('#pcChart')))pcTip.style.display='none';
   document.querySelectorAll('.bdg-card.tapped').forEach(function(c){c.classList.remove('tapped');});
   document.querySelectorAll('.mc-hover-panel.tapped').forEach(function(p){p.classList.remove('tapped');});
 }
