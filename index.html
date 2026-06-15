@@ -339,9 +339,9 @@ body.light .mc-search{background:#fff;color:#1c1e26;border-color:#a7f3d0}
 /* === Match Hover Panel === */
 .mc-wrap{margin-bottom:3px}
 .mc-hover-panel{max-height:0;opacity:0;overflow:hidden;padding:0 16px;max-width:360px;margin:0 auto;background:rgba(17,25,22,.95);border:1px solid transparent;border-radius:8px;transform:translateY(-6px);transition:max-height .32s ease,opacity .24s ease,transform .24s ease,padding .32s ease,border-color .24s ease,margin .32s ease}
-.mc-wrap:hover .mc-hover-panel,.mc-hover-panel.tapped{max-height:320px;opacity:1;padding:8px 16px 10px;margin-bottom:6px;border-color:rgba(16,185,129,.15);transform:translateY(0)}
+.mc-hover-panel.tapped{max-height:320px;opacity:1;padding:8px 16px 10px;margin-bottom:6px;border-color:rgba(16,185,129,.15);transform:translateY(0)}
 body.light .mc-hover-panel{background:rgba(255,255,255,.97)}
-body.light .mc-wrap:hover .mc-hover-panel,body.light .mc-hover-panel.tapped{border-color:#a7f3d0}
+body.light .mc-hover-panel.tapped{border-color:#a7f3d0}
 body.light .mc-hover-panel div{color:#444!important}
 body.light .mc-hover-panel span{color:#666!important}
 @media(prefers-reduced-motion:reduce){.mc-hover-panel{transition:none}}
@@ -374,7 +374,7 @@ body.light .bdg-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
 body.light .bdg-name{color:#555}
 .bdg-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1a1d26;color:#ddd;border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:8px 12px;font-size:.7em;width:180px;text-align:center;z-index:50;line-height:1.4;pointer-events:none}
 body.light .bdg-tip{background:#fff;color:#333;border-color:#a7f3d0;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-.bdg-card:hover .bdg-tip{display:block}
+/* .bdg-card:hover .bdg-tip removed - click only */
 .bdg-card.tapped .bdg-tip{display:block!important;pointer-events:auto}
 .bdg-mgr-section{margin-bottom:20px;padding:14px;border-radius:10px;background:rgba(24,26,32,.4);border:1px solid rgba(255,255,255,.03)}
 body.light .bdg-mgr-section{background:#fafbff;border-color:#e8eef8}
@@ -469,11 +469,10 @@ body.light .tp-bar{background:rgba(0,0,0,.06)}
 .tp-bar-txt{font-size:.6em;color:#888;text-align:center;margin-top:3px;letter-spacing:.5px}
 
 /* === Mobile tap support === */
-@media(max-width:768px){.mc-wrap:hover .mc-hover-panel{max-height:0;opacity:0;padding:0 16px;margin-bottom:0;border-color:transparent;transform:translateY(-6px)}.mc-hover-panel.tapped{max-height:320px;opacity:1;padding:8px 16px 10px;margin-bottom:6px;border-color:rgba(16,185,129,.15);transform:translateY(0)}body.light .mc-hover-panel.tapped{border-color:#a7f3d0}}
-.mc-info-btn{display:none;cursor:pointer;font-size:.9em;position:absolute;top:6px;right:8px;z-index:5;opacity:.7;transition:opacity .2s}
+
+.mc-info-btn{display:inline-block;cursor:pointer;font-size:.9em;position:absolute;top:6px;right:8px;z-index:5;opacity:.7;transition:opacity .2s}
 .mc-info-btn:hover,.mc-info-btn:active{opacity:1}
 .mc-wrap{position:relative}
-@media(max-width:768px){.mc-info-btn{display:inline-block}}
 
 
 
@@ -936,7 +935,7 @@ body.light .pc-tip-match{color:#555}
 </div>
 <div class="cd" style="border:1px solid rgba(16,185,129,.2);margin-top:12px">
 <h2 style="color:#10b981">📊 Tournament Stats</h2>
-<div class="st-tabs"><div class="st-tab on" onclick="stSw(0)" id="stT0">Goals Scored</div><div class="st-tab" onclick="stSw(1)" id="stT1">Clean Sheets</div><div class="st-tab" onclick="stSw(2)" id="stT2">Manager Stats</div><div class="st-tab" onclick="stSw(3)" id="stT3">⚡ Power Rankings</div></div>
+<div class="st-tabs"><div class="st-tab on" onclick="stSw(0)" id="stT0">Goals Scored</div><div class="st-tab" onclick="stSw(1)" id="stT1">Clean Sheets</div><div class="st-tab" onclick="stSw(2)" id="stT2">Manager Stats</div><div class="st-tab" onclick="stSw(3)" id="stT3">⚡ Power Rankings</div><div class="st-tab" onclick="stSw(4)" id="stT4">⚽ Golden Boot</div></div>
 <div id="etStats"></div>
 </div>
 <div class="cd" style="border:1px solid rgba(245,158,11,.2);margin-top:12px">
@@ -1126,6 +1125,7 @@ var FXST={};    // fixtureId -> "LIVE" while in play per the API
 var FXSTAT={};  // fixtureId -> POSTPONED | CANCELLED from the API
 var FXREF={};   // fixtureId -> referee name from the API
 var SQUADS={};   // teamName -> [{name,position,number}] from API
+var SCORERS=[];  // [{name,team,goals,assists,penalties,matchesPlayed}] from API
 var lastSyncAt=0;
 function mergeRS(){RS={};RSL={};FXST={};var LS={"LIVE":1,"1H":1,"2H":1,"HT":1,"ET":1,"P":1,"BT":1,"PEN":1};for(var k in RSA){if(RSM[k])continue;var st=RSA[k].st;if(st&&LS[st]){RSL[k]=RSA[k];FXST[k]=st;}else{RS[k]=RSA[k];}}for(var k in RSM)RS[k]=RSM[k];}
 function gRes(id){return RS[id]||RSL[id]||RSA[id]||null;}
@@ -1854,7 +1854,7 @@ cont.innerHTML=h;
 
 
 
-function stSw(n){for(var i=0;i<4;i++){var p=document.getElementById("stP"+i);var t=document.getElementById("stT"+i);if(p)p.style.display=i===n?"block":"none";if(t)t.className=i===n?"st-tab on":"st-tab";}}
+function stSw(n){for(var i=0;i<5;i++){var p=document.getElementById("stP"+i);var t=document.getElementById("stT"+i);if(p)p.style.display=i===n?"block":"none";if(t)t.className=i===n?"st-tab on":"st-tab";}}
 
 function rPosChart(){
   var cc=document.getElementById("pcChart");var lc=document.getElementById("pcLegend");
@@ -1906,7 +1906,7 @@ function rPosChart(){
     snapshots.push({label:ms.label,pos:positions});
   }
   /* Draw SVG bump chart */
-  var cols=["#10b981","#f59e0b","#6366f1","#4caf50","#ff9800","#f44336","#ffeb3b","#00bcd4","#e91e63","#8bc34a","#9c27b0","#ff5722"];
+  var cols=["#10b981","#f59e0b","#6366f1","#ef4444","#06b6d4","#a855f7","#ec4899","#14b8a6","#f97316","#84cc16","#3b82f6","#e11d48"];
   var W=800,padL=40,padR=90,padT=30,padB=40;
   var chartW=W-padL-padR;var N=names.length;var H=Math.max(250,N*32+padT+padB);var chartH=H-padT-padB;
   var stepX=snapshots.length>1?chartW/(snapshots.length-1):0;
@@ -1992,16 +1992,20 @@ function rPosChart(){
     tip.style.display='block';
     /* Position tooltip near the dot */
     var cx=parseFloat(dot.getAttribute('cx')),cy=parseFloat(dot.getAttribute('cy'));
-    var ccRect=cc.getBoundingClientRect();
     var svgEl=cc.querySelector('svg');
-    var svgRect=svgEl?svgEl.getBoundingClientRect():{left:ccRect.left,top:ccRect.top,width:ccRect.width};
-    var scaleX=svgRect.width/(parseFloat(svgEl.getAttribute('width'))||svgRect.width);
-    var scaleY=(svgRect.height||ccRect.height)/(parseFloat(svgEl.getAttribute('height'))||(svgRect.height||1));
-    var dotScreenX=(cx*scaleX)+(svgRect.left-ccRect.left);
-    var dotScreenY=(cy*scaleY)+(svgRect.top-ccRect.top);
-    var tLeft=dotScreenX+12;
-    var tTop=dotScreenY-20;
-    if(tLeft+220>ccRect.width)tLeft=dotScreenX-230;
+    if(!svgEl){tip.style.display='none';return;}
+    var svgRect=svgEl.getBoundingClientRect();
+    var vb=(svgEl.getAttribute('viewBox')||'').split(/\s+/);
+    var vbW=vb.length>=4?parseFloat(vb[2]):svgRect.width;
+    var vbH=vb.length>=4?parseFloat(vb[3]):svgRect.height;
+    var scaleX=svgRect.width/vbW;
+    var scaleY=svgRect.height/vbH;
+    var ccRect=cc.getBoundingClientRect();
+    var dotX=(cx*scaleX)+(svgRect.left-ccRect.left);
+    var dotY=(cy*scaleY)+(svgRect.top-ccRect.top);
+    var tLeft=dotX+14;
+    var tTop=dotY-20;
+    if(tLeft+220>ccRect.width)tLeft=dotX-230;
     if(tLeft<0)tLeft=4;
     if(tTop<0)tTop=4;
     tip.style.left=tLeft+'px';
@@ -2075,6 +2079,19 @@ function rStats(){
   var diff=pr.sqRank-pr.frkPos;var trend=diff>0?"<span style='color:#4caf50'>&#9650; "+diff+"</span>":diff<0?"<span style='color:#f44336'>&#9660; "+Math.abs(diff)+"</span>":"<span style='color:#888'>&#8212;</span>";
   sh+="<tr><td>"+(pi2+1)+"</td><td class='l'>"+pr.nm+"</td><td><b>"+pr.pts+"</b></td><td>"+pr.sqStr+"</td><td><b>"+pr.pw.toFixed(1)+"</b></td><td>"+trend+"</td></tr>";}
   sh+="</tbody></table><p style='font-size:.65em;color:#666;margin-top:8px'>Rating = Fantasy Pts + (Squad Strength &times; 0.3). Squad = sum of (86 - FIFA rank) per team. Trend: &#9650; outperforming squad, &#9660; underperforming.</p></div>";
+  /* Golden Boot */
+  sh+="<div id='stP4' style='display:none'>";
+  if(SCORERS&&SCORERS.length>0){
+    sh+="<table class='st-tbl'><thead><tr><th>#</th><th class='l'>Player</th><th class='l'>Team</th><th>Goals</th><th>Assists</th><th>P</th></tr></thead><tbody>";
+    for(var sci=0;sci<SCORERS.length;sci++){var sc=SCORERS[sci];
+      var rc=sci===0?"gold":sci===1?"silver":sci===2?"bronze":"";
+      sh+="<tr><td class='st-rank "+rc+"'>"+(sci+1)+"</td><td class='l'><b>"+sc.name+"</b></td><td class='l'>"+fi(sc.team,14)+" "+sc.team+"</td><td><b>"+sc.goals+"</b></td><td>"+sc.assists+"</td><td>"+sc.matchesPlayed+"</td></tr>";
+    }
+    sh+="</tbody></table>";
+  }else{
+    sh+="<div style='text-align:center;color:#888;padding:20px;font-style:italic'>Scorers data not yet available &mdash; will appear once goals are scored &#9917;</div>";
+  }
+  sh+="</div>";
   stC.innerHTML=sh;
 }
 
@@ -2267,6 +2284,7 @@ function rMT(){var c=document.getElementById("myC");if(!curU||!MGR[curU]){c.inne
       for(var sp=0;sp<sqPlayers.length;sp++){
         var pl=sqPlayers[sp];
         var ppos=pl.position||"Unknown";
+        if(ppos==="Defence")ppos="Defender";else if(ppos==="Midfield")ppos="Midfielder";else if(ppos==="Offence"||ppos==="Offense")ppos="Forward";
         if(!grouped[ppos])grouped[ppos]=[];
         grouped[ppos].push(pl);
       }
@@ -2306,6 +2324,7 @@ function loadLeagueData(cb){
     if(data.statuses)FXSTAT=data.statuses;else FXSTAT={};
     if(data.refs)FXREF=data.refs;else FXREF={};
     if(data.squads)SQUADS=data.squads;
+    if(data.scorers)SCORERS=data.scorers;
     if(data.syncedAt)lastSyncAt=data.syncedAt;
     applyTimes();mergeRS();
     if(data.theme){curTh=data.theme;}else{curTh=(window.matchMedia&&window.matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light";}
@@ -2406,6 +2425,7 @@ function doSync(){
     if(data.statuses)FXSTAT=data.statuses;else FXSTAT={};
     if(data.refs)FXREF=data.refs;else FXREF={};
     if(data.squads)SQUADS=data.squads;
+    if(data.scorers)SCORERS=data.scorers;
     if(data.syncedAt)lastSyncAt=data.syncedAt;
     applyTimes();mergeRS();
     if(cnt>0)rAll();
