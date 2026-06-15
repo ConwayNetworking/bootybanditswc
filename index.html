@@ -641,6 +641,12 @@ body.light .stat-card-hdr{color:#1c1e26}
 .sort-arrow{font-size:.7em;margin-left:2px;opacity:.7}
 /* === Position Chart dual-mode tooltip === */
 @media(hover:hover)and(pointer:fine){.pc-dot{transition:r .15s ease}}
+
+/* === Form dot <-> History highlight === */
+.form-dot{cursor:pointer;transition:transform .15s ease}
+.form-dot:hover{transform:scale(1.6)}
+.hi.form-hl{background:rgba(16,185,129,.15)!important;border-color:rgba(16,185,129,.5)!important;box-shadow:0 0 12px rgba(16,185,129,.2);transition:all .2s ease}
+body.light .hi.form-hl{background:rgba(16,185,129,.08)!important;border-color:rgba(16,185,129,.4)!important}
 </style>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV0MyMDI2IEZhbnRhc3kgTGVhZ3VlIiwic2hvcnRfbmFtZSI6IldDMjAyNiIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzExMTMxOCIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSJ9">
 <meta name="theme-color" content="#10b981">
@@ -963,6 +969,7 @@ body.light .stat-card-hdr{color:#1c1e26}
 <div class="stat-card-hdr" style="color:#f59e0b">📅 Season Diary</div>
 <div class="stat-card-sub">Matchday-by-matchday journal — tap any day to see full standings snapshot</div>
 <div id="shWrap"></div>
+</div>
 </div>
 </div>
 
@@ -1483,8 +1490,8 @@ var nxList=[];var nxIdx=0;
 function rCD(){
   var bar=document.getElementById("nxBar");if(!bar)return;
   var allM=[];
-  for(var i=0;i<MX.length;i++){if(!RS[MX[i][0]]||isMatchLive(MX[i][4],MX[i][0]))allM.push({id:MX[i][0],t1:MX[i][2],t2:MX[i][3],dt:MX[i][4],grp:MX[i][1]});}
-  for(var i=0;i<KO.length;i++){if(!RS[KO[i][0]]||isMatchLive(KO[i][4],KO[i][0])){var t=gKM(KO[i][0]);allM.push({id:KO[i][0],t1:t?t[0]:null,t2:t?t[1]:null,dt:KO[i][4],grp:KO[i][1],s1l:KO[i][2],s2l:KO[i][3]});}}
+  for(var i=0;i<MX.length;i++){var _kd=new Date(MX[i][4].replace(" ","T")+":00");if((!RS[MX[i][0]]&&(Date.now()-_kd.getTime())<12000000)||isMatchLive(MX[i][4],MX[i][0]))allM.push({id:MX[i][0],t1:MX[i][2],t2:MX[i][3],dt:MX[i][4],grp:MX[i][1]});}
+  for(var i=0;i<KO.length;i++){var _kk=KO[i][4]?new Date(KO[i][4].replace(" ","T")+":00"):null;if((!RS[KO[i][0]]&&(!_kk||(Date.now()-_kk.getTime())<12000000))||isMatchLive(KO[i][4],KO[i][0])){var t=gKM(KO[i][0]);allM.push({id:KO[i][0],t1:t?t[0]:null,t2:t?t[1]:null,dt:KO[i][4],grp:KO[i][1],s1l:KO[i][2],s2l:KO[i][3]});}}
   if(allM.length===0){bar.style.display="none";return;}
   allM.sort(function(a,b){return a.dt<b.dt?-1:1;});
   nxList=allM.slice(0,5);
@@ -2610,23 +2617,4 @@ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();def
 function pwaInstall(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(function(){deferredPrompt=null;var bar=document.getElementById('pwaBar');if(bar)bar.style.display='none';});}}
 window.addEventListener('appinstalled',function(){var bar=document.getElementById('pwaBar');if(bar)bar.style.display='none';});
 </script>
-</body></html
-  /* Fantasy Champion: first in league standings when all group games done */
-  try{
-    var fanArr=cFan();
-    if(fanArr.length>0&&fanArr[0][0]===mgrName){
-      var allDone=true;for(var mi2=0;mi2<MX.length;mi2++){if(!gRes(MX[mi2][0])){allDone=false;break;}}
-      if(allDone)earned.push({id:"fantasy_champ",count:1});
-    }
-  }catch(e){}
-  /* World Cup Winner: one of your teams wins the Final (match 104) */
-  var finalR=gRes(104);
-  if(finalR){
-    var fTeams=gKM(104);
-    if(fTeams&&fTeams[0]&&fTeams[1]){
-      var fWinner=finalR.s1>finalR.s2?fTeams[0]:finalR.s2>finalR.s1?fTeams[1]:null;
-      if(!fWinner&&finalR.p1!=null&&finalR.p2!=null)fWinner=finalR.p1>finalR.p2?fTeams[0]:fTeams[1];
-      if(fWinner){for(var tw=0;tw<teams.length;tw++){if(teams[tw]===fWinner){earned.push({id:"wc_winner",count:1});break;}}}
-    }
-  }
-  >
+</body></html>
