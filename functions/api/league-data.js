@@ -7,31 +7,37 @@
  *
  * KV key schema:
  *   global:auto          → { results, times, syncedAt }   (written by /api/matches)
+ *   global:live_feed     → live match event timeline
  *   league:<id>:results  → { [matchId]: { s1, s2 } }      (admin manual overrides only)
  *   league:<id>:autosync → "true"|"false"
  *   global:theme         → "dark"|"light"
- *
- * Scores now sync automatically server-side: /api/matches maps the live
- * football-data.org feed onto fixture IDs and stores them in global:auto,
- * shared by all three leagues. The per-league results key only holds manual
- * admin overrides, which win over the auto feed when both exist.
  */
+import { applyFeedToResults } from "../lib/apply-feed-results.js";
+
 const ALLOWED = ["work", "boys", "family"];
 const PROTECTED = ["results"];
+const KV_LIVE_FEED = "global:live_feed";
+const STALE_MS = 60 * 1000;
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
   const league = url.searchParams.get("league");
   if (!league || !ALLOWED.includes(league)) return err("Invalid league", 400);
   const kv = env.WC_LEAGUE;
-  const [manualRaw, autoRaw, autosync, theme] = await Promise.all([
+  const now = Date.now();
+  const [manualRaw, autoRaw, feedRaw, autosync, theme] = await Promise.all([
     kv.get(`league:${league}:results`),
     kv.get("global:auto"),
+    kv.get(KV_LIVE_FEED),
     kv.get(`league:${league}:autosync`),
     kv.get("global:theme"),
   ]);
   const auto = safeParse(autoRaw) || {};
-  const autoResults = auto.results || {};
+  let autoResults = auto.results || {};
+  const liveFeed = safeParse(feedRaw);
+  const feed = Array.isArray(liveFeed) ? liveFeed : [];
+  if (feed.length) autoResults = applyFeedToResults(autoResults, feed);
+
   let manual = safeParse(manualRaw) || {};
 
   /* Drop manual entries identical to the auto feed (incl. legacy data saved
@@ -45,6 +51,9 @@ export async function onRequestGet({ request, env }) {
   }
   manual = pruned;
 
+  const syncedAt = auto.syncedAt || 0;
+  const dataAge = syncedAt ? now - syncedAt : null;
+
   return ok({
     results: { ...autoResults, ...manual },
     manual,
@@ -52,7 +61,11 @@ export async function onRequestGet({ request, env }) {
     times: auto.times || {},
     statuses: auto.statuses || {},
     refs: auto.refs || {},
-    syncedAt: auto.syncedAt || 0,
+    venues: auto.venues || {},
+    matchGoals: auto.matchGoals || {},
+    liveFeed: feed,
+    syncedAt,
+    stale: dataAge != null && dataAge > STALE_MS,
     autosync: autosync !== null ? autosync === "true" : true,
     theme: theme || "dark",
   });
@@ -84,5 +97,5 @@ function safeParse(raw) {
   if (!raw) return null;
   try { return JSON.parse(raw); } catch { return null; }
 }
-function ok(data)      { return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }); }
+function ok(data)      { return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" } }); }
 function err(msg, s=400) { return new Response(JSON.stringify({ error: msg }), { status: s, headers: { "Content-Type": "application/json" } }); }
