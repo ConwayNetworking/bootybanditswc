@@ -1009,6 +1009,17 @@ body.light .mcm-date-chip.on{box-shadow:0 3px 10px rgba(5,150,105,.22)}
 .ptr-indicator.spin{animation:ptrSpin .85s linear infinite}
 @keyframes ptrSpin{from{transform:translateX(-50%) translateY(0) rotate(0deg)}to{transform:translateX(-50%) translateY(0) rotate(360deg)}}
 body{padding-bottom:env(safe-area-inset-bottom)}
+
+/* === Fix: live feed should collapse to 0 on mobile when not open (override broken 220px rule) === */
+@media(max-width:900px){
+  .lv-feed-panel{max-height:0}
+  .nx-wrap.open .lv-feed-panel{max-height:220px}
+}
+/* === Fix: prevent scroll-snap from causing visible date cycling when clicking chips === */
+@media(max-width:900px){
+  .mcm-date-nav{scroll-snap-type:none!important}
+  .mcm-date-chip{scroll-snap-align:none!important}
+}
 </style>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV0MyMDI2IEZhbnRhc3kgTGVhZ3VlIiwic2hvcnRfbmFtZSI6IldDMjAyNiIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzExMTMxOCIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSJ9">
 <meta name="theme-color" content="#10b981">
@@ -3506,18 +3517,19 @@ function rMCMobile(){
   h+='</div>';
   wrap.innerHTML=h;
   mcmSlideDir=null;
-  setTimeout(function(){
-    var nav=document.getElementById("mcmDateNav");
-    if(!nav)return;
+  /* Scroll the active chip into view SYNCHRONOUSLY before paint to eliminate flicker.
+     No setTimeout, no smooth behaviour (which combined with scroll-snap was causing the
+     cycling through dates effect when clicking a chip). */
+  var nav=document.getElementById("mcmDateNav");
+  if(nav){
     var activeChip=nav.querySelector(".mcm-date-chip.on");
-    if(!activeChip)return;
-    var chipCenter=activeChip.offsetLeft+activeChip.offsetWidth/2;
-    var targetScroll=Math.max(0,chipCenter-nav.clientWidth/2);
-    var dateChanged=(mcmLastScrolledDate!==mcmActiveDate);
-    var beh=dateChanged?"smooth":"auto";
-    try{nav.scrollTo({left:targetScroll,behavior:beh});}catch(e){nav.scrollLeft=targetScroll;}
-    mcmLastScrolledDate=mcmActiveDate;
-  },10);
+    if(activeChip){
+      var chipCenter=activeChip.offsetLeft+activeChip.offsetWidth/2;
+      var targetScroll=Math.max(0,chipCenter-nav.clientWidth/2);
+      nav.scrollLeft=targetScroll;
+    }
+  }
+  mcmLastScrolledDate=mcmActiveDate;
   var dayContent=document.getElementById("mcmDayContent");
   if(dayContent&&!dayContent._mcmSwipeBound){
     dayContent._mcmSwipeBound=true;
