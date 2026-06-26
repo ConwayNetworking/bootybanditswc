@@ -1020,6 +1020,10 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   .mcm-date-nav{scroll-snap-type:none!important}
   .mcm-date-chip{scroll-snap-align:none!important}
 }
+
+/* Live indicator column in Fantasy League Table */
+.fl-live-cell{text-align:center;padding:6px 4px!important;width:18px;min-width:18px}
+.fl-live-cell .live-mgr-dot{margin-left:0;width:12px;height:12px}
 </style>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV0MyMDI2IEZhbnRhc3kgTGVhZ3VlIiwic2hvcnRfbmFtZSI6IldDMjAyNiIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzExMTMxOCIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSJ9">
 <meta name="theme-color" content="#10b981">
@@ -1273,7 +1277,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 <div class="fly"><div class="fll">
 <div class="cd" style="border:1px solid rgba(99,102,241,.3)">
 <h2 style="color:#6366f1">🏆 Fantasy League Table <span id="liveStBadge" style="display:none;font-size:.45em;vertical-align:middle;margin-left:6px;padding:2px 7px;border-radius:4px;background:rgba(255,68,68,.15);color:#ff4444;font-weight:700">LIVE PTS</span></h2>
-<table><thead><tr><th>#</th><th class="l">Manager</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th></tr></thead>
+<table><thead><tr><th>#</th><th class="l">Manager</th><th style="width:18px"></th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Form</th></tr></thead>
 <tbody id="flB"></tbody></table></div>
 </div><div class="flr"><div class="cd hs">
 <h2>📜 History <span class="hc" id="hCnt">(0)</span></h2>
@@ -3357,7 +3361,7 @@ function rFL(){
     tr.style.cursor="pointer";
     tr.setAttribute("onclick","tglExp('"+nm+"')");
     if(nm===curU)tr.className="my-row";
-    tr.innerHTML="<td>"+(i+1)+"</td><td class='l'><div class='mn'>"+nm+(getMgrLiveTeams(nm).length>0?"<span class='live-mgr-dot "+getMgrLiveStatus(nm)+"' title='LIVE: "+getMgrLiveTeams(nm).join(", ")+"'></span>":"")+calcStreak(nm)+" <button class='exp-btn' id='ebtn_"+nm+"'>&#9660;</button></div><div class='mf'>"+fl+"</div></td><td>"+s.p+"</td><td>"+s.w+"</td><td>"+s.d+"</td><td>"+s.l+"</td><td>"+s.gf+"</td><td>"+s.ga+"</td><td class='"+gc+"'>"+gs+"</td><td class='pc'>"+s.pts+"</td><td>"+formDots(nm)+"</td>";
+    tr.innerHTML="<td>"+(i+1)+"</td><td class='l'><div class='mn'>"+nm+calcStreak(nm)+" <button class='exp-btn' id='ebtn_"+nm+"'>&#9660;</button></div><div class='mf'>"+fl+"</div></td><td class='fl-live-cell'>"+(getMgrLiveTeams(nm).length>0?"<span class='live-mgr-dot "+getMgrLiveStatus(nm)+"' title='LIVE: "+getMgrLiveTeams(nm).join(", ")+"'></span>":"")+"</td><td>"+s.p+"</td><td>"+s.w+"</td><td>"+s.d+"</td><td>"+s.l+"</td><td>"+s.gf+"</td><td>"+s.ga+"</td><td class='"+gc+"'>"+gs+"</td><td class='pc'>"+s.pts+"</td><td>"+formDots(nm)+"</td>";
     tb.appendChild(tr);
     var er=document.createElement("tr");
     er.className="exp-row";er.id="exp_"+nm;
@@ -3372,7 +3376,7 @@ function rFL(){
       tdata.push({name:tn,grp:g,pos:pos,s:cs,done:gd.done});
     }
     tdata.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});
-    var inner="<td colspan='11'><div class='exp-inner'><table class='exp-tbl'><thead><tr><th>#</th><th class='l'>Country</th><th>Grp</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>";
+    var inner="<td colspan='12'><div class='exp-inner'><table class='exp-tbl'><thead><tr><th>#</th><th class='l'>Country</th><th>Grp</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>";
     for(var j=0;j<tdata.length;j++){
       var td=tdata[j];var cs=td.s;
       var rc="";if(td.pos<=1)rc="grp-1";else if(td.pos===2)rc="grp-3";else if(td.pos>=3)rc="grp-4";
