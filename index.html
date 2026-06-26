@@ -980,6 +980,17 @@ body.light .mfm-meta-val{color:#1c1e26}
   .mcm-mx-mgr.l{text-align:left}
   .mcm-mx-mgr-spacer{min-width:60px}
 }
+
+.mcm-today-btn{display:inline-flex;align-items:center;gap:5px;font-family:inherit;font-size:.62em;font-weight:700;color:#10b981;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);padding:5px 11px;border-radius:10px;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.mcm-today-btn:hover{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.5)}
+body.light .mcm-today-btn{color:#059669;background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.3)}
+body.light .mcm-today-btn:hover{background:rgba(5,150,105,.15)}
+.mcm-date-chip .mcm-dc-dow.special{font-size:.6em;letter-spacing:.7px;font-weight:800}
+.mcm-date-chip{transition:background .15s,border-color .15s,color .15s}
+.bk-m{cursor:pointer}
+.bk-m input,.bk-m button{cursor:auto}
+.bk-m:hover{background:rgba(16,185,129,.06)!important;border-color:rgba(16,185,129,.2)!important}
+body.light .bk-m:hover{background:rgba(16,185,129,.04)!important;border-color:rgba(16,185,129,.2)!important}
 </style>
 <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV0MyMDI2IEZhbnRhc3kgTGVhZ3VlIiwic2hvcnRfbmFtZSI6IldDMjAyNiIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzExMTMxOCIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSJ9">
 <meta name="theme-color" content="#10b981">
@@ -1216,7 +1227,7 @@ body.light .mfm-meta-val{color:#1c1e26}
 <div class="nx-arrow" id="nxNext" onclick="nxNav(1)">▶</div>
 </div>
 </div>
-<button type="button" class="lv-feed-toggle" id="lvFeedToggle" style="display:none" onclick="toggleLiveFeed()" aria-expanded="false" aria-controls="lvFeedPanel">
+<button type="button" class="lv-feed-toggle" id="lvFeedToggle" style="display:none" onclick="toggleLiveFeed(event)" aria-expanded="false" aria-controls="lvFeedPanel">
 <span class="lv-feed-toggle-l"><span class="live-dot"></span> Live Feed <span class="lv-feed-badge" id="lvFeedBadge">0</span></span>
 <span class="lv-feed-chev" aria-hidden="true">&#9660;</span>
 </button>
@@ -3395,14 +3406,24 @@ function rMCMobile(){
   var dnUp=["SUN","MON","TUE","WED","THU","FRI","SAT"];
   var mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function roundLabelForDate(d){var ms=byDate[d];if(!ms||!ms.length)return"";var r=mcRoundLabelForId(ms[0].id);for(var i=1;i<ms.length;i++){var l2=mcRoundLabelForId(ms[i].id);if(l2!==r)return"Multiple Rounds";}return r;}
+  var todayMs=new Date(today+"T00:00:00").getTime();
+  function dayDiff(d){return Math.round((new Date(d+"T00:00:00").getTime()-todayMs)/86400000);}
+  function relLbl(diff,fallback){if(diff===0)return"TODAY";if(diff===-1)return"YESTERDAY";if(diff===1)return"TOMORROW";return fallback;}
   var actDp=new Date(active+"T00:00:00");
+  var actDiff=dayDiff(active);
   var isToday=(active===today);
-  var h='<div class="mcm-round-banner"><div><div class="mcm-round-label">'+(isToday?"Today":"Selected day")+' \u00b7 '+dn[actDp.getDay()]+' '+actDp.getDate()+' '+mn[actDp.getMonth()]+'</div><div class="mcm-round-title">'+(roundLabelForDate(active)||"\u2014")+'</div></div>'+(isToday?'<div class="mcm-today-pill">Today</div>':'')+'</div>';
+  var hasToday=!!byDate[today];
+  var bannerLabel=isToday?"Today":actDiff===-1?"Yesterday":actDiff===1?"Tomorrow":"Selected day";
+  var rightSide=isToday?'<div class="mcm-today-pill">Today</div>':(hasToday?'<button type="button" class="mcm-today-btn" onclick="mcmGoToDate(\''+today+'\')">\u25CE Today</button>':'');
+  var h='<div class="mcm-round-banner"><div><div class="mcm-round-label">'+bannerLabel+' \u00b7 '+dn[actDp.getDay()]+' '+actDp.getDate()+' '+mn[actDp.getMonth()]+'</div><div class="mcm-round-title">'+(roundLabelForDate(active)||"\u2014")+'</div></div>'+rightSide+'</div>';
   h+='<div class="mcm-date-nav" id="mcmDateNav">';
   for(var i=0;i<dates.length;i++){
     var d=dates[i];var dp=new Date(d+"T00:00:00");var cnt=byDate[d].length;
+    var diff=dayDiff(d);
+    var dowLbl=relLbl(diff,dnUp[dp.getDay()]);
+    var dowCls=(diff===0||diff===-1||diff===1)?"mcm-dc-dow special":"mcm-dc-dow";
     var cls="mcm-date-chip";if(d===active)cls+=" on";if(d===today)cls+=" today";
-    h+='<div class="'+cls+'" data-date="'+d+'" onclick="mcmGoToDate(\''+d+'\')"><div class="mcm-dc-dow">'+dnUp[dp.getDay()]+'</div><div class="mcm-dc-dom">'+dp.getDate()+'</div><div class="mcm-dc-cnt">'+cnt+'</div></div>';
+    h+='<div class="'+cls+'" data-date="'+d+'" onclick="mcmGoToDate(\''+d+'\')"><div class="'+dowCls+'">'+dowLbl+'</div><div class="mcm-dc-dom">'+dp.getDate()+'</div><div class="mcm-dc-cnt">'+cnt+'</div></div>';
   }
   h+='</div>';
   var matches=byDate[active].slice();
@@ -3411,7 +3432,7 @@ function rMCMobile(){
   var groupLabels={A:"Group A",B:"Group B",C:"Group C",D:"Group D",E:"Group E",F:"Group F",G:"Group G",H:"Group H",I:"Group I",J:"Group J",K:"Group K",L:"Group L",R32:"Round of 32",R16:"Round of 16",QF:"Quarter-Finals",SF:"Semi-Finals","3RD":"3rd Place Play-off",FIN:"Final"};
   var byGrp={};
   for(var i=0;i<matches.length;i++){var gg=matches[i].grp;if(!byGrp[gg])byGrp[gg]=[];byGrp[gg].push(matches[i]);}
-  h+='<div class="mcm-day-content">';
+  h+='<div class="mcm-day-content" id="mcmDayContent">';
   for(var gi=0;gi<groupOrder.length;gi++){
     var gg=groupOrder[gi];
     if(!byGrp[gg])continue;
@@ -3464,8 +3485,40 @@ function rMCMobile(){
   wrap.innerHTML=h;
   setTimeout(function(){
     var nav=document.getElementById("mcmDateNav");
-    if(nav){var activeChip=nav.querySelector(".mcm-date-chip.on");if(activeChip&&activeChip.scrollIntoView){try{activeChip.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});}catch(e){}}}
+    if(nav){
+      var activeChip=nav.querySelector(".mcm-date-chip.on");
+      if(activeChip&&activeChip.scrollIntoView){
+        try{activeChip.scrollIntoView({behavior:"auto",block:"nearest",inline:"nearest"});}catch(e){}
+      }
+    }
   },20);
+  var dayContent=document.getElementById("mcmDayContent");
+  if(dayContent&&!dayContent._mcmSwipeBound){
+    dayContent._mcmSwipeBound=true;
+    var sx=0,sy=0,st=0,tracking=false;
+    dayContent.addEventListener("touchstart",function(e){
+      var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();tracking=true;
+    },{passive:true});
+    dayContent.addEventListener("touchmove",function(e){
+      if(!tracking)return;
+      var t=e.touches[0];
+      var dx=t.clientX-sx,dy=t.clientY-sy;
+      if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>16)tracking=false;
+    },{passive:true});
+    dayContent.addEventListener("touchend",function(e){
+      if(!tracking)return;
+      tracking=false;
+      var t=e.changedTouches[0];
+      var dx=t.clientX-sx,dy=t.clientY-sy,dt=Date.now()-st;
+      if(dt>700)return;
+      if(Math.abs(dx)<55)return;
+      if(Math.abs(dy)>Math.abs(dx)*0.8)return;
+      var idx=dates.indexOf(mcmActiveDate);
+      if(idx<0)return;
+      if(dx<0&&idx<dates.length-1){mcmGoToDate(dates[idx+1]);}
+      else if(dx>0&&idx>0){mcmGoToDate(dates[idx-1]);}
+    },{passive:true});
+  }
 }
 function mcmGoToDate(d){mcmActiveDate=d;rMCMobile();}
 function mcmUpdateHeader(d){/* superseded by rMCMobile re-render */}
@@ -3560,7 +3613,7 @@ function rMT(){var c=document.getElementById("myC");if(!curU||!MGR[curU]){c.inne
   sqDiv.innerHTML=sqH+sqB;
   c.appendChild(sqDiv);
 }
-function mkBk(k,ex){var t=gKM(k[0]);var t1=t?t[0]:null;var t2=t?t[1]:null;var fr=RS[k[0]];var lr=RSL[k[0]];var r=fr||lr;var t1n=t1||k[2];var t2n=t2||k[3];var t1w="",t2w="";if(fr){var kw=koWin(fr,[t1n,t2n]);if(kw===t1n)t1w=" w";if(kw===t2n)t2w=" w";}var h="<div class='bk-m"+ex+"'><div class='bl'>M"+k[0]+"</div>";h+="<div class='bt"+t1w+"'>"+(t1?fi(t1,12):"")+" "+t1n;if(r)h+=" <b>"+r.s1+(r.p1!=null?" <span style='font-size:.85em;color:#888'>("+r.p1+")</span>":"")+"</b>"+htLbl(r);h+="</div><div class='bt"+t2w+"'>"+(t2?fi(t2,12):"")+" "+t2n;if(r)h+=" <b>"+r.s2+(r.p2!=null?" <span style='font-size:.85em;color:#888'>("+r.p2+")</span>":"")+"</b>";h+="</div>";if(lr)h+="<div style='text-align:center;margin-top:1px'>"+liveBadgeHtml(lr,k[4],k[0])+"</div>";if(!r&&isAdm&&t1&&t2){h+="<div style='display:flex;gap:2px;align-items:center;justify-content:center;margin-top:2px'><input type='number' id='s1_"+k[0]+"' min='0' value='0'>-<input type='number' id='s2_"+k[0]+"' min='0' value='0'><button class='bs bgo' onclick='subR("+k[0]+")'>&#10003;</button></div>";}if(fr&&isAdm)h+="<div style='text-align:center;margin-top:1px'><button class='bs bde' onclick='delR("+k[0]+")'>&#10005;</button></div>";h+="</div>";return h;}
+function mkBk(k,ex){var t=gKM(k[0]);var t1=t?t[0]:null;var t2=t?t[1]:null;var fr=RS[k[0]];var lr=RSL[k[0]];var r=fr||lr;var t1n=t1||k[2];var t2n=t2||k[3];var t1w="",t2w="";if(fr){var kw=koWin(fr,[t1n,t2n]);if(kw===t1n)t1w=" w";if(kw===t2n)t2w=" w";}var h="<div class='bk-m"+ex+"' onclick=\"if(event.target.tagName!=='INPUT'&&event.target.tagName!=='BUTTON')openMatchFeed("+k[0]+")\"><div class='bl'>M"+k[0]+"</div>";h+="<div class='bt"+t1w+"'>"+(t1?fi(t1,12):"")+" "+t1n;if(r)h+=" <b>"+r.s1+(r.p1!=null?" <span style='font-size:.85em;color:#888'>("+r.p1+")</span>":"")+"</b>"+htLbl(r);h+="</div><div class='bt"+t2w+"'>"+(t2?fi(t2,12):"")+" "+t2n;if(r)h+=" <b>"+r.s2+(r.p2!=null?" <span style='font-size:.85em;color:#888'>("+r.p2+")</span>":"")+"</b>";h+="</div>";if(lr)h+="<div style='text-align:center;margin-top:1px'>"+liveBadgeHtml(lr,k[4],k[0])+"</div>";if(!r&&isAdm&&t1&&t2){h+="<div style='display:flex;gap:2px;align-items:center;justify-content:center;margin-top:2px'><input type='number' id='s1_"+k[0]+"' min='0' value='0'>-<input type='number' id='s2_"+k[0]+"' min='0' value='0'><button class='bs bgo' onclick='subR("+k[0]+")'>&#10003;</button></div>";}if(fr&&isAdm)h+="<div style='text-align:center;margin-top:1px'><button class='bs bde' onclick='delR("+k[0]+")'>&#10005;</button></div>";h+="</div>";return h;}
 var bkRoundIdx=0;
 var BK_ROUNDS=[
   {label:"Round of 32",grp:"R32"},
@@ -3848,7 +3901,8 @@ function loadLvFeedOpen(){
 function saveLvFeedOpen(){
   try{sessionStorage.setItem("wc2026_lv_feed_open",lvFeedOpen?"1":"0");}catch(err){}
 }
-function toggleLiveFeed(){
+function toggleLiveFeed(e){
+  if(e&&e.stopPropagation)e.stopPropagation();
   lvFeedOpen=!lvFeedOpen;
   saveLvFeedOpen();
   applyLvFeedOpen();
