@@ -1032,26 +1032,25 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 }
 .btb{display:none}
 @media(max-width:900px){
-  .btb{display:flex;position:fixed;bottom:0;left:0;right:0;height:64px;background:rgba(20,22,30,.97);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom);z-index:200;align-items:stretch}
-  body.light .btb{background:rgba(255,255,255,.97);border-top-color:rgba(0,0,0,.08)}
-  .btb-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:#888;cursor:pointer;padding:8px 4px;font-family:inherit;-webkit-tap-highlight-color:transparent;position:relative;transition:color .15s}
-  .btb-btn.on{color:#10b981}
-  body.light .btb-btn.on{color:#059669}
-  .btb-btn svg{width:24px;height:24px;stroke-width:2;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+  body{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+  .btb{display:flex;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));background:#1c1f29;border:1px solid rgba(255,255,255,.06);border-radius:38px;padding:6px;z-index:200;gap:4px;box-shadow:0 8px 22px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);max-width:calc(100vw - 24px)}
+  body.light .btb{background:#1c1f29;border-color:rgba(255,255,255,.06);box-shadow:0 8px 22px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.08)}
+  .btb-btn{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:#9aa0ac;cursor:pointer;padding:9px 14px;font-family:inherit;-webkit-tap-highlight-color:transparent;position:relative;transition:color .18s ease,background .18s ease;border-radius:32px;min-width:62px}
+  .btb-btn.on{color:#10b981;background:rgba(16,185,129,.16)}
+  .btb-btn svg{width:22px;height:22px;stroke-width:2;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s ease}
   .btb-btn.on svg{transform:scale(1.08)}
   .btb-btn-lbl{font-size:.62em;font-weight:600;letter-spacing:.3px}
-  .btb-btn-badge{position:absolute;top:5px;right:calc(50% - 19px);min-width:8px;height:8px;background:#ff4444;border-radius:50%;animation:liveDot 1.5s ease-in-out infinite;box-shadow:0 0 5px #ff4444}
-  .btb-btn.on::before{content:'';position:absolute;top:0;left:25%;right:25%;height:3px;background:#10b981;border-radius:0 0 3px 3px}
-  body.light .btb-btn.on::before{background:#059669}
+  .btb-btn.on .btb-btn-lbl{font-weight:700}
+  .btb-btn-badge{position:absolute;top:4px;right:8px;width:8px;height:8px;background:#ff4444;border-radius:50%;animation:liveDot 1.5s ease-in-out infinite;box-shadow:0 0 5px #ff4444}
 }
 .sub-tabs{display:none}
 @media(max-width:900px){
-  .sub-tabs{display:flex;gap:6px;padding:10px 12px 8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .sub-tabs::-webkit-scrollbar{display:none}
-  .sub-tab{flex:0 0 auto;padding:8px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;color:#aaa;font-size:.78em;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:all .15s;white-space:nowrap}
-  body.light .sub-tab{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08);color:#666}
-  .sub-tab.on{background:#10b981;border-color:#10b981;color:#fff}
-  body.light .sub-tab.on{background:#059669;border-color:#059669}
+  .sub-tabs{display:flex;gap:4px;padding:5px;background:rgba(255,255,255,.04);border-radius:14px;margin:10px 12px 14px;justify-content:center}
+  body.light .sub-tabs{background:rgba(0,0,0,.04)}
+  .sub-tab{flex:1;padding:9px 8px;background:none;border:none;color:#aaa;font-size:.78em;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:all .2s ease;border-radius:10px;text-align:center;white-space:nowrap}
+  body.light .sub-tab{color:#666}
+  .sub-tab.on{background:#10b981;color:#fff;font-weight:700;box-shadow:0 2px 6px rgba(16,185,129,.3)}
+  body.light .sub-tab.on{background:#059669;box-shadow:0 2px 6px rgba(5,150,105,.25)}
 }
 /* Hero cards on League tab */
 .hero-stack{display:none}
@@ -1387,7 +1386,7 @@ body.light .more-item svg{stroke:#059669}
 <div class="tabs">
 <button class="tb on" id="btn_fantasy" onclick="stab('fantasy')">⚽ Fantasy League</button>
 <button class="tb" id="btn_myteams" onclick="stab('myteams')">🏅 My Teams</button>
-<button class="tb" id="btn_matches" onclick="stab('matches')">📅 Match Centre</button>
+<button class="tb" id="btn_matches" onclick="stab('matches')">📅 Fixtures</button>
 <button class="tb" id="btn_groups" onclick="stab('groups')">🌐 Groups</button>
 <button class="tb" id="btn_knockout" onclick="stab('knockout')">🏆 Knockout</button>
 <button class="tb" id="btn_h2h" onclick="stab('h2h')">⚔️ Head to Head</button>
@@ -1438,8 +1437,8 @@ body.light .more-item svg{stroke:#059669}
 <div class="hl" id="hLst"></div>
 </div></div></div></div>
 <div class="tp" id="tab_myteams"><div id="myC"></div></div>
-<div class="tp" id="tab_matches"><nav class="sub-tabs" id="matchesSubTabs"><button class="sub-tab on" onclick="subTabGo('mc')">Match Centre</button><button class="sub-tab" onclick="subTabGo('groups')">Groups</button><button class="sub-tab" onclick="subTabGo('knockout')">Knockout</button></nav><div class="cd" style="border:1px solid rgba(16,185,129,.3)">
-<h2 style="color:#10b981">📅 Match Centre <span style="font-size:.72em;color:#888">(NZT)</span></h2>
+<div class="tp" id="tab_matches"><nav class="sub-tabs" id="matchesSubTabs"><button class="sub-tab on" onclick="subTabGo('mc')">Fixtures</button><button class="sub-tab" onclick="subTabGo('groups')">Groups</button><button class="sub-tab" onclick="subTabGo('knockout')">Knockout</button></nav><div class="cd" style="border:1px solid rgba(16,185,129,.3)">
+<h2 style="color:#10b981">📅 Fixtures <span style="font-size:.72em;color:#888">(NZT)</span></h2>
 <div class="mcf" id="mcFl"></div><input type="text" class="mc-search" id="mcSearch" placeholder="Search country or manager..." oninput="filterMC()">
 <div id="mcLs"></div><div id="mcLsMobile"></div></div></div>
 <div class="tp" id="tab_groups">
@@ -4840,7 +4839,7 @@ function rFollowCountries(){
   teams.forEach(function(t){
     var isFol=followList.countries.indexOf(t)>=0;
     var mgr=CO[t]?CO[t]:'';
-    h+='<div class="follow-card'+(isFol?' following':'')+'"><img src="'+FC[t]+'" alt=""><div class="follow-card-name">'+t+'</div><div class="follow-card-meta">'+mgr+'</div><button class="follow-card-btn" onclick="toggleFollowCountry(\''+t.replace(/\'/g,"\\\'")+'\')">'+(isFol?'\u2713 Following':'+ Follow')+'</button></div>';
+    h+='<div class="follow-card'+(isFol?' following':'')+'"><img src="https://flagcdn.com/w80/'+FC[t]+'.png" alt=""><div class="follow-card-name">'+t+'</div><div class="follow-card-meta">'+mgr+'</div><button class="follow-card-btn" onclick="toggleFollowCountry(\''+t.replace(/\'/g,"\\\'")+'\')">'+(isFol?'\u2713 Following':'+ Follow')+'</button></div>';
   });
   grid.innerHTML=h;
 }
@@ -4959,7 +4958,7 @@ setTimeout(function(){
 <nav class="btb" id="btb">
   <button class="btb-btn" data-bt="matches" onclick="btbGo('matches')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
-    <span class="btb-btn-lbl">Matches</span>
+    <span class="btb-btn-lbl">Fixtures</span>
   </button>
   <button class="btb-btn" data-bt="league" onclick="btbGo('league')">
     <svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M17 6h3v3a3 3 0 0 1-3 3M7 6H4v3a3 3 0 0 0 3 3"/></svg>
