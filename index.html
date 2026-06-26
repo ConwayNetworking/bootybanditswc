@@ -2360,7 +2360,7 @@ function lckA(){isAdm=false;sessionStorage.removeItem("wc2026_admintoken");appAd
 function tglM(){var m=document.getElementById("mBg");if(m.classList.contains("open"))m.classList.remove("open");else m.classList.add("open");}
 function clsM(e){if(e.target===document.getElementById("mBg"))document.getElementById("mBg").classList.remove("open");}
 function setU(){curU=document.getElementById("uSel").value;sessionStorage.setItem("wc2026_user_"+curLg,curU);rAll();}
-function stab(t){var ids=["fantasy","myteams","matches","groups","knockout","h2h","rankings","badges","poschart","tracker"];for(var i=0;i<ids.length;i++){document.getElementById("tab_"+ids[i]).className=ids[i]===t?"tp on":"tp";document.getElementById("btn_"+ids[i]).className=ids[i]===t?"tb on":"tb";}rAll();}
+function stab(t){var ids=["fantasy","myteams","matches","groups","knockout","h2h","rankings","badges","poschart","tracker","following"];for(var i=0;i<ids.length;i++){document.getElementById("tab_"+ids[i]).className=ids[i]===t?"tp on":"tp";var _btn=document.getElementById("btn_"+ids[i]);if(_btn)_btn.className=ids[i]===t?"tb on":"tb";}rAll();}
 function cGrp(g,confirmed){var teams=GRP[g];var st={};for(var i=0;i<teams.length;i++)st[teams[i]]={p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};var gp=0,gpFt=0;for(var i=0;i<MX.length;i++){var mx=MX[i];if(mx[1]!==g)continue;var r=grpRes(mx[0],confirmed);if(r){gp++;}if(ftRes(mx[0]))gpFt++;if(!r)continue;var t1=mx[2],t2=mx[3],s1=r.s1,s2=r.s2;st[t1].p++;st[t2].p++;st[t1].gf+=s1;st[t1].ga+=s2;st[t2].gf+=s2;st[t2].ga+=s1;if(s1>s2){st[t1].w++;st[t1].pts+=3;st[t2].l++;}else if(s1<s2){st[t2].w++;st[t2].pts+=3;st[t1].l++;}else{st[t1].d++;st[t1].pts+=1;st[t2].d++;st[t2].pts+=1;}}var arr=[];for(var t in st){st[t].gd=st[t].gf-st[t].ga;arr.push([t,st[t]]);}arr.sort(function(a,b){return cmpGroupTeams(a[0],b[0],g,st,confirmed);});return{st:arr,done:gpFt===6};}
 function gPos(g,p){var d=cGrp(g);if(!d.done)return null;if(p<d.st.length)return d.st[p][0];return null;}
 function gB3(){var all=[];var ok=true;for(var i=0;i<GL.length;i++){var d=cGrp(GL[i],true);if(!d.done){ok=false;continue;}if(d.st.length>2)all.push({team:d.st[2][0],group:GL[i],s:d.st[2][1]});}if(!ok)return null;all.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});return all.slice(0,8);}
@@ -4548,7 +4548,7 @@ function btbGo(which){
   if(which==='more'){openMoreSheet();return;}
   var map={matches:'matches',league:'fantasy',myteams:'myteams',following:'following'};
   var target=map[which];if(!target)return;
-  if(typeof stab==='function'){stab(target);}else{var t=document.getElementById('tab_'+target);if(t){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});t.classList.add('on');}}
+  if(typeof stab==='function'){stab(target);}else{var t=document.getElementById('tab_'+target);if(t){document.querySelectorAll('.tp').forEach(function(x){x.classList.remove('on');});t.classList.add('on');}}
   syncBtb();
   /* When user opens My Teams and no curU set, instantly show picker */
   if(which==='myteams'){
@@ -4563,7 +4563,7 @@ function btbGo(which){
 function syncBtb(){
   var btb=document.getElementById('btb');if(!btb)return;
   var active='';
-  var t=document.querySelector('.tab.on');
+  var t=document.querySelector('.tp.on');
   if(t){var id=t.id;
     if(id==='tab_matches'||id==='tab_groups'||id==='tab_knockout')active='matches';
     else if(id==='tab_fantasy')active='league';
@@ -4589,7 +4589,7 @@ function subTabGo(which){
   /* After tab switch reset sub-tabs visibility (they only render under tab_matches) */
   setTimeout(function(){
     var mst=document.getElementById('matchesSubTabs');
-    var active=document.querySelector('.tab.on');
+    var active=document.querySelector('.tp.on');
     if(mst&&active){
       var id=active.id;
       mst.style.display=(id==='tab_matches'||id==='tab_groups'||id==='tab_knockout')?'':'none';
@@ -4625,7 +4625,7 @@ function openMgrPicker(){
     btn.className='mgrp-item';
     btn.onclick=function(){pickMgr(nm);};
     var flags='';
-    (MGR[nm]||[]).forEach(function(t){if(FC[t])flags+='<img src="'+FC[t]+'" alt="">';});
+    (MGR[nm]||[]).forEach(function(t){if(FC[t])flags+='<img src="https://flagcdn.com/w80/'+FC[t]+'.png" alt="">';});
     btn.innerHTML='<div class="mgrp-item-name">'+nm+'</div><div class="mgrp-item-flags">'+flags+'</div>';
     grid.appendChild(btn);
   });
@@ -4663,24 +4663,13 @@ function moreGo(which){
 function rHeroCards(){
   var wrap=document.getElementById('heroStack');if(!wrap)return;
   if(window.innerWidth>900){wrap.innerHTML='';return;}
-  /* Compute table from current league data */
-  var rows=[];
-  if(typeof MGR==='undefined'||!MGR){wrap.innerHTML='';return;}
-  var names=Object.keys(MGR);
-  names.forEach(function(nm){
-    var s=(typeof getMgrStats==='function')?getMgrStats(nm):null;
-    if(!s)return;
-    rows.push({nm:nm,s:s});
-  });
-  if(!rows.length){wrap.innerHTML='';return;}
-  rows.sort(function(a,b){
-    if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;
-    if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;
-    return b.s.gf-a.s.gf;
-  });
+  if(typeof cFan!=='function'){wrap.innerHTML='';return;}
+  var arr=cFan();
+  if(!arr||!arr.length){wrap.innerHTML='';return;}
+  var rows=arr.map(function(pair){return {nm:pair[0],s:pair[1]};});
   /* Champion card */
   var champ=rows[0];
-  var champFlags='';(MGR[champ.nm]||[]).slice(0,5).forEach(function(t){if(FC[t])champFlags+='<img src="'+FC[t]+'" alt="">';});
+  var champFlags='';(MGR[champ.nm]||[]).slice(0,5).forEach(function(t){if(FC[t])champFlags+='<img src="https://flagcdn.com/w80/'+FC[t]+'.png" alt="">';});
   var h='<div class="hero-card">';
   h+='<div class="hero-card-trophy">🏆</div>';
   h+='<div class="hero-card-label">🏆 Points Leader</div>';
@@ -4700,7 +4689,7 @@ function rHeroCards(){
       var you=rows[youPos-1];
       var leadDiff=rows[0].s.pts-you.s.pts;
       var posSuffix=youPos===1?'st':youPos===2?'nd':youPos===3?'rd':'th';
-      var yourFlags='';(MGR[you.nm]||[]).slice(0,5).forEach(function(t){if(FC[t])yourFlags+='<img src="'+FC[t]+'" alt="">';});
+      var yourFlags='';(MGR[you.nm]||[]).slice(0,5).forEach(function(t){if(FC[t])yourFlags+='<img src="https://flagcdn.com/w80/'+FC[t]+'.png" alt="">';});
       h+='<div class="hero-card you">';
       h+='<div class="hero-card-label">⭐ Your Standing</div>';
       h+='<div class="hero-card-name">'+you.nm+'<span class="hero-card-pos">'+youPos+posSuffix+'</span></div>';
@@ -4733,7 +4722,7 @@ function rFollowFollowing(){
   c.innerHTML='<div class="follow-detail-section">'+html+'</div>';
 }
 function renderFollowCountryDetail(team){
-  var img=FC[team]?'<img src="'+FC[team]+'" alt="">':'';
+  var img=FC[team]?'<img src="https://flagcdn.com/w80/'+FC[team]+'.png" alt="">':'';
   var mgrLine=CO[team]?('Manager: '+CO[team]):'';
   /* Aggregate stats from MX results */
   var st={p:0,w:0,d:0,l:0,gf:0,ga:0};
@@ -4800,7 +4789,7 @@ function renderFollowPlayerDetail(player){
   }
   hist.sort(function(a,b){return a.fid-b.fid;});
   var teamName=hist.length?hist[0].team:'';
-  var img=teamName&&FC[teamName]?'<img src="'+FC[teamName]+'" alt="">':'';
+  var img=teamName&&FC[teamName]?'<img src="https://flagcdn.com/w80/'+FC[teamName]+'.png" alt="">':'';
   var fixHtml='';
   hist.slice(-6).forEach(function(g){
     var opp='';for(var i=0;i<MX.length;i++){if(MX[i][0]===g.fid){opp=(MX[i][2]===g.team)?MX[i][3]:MX[i][2];break;}}
@@ -4837,7 +4826,7 @@ function rFollowPlayers(){
   var h='';
   players.forEach(function(p){
     var isFol=followList.players.indexOf(p.name)>=0;
-    var img=p.team&&FC[p.team]?'<img src="'+FC[p.team]+'" alt="">':'';
+    var img=p.team&&FC[p.team]?'<img src="https://flagcdn.com/w80/'+FC[p.team]+'.png" alt="">':'';
     h+='<div class="follow-card'+(isFol?' following':'')+'">'+img+'<div class="follow-card-name">'+p.name+'</div><div class="follow-card-meta">'+p.team+'</div><button class="follow-card-btn" onclick="toggleFollowPlayer(\''+p.name.replace(/\'/g,"\\\'")+'\')">'+(isFol?'\u2713 Following':'+ Follow')+'</button></div>';
   });
   grid.innerHTML=h;
@@ -4880,7 +4869,7 @@ function setupJumpFab(){
   var fl=document.querySelector('.fl-table');
   if(!fab||!fl)return;
   function check(){
-    var activeTab=document.querySelector('.tab.on');
+    var activeTab=document.querySelector('.tp.on');
     var inLeague=activeTab&&activeTab.id==='tab_fantasy';
     var hasUser=curU&&MGR[curU];
     if(!inLeague||!hasUser){fab.classList.remove('show');return;}
@@ -4955,7 +4944,7 @@ setTimeout(function(){
   /* Bring sub-tabs into correct tab on initial render */
   var mst=document.getElementById('matchesSubTabs');
   if(mst){
-    var t=document.querySelector('.tab.on');
+    var t=document.querySelector('.tp.on');
     if(t&&(t.id==='tab_matches'||t.id==='tab_groups'||t.id==='tab_knockout')){
       t.insertBefore(mst,t.firstChild);
     } else {
@@ -5016,7 +5005,7 @@ setTimeout(function(){
 <button class="jmp-fab" id="jmpFab" onclick="jumpToMyRow()" aria-label="Jump to my row">
   <svg viewBox="0 0 24 24"><path d="M5 12l7 7 7-7M5 4l7 7 7-7"/></svg>
 </button>
-<section id="tab_following" class="tab" data-name="Following">
+<div class="tp" id="tab_following">
   <div class="follow-section">
     <div class="follow-section-title">Following</div>
     <div id="followFollowing"></div>
@@ -5031,5 +5020,5 @@ setTimeout(function(){
     <div class="follow-search"><input type="text" id="followCountrySearch" placeholder="Search countries..." oninput="rFollowCountries()"></div>
     <div class="follow-grid" id="followCountryGrid"></div>
   </div>
-</section>
+</div>
 </body></html>
