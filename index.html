@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V11_1_PERF -->
+<!-- WC2026_BUILD_V12_SHEETS_PREFS -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -5440,14 +5440,177 @@ setTimeout(function(){
     <div id="followFollowing"></div>
   </div>
   <div class="follow-section">
-    <div class="follow-section-title">Browse Players</div>
-    <div class="follow-search"><input type="text" id="followPlayerSearch" placeholder="Search players..." oninput="rFollowPlayers()"></div>
-    <div class="follow-grid" id="followPlayerGrid"></div>
-  </div>
-  <div class="follow-section">
-    <div class="follow-section-title">Browse Countries</div>
-    <div class="follow-search"><input type="text" id="followCountrySearch" placeholder="Search countries..." oninput="rFollowCountries()"></div>
-    <div class="follow-grid" id="followCountryGrid"></div>
+    <div class="follow-section-title">Browse</div>
+    <div class="follow-mini-tabs" id="followMiniTabs">
+      <button type="button" class="follow-mini-tab on" id="followBrowsePlayersTab" onclick="followBrowseSw('players')">Players</button>
+      <button type="button" class="follow-mini-tab" id="followBrowseCountriesTab" onclick="followBrowseSw('countries')">Countries</button>
+    </div>
+    <div class="follow-browse-pane on" id="followBrowsePlayersPane">
+      <div class="follow-search"><input type="text" id="followPlayerSearch" placeholder="Search players..." oninput="rFollowPlayers()"></div>
+      <div class="follow-grid" id="followPlayerGrid"></div>
+    </div>
+    <div class="follow-browse-pane" id="followBrowseCountriesPane">
+      <div class="follow-search"><input type="text" id="followCountrySearch" placeholder="Search countries..." oninput="rFollowCountries()"></div>
+      <div class="follow-grid" id="followCountryGrid"></div>
+    </div>
   </div>
 </div>
+
+<style id="v12-ui-overhaul-css">
+/* === v12: Following mini-tabs, sheets, my-team cards === */
+.follow-mini-tabs{display:flex;gap:6px;padding:5px;margin:0 12px 12px;background:rgba(255,255,255,.04);border-radius:14px}
+body.light .follow-mini-tabs{background:rgba(0,0,0,.04)}
+.follow-mini-tab{flex:1;border:none;background:transparent;color:#aaa;border-radius:10px;padding:10px 8px;font-family:inherit;font-size:.78em;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.follow-mini-tab.on{background:#10b981;color:#fff;box-shadow:0 2px 6px rgba(16,185,129,.3)}
+body.light .follow-mini-tab.on{background:#059669}
+.follow-browse-pane{display:none}.follow-browse-pane.on{display:block}
+.universal-sheet-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:410;align-items:flex-end;justify-content:center}
+.universal-sheet-bg.open{display:flex;animation:mfmFade .18s ease}
+.universal-sheet{width:100%;max-width:560px;max-height:88vh;background:#1a1d26;border-top:1px solid rgba(16,185,129,.35);border-radius:18px 18px 0 0;overflow:hidden;display:flex;flex-direction:column;animation:mgrpSlideUp .25s cubic-bezier(.2,.7,.3,1.1);padding-bottom:env(safe-area-inset-bottom)}
+body.light .universal-sheet{background:#fff;border-top-color:#a7f3d0;color:#1c1e26}
+.us-handle{width:38px;height:4px;border-radius:3px;background:rgba(255,255,255,.22);margin:9px auto 4px;flex-shrink:0}body.light .us-handle{background:rgba(0,0,0,.16)}
+.us-head{display:flex;align-items:center;gap:10px;padding:10px 14px 13px;border-bottom:1px solid rgba(255,255,255,.06)}body.light .us-head{border-bottom-color:#eee}
+.us-head img{height:38px;border-radius:3px}.us-title{flex:1;min-width:0}.us-title-main{font-size:1.08em;font-weight:800;color:#fff;line-height:1.15}.us-title-sub{font-size:.72em;color:#888;margin-top:2px}body.light .us-title-main{color:#1c1e26}
+.us-close{background:none;border:none;color:#888;font-size:1.6em;width:34px;height:34px;border-radius:50%;cursor:pointer}.us-close:active{background:rgba(255,255,255,.08)}
+.us-body{padding:12px 14px 16px;overflow:auto;-webkit-overflow-scrolling:touch}.us-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px}.us-stat{text-align:center;padding:9px 4px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.045)}body.light .us-stat{background:rgba(0,0,0,.025);border-color:#eee}.us-stat-v{font-size:1.05em;color:#fff;font-weight:800}.us-stat-l{font-size:.56em;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}body.light .us-stat-v{color:#1c1e26}
+.us-section{margin:12px 0}.us-section-title{font-size:.66em;font-weight:800;color:#10b981;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:7px}.us-chip-row{display:flex;gap:5px;flex-wrap:wrap}.us-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:10px;background:rgba(16,185,129,.1);color:#10b981;font-size:.72em;font-weight:700}.us-list{display:flex;flex-direction:column;gap:7px}.us-row{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.045);font-size:.8em;cursor:pointer}body.light .us-row{background:#fff;border-color:#eee}.us-row-main{font-weight:700;color:#eee}.us-row-sub{font-size:.78em;color:#888;margin-top:1px}body.light .us-row-main{color:#1c1e26}.us-pill{border-radius:9px;padding:3px 8px;background:rgba(99,102,241,.14);color:#a5b4fc;font-size:.68em;font-weight:800;white-space:nowrap}
+.team-click,.mgr-click,[data-team],[data-mgr]{cursor:pointer}.team-click:hover,.mgr-click:hover{text-decoration:underline;text-decoration-color:#10b981;text-underline-offset:3px}
+.mt-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0 14px}.mt-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:12px;overflow:hidden}.mt-card.q{border-color:rgba(76,175,80,.35);background:linear-gradient(135deg,rgba(76,175,80,.12),rgba(255,255,255,.02))}.mt-card.a{border-color:rgba(255,193,7,.35);background:linear-gradient(135deg,rgba(255,193,7,.1),rgba(255,255,255,.02))}.mt-card.c{border-color:rgba(33,150,243,.3);background:linear-gradient(135deg,rgba(33,150,243,.1),rgba(255,255,255,.02))}.mt-card.e{border-color:rgba(239,68,68,.3);background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(255,255,255,.02))}body.light .mt-card{background:#fff;border-color:#eee}.mt-card-head{display:flex;align-items:center;gap:9px;margin-bottom:9px}.mt-card-head img{height:28px!important}.mt-card-name{font-weight:800;color:#fff;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}body.light .mt-card-name{color:#1c1e26}.mt-card-sub{font-size:.68em;color:#888}.mt-card-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.mt-mini-stat{text-align:center;background:rgba(255,255,255,.04);border-radius:8px;padding:6px 2px}.mt-mini-v{font-size:.9em;font-weight:800;color:#fff}.mt-mini-l{font-size:.52em;color:#888;text-transform:uppercase}.mt-card-actions{display:flex;gap:6px;margin-top:10px}.mt-card-btn{flex:1;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.08);color:#10b981;border-radius:9px;padding:7px 8px;font-family:inherit;font-size:.68em;font-weight:800;cursor:pointer}.mt-card-extra{max-height:0;overflow:hidden;transition:max-height .25s ease}.mt-card.open .mt-card-extra{max-height:1100px}.mt-squad-list{font-size:.72em;line-height:1.55;color:#ccc;padding-top:8px}body.light .mt-squad-list{color:#444}
+@media(max-width:520px){.us-grid{grid-template-columns:repeat(2,1fr)}.mt-card-grid{grid-template-columns:1fr}.us-row{grid-template-columns:50px 1fr auto}}
+</style>
+
+<script id="v12-ui-overhaul-js">
+/* === v12 interaction/sheet/prefs overrides === */
+var followBrowseMode='players';
+function followBrowseSw(mode){
+  followBrowseMode=mode==='countries'?'countries':'players';
+  var pt=document.getElementById('followBrowsePlayersTab'),ct=document.getElementById('followBrowseCountriesTab');
+  var pp=document.getElementById('followBrowsePlayersPane'),cp=document.getElementById('followBrowseCountriesPane');
+  if(pt)pt.className='follow-mini-tab'+(followBrowseMode==='players'?' on':'');
+  if(ct)ct.className='follow-mini-tab'+(followBrowseMode==='countries'?' on':'');
+  if(pp)pp.className='follow-browse-pane'+(followBrowseMode==='players'?' on':'');
+  if(cp)cp.className='follow-browse-pane'+(followBrowseMode==='countries'?' on':'');
+  if(followBrowseMode==='players')rFollowPlayers();else rFollowCountries();
+}
+function followStorageKey(){return 'wc2026_following_v2_'+curLg+'_'+(curU||'guest');}
+function loadFollowListForManager(){
+  var loaded=false;
+  try{var s=localStorage.getItem(followStorageKey());if(s){var p=JSON.parse(s);followList={players:p.players||[],countries:p.countries||[]};loaded=true;}}
+  catch(e){}
+  if(!loaded){try{var legacy=localStorage.getItem(FOLLOW_KEY);if(legacy){var lp=JSON.parse(legacy);followList={players:lp.players||[],countries:lp.countries||[]};}}catch(e){followList={players:[],countries:[]};}}
+  if(curU){
+    fetch('/api/follow-preferences?league='+encodeURIComponent(curLg)+'&manager='+encodeURIComponent(curU),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error('no prefs');return r.json();})
+    .then(function(d){if(d&&d.following){followList={players:d.following.players||[],countries:d.following.countries||[]};try{localStorage.setItem(followStorageKey(),JSON.stringify(followList));}catch(e){}if(document.getElementById('tab_following')&&document.getElementById('tab_following').classList.contains('on'))rFollowingTab();}})
+    .catch(function(){});
+  }
+}
+function saveFollowList(){
+  try{localStorage.setItem(FOLLOW_KEY,JSON.stringify(followList));localStorage.setItem(followStorageKey(),JSON.stringify(followList));}catch(e){}
+  if(curU){fetch('/api/follow-preferences',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({league:curLg,manager:curU,following:followList})}).catch(function(){});}
+}
+var _origSetU=window.setU;window.setU=function(){if(_origSetU)_origSetU();loadFollowListForManager();try{rFollowingTab();}catch(e){}};
+var _origPickMgr=window.pickMgr;window.pickMgr=function(nm){if(_origPickMgr)_origPickMgr(nm);loadFollowListForManager();try{rFollowingTab();}catch(e){}};
+loadFollowListForManager();
+
+function ensureUniversalSheets(){
+  if(!document.getElementById('teamSheetBg')){
+    var d=document.createElement('div');d.id='teamSheetBg';d.className='universal-sheet-bg';d.onclick=function(e){if(e.target===d)d.classList.remove('open');};
+    d.innerHTML='<div class="universal-sheet" onclick="event.stopPropagation()"><div class="us-handle"></div><div class="us-head" id="teamSheetHead"></div><div class="us-body" id="teamSheetBody"></div></div>';document.body.appendChild(d);
+  }
+  if(!document.getElementById('mgrSheetBg')){
+    var m=document.createElement('div');m.id='mgrSheetBg';m.className='universal-sheet-bg';m.onclick=function(e){if(e.target===m)m.classList.remove('open');};
+    m.innerHTML='<div class="universal-sheet" onclick="event.stopPropagation()"><div class="us-handle"></div><div class="us-head" id="mgrSheetHead"></div><div class="us-body" id="mgrSheetBody"></div></div>';document.body.appendChild(m);
+  }
+}
+function escHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function teamStatsAll(team){
+  var s={p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0,cs:0};
+  function add(t1,t2,r){if(!r)return;var idx=t1===team?0:t2===team?1:-1;if(idx<0)return;var gf=idx===0?r.s1:r.s2,ga=idx===0?r.s2:r.s1;s.p++;s.gf+=gf;s.ga+=ga;if(ga===0)s.cs++;if(gf>ga){s.w++;s.pts+=3}else if(gf===ga){s.d++;s.pts+=1}else s.l++;}
+  for(var i=0;i<MX.length;i++)add(MX[i][2],MX[i][3],standRes(MX[i][0]));
+  for(var k=0;k<KO.length;k++){var tm=gKM(KO[k][0]);if(tm)add(tm[0],tm[1],standRes(KO[k][0]));}
+  s.gd=s.gf-s.ga;return s;
+}
+function teamGroupInfo(team){for(var gi=0;gi<GL.length;gi++){var g=GL[gi],arr=cGrp(g,true).st;for(var i=0;i<arr.length;i++){if(arr[i][0]===team)return{group:g,pos:i+1,stat:arr[i][1],done:cGrp(g,true).done};}}return null;}
+function teamFixtures(team,limit){
+  var out=[];function push(id,grp,t1,t2,dt){if(t1!==team&&t2!==team)return;var r=gRes(id);out.push({id:id,grp:grp,t1:t1,t2:t2,opp:t1===team?t2:t1,dt:dt,r:r});}
+  for(var i=0;i<MX.length;i++)push(MX[i][0],MX[i][1],MX[i][2],MX[i][3],MX[i][4]);
+  for(var k=0;k<KO.length;k++){var tm=gKM(KO[k][0]);if(tm&&tm[0]&&tm[1])push(KO[k][0],KO[k][1],tm[0],tm[1],KO[k][4]);}
+  out.sort(function(a,b){return a.dt<b.dt?-1:a.dt>b.dt?1:a.id-b.id;});return limit?out.slice(0,limit):out;
+}
+function teamScorers(team){var arr=[];if(SCORERS&&SCORERS.length){for(var i=0;i<SCORERS.length;i++){if(SCORERS[i].team===team)arr.push(SCORERS[i]);}}arr.sort(function(a,b){return (b.goals+b.assists)-(a.goals+a.assists)||b.goals-a.goals;});return arr;}
+function openTeamSheet(team){
+  if(!team||!FC[team])return;ensureUniversalSheets();
+  var bg=document.getElementById('teamSheetBg'),head=document.getElementById('teamSheetHead'),body=document.getElementById('teamSheetBody');
+  var st=teamStatsAll(team),gi=teamGroupInfo(team),mgr=CO[team]||'';
+  head.innerHTML='<img src="https://flagcdn.com/w80/'+FC[team]+'.png" alt=""><div class="us-title"><div class="us-title-main">'+escHtml(team)+'</div><div class="us-title-sub">'+(mgr?'<span class="mgr-click" data-mgr="'+escHtml(mgr)+'">'+escHtml(mgr)+'</span> · ':'')+(gi?'Group '+gi.group+' · '+ordinal(gi.pos):'')+'</div></div><button class="us-close" onclick="document.getElementById(\'teamSheetBg\').classList.remove(\'open\')">&times;</button>';
+  var h='<div class="us-grid"><div class="us-stat"><div class="us-stat-v">'+st.pts+'</div><div class="us-stat-l">Pts</div></div><div class="us-stat"><div class="us-stat-v">'+st.w+'-'+st.d+'-'+st.l+'</div><div class="us-stat-l">W-D-L</div></div><div class="us-stat"><div class="us-stat-v">'+(st.gd>0?'+':'')+st.gd+'</div><div class="us-stat-l">GD</div></div><div class="us-stat"><div class="us-stat-v">'+st.cs+'</div><div class="us-stat-l">CS</div></div></div>';
+  if(gi){h+='<div class="us-section"><div class="us-section-title">Group position</div><div class="us-chip-row"><span class="us-chip">Group '+gi.group+'</span><span class="us-chip">'+ordinal(gi.pos)+'</span><span class="us-chip">'+(gi.done?'Complete':'In progress')+'</span></div></div>';}
+  var fixtures=teamFixtures(team,8);h+='<div class="us-section"><div class="us-section-title">Fixtures & results</div><div class="us-list">';
+  fixtures.forEach(function(f){var score=f.r?(f.t1===team?f.r.s1+' - '+f.r.s2:f.r.s2+' - '+f.r.s1):'vs';h+='<div class="us-row" onclick="openMatchFeed('+f.id+')"><div>'+f.dt.substring(5,10)+'<br><span style="color:#888;font-size:.78em">'+f.dt.substring(11,16)+'</span></div><div><div class="us-row-main">'+escHtml(f.opp)+'</div><div class="us-row-sub">'+escHtml(f.grp)+'</div></div><span class="us-pill">'+score+'</span></div>';});h+='</div></div>';
+  var scorers=teamScorers(team);if(scorers.length){h+='<div class="us-section"><div class="us-section-title">Scorers</div><div class="us-chip-row">';scorers.slice(0,8).forEach(function(s){h+='<span class="us-chip">'+escHtml(s.name)+' · '+(s.goals||0)+'G '+(s.assists||0)+'A</span>';});h+='</div></div>';}
+  var squad=SQUADS[team]||[];if(squad.length){h+='<div class="us-section"><div class="us-section-title">Squad</div><div class="us-chip-row">';squad.slice(0,24).forEach(function(p){h+='<span class="us-chip">'+(p.number?'#'+p.number+' ':'')+escHtml(p.name)+'</span>';});h+='</div></div>';}
+  body.innerHTML=h;bg.classList.add('open');
+}
+function ordinal(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function managerTeams(nm){return (MGR&&MGR[nm])?MGR[nm]:[];}
+function openManagerSheet(nm){
+  if(!nm||!MGR||!MGR[nm])return;ensureUniversalSheets();
+  var bg=document.getElementById('mgrSheetBg'),head=document.getElementById('mgrSheetHead'),body=document.getElementById('mgrSheetBody');
+  var arr=cFan(),rank='-',st={pts:0,p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0};for(var i=0;i<arr.length;i++){if(arr[i][0]===nm){rank=i+1;st=arr[i][1];break;}}
+  var flags='';managerTeams(nm).forEach(function(t){if(FC[t])flags+='<img data-team="'+escHtml(t)+'" src="https://flagcdn.com/w80/'+FC[t]+'.png" alt="'+escHtml(t)+'">';});
+  head.innerHTML='<div class="us-title"><div class="us-title-main">'+escHtml(nm)+'</div><div class="us-title-sub">Rank '+rank+' · '+st.pts+' pts</div></div><button class="us-close" onclick="document.getElementById(\'mgrSheetBg\').classList.remove(\'open\')">&times;</button>';
+  var live=getMgrLiveTeams(nm);var badges=calcBadges(nm)||[];
+  var best=null,worst=null;managerTeams(nm).forEach(function(t){var ts=teamStatsAll(t);var row={t:t,s:ts};if(!best||ts.pts>best.s.pts||(ts.pts===best.s.pts&&ts.gd>best.s.gd))best=row;if(!worst||ts.pts<worst.s.pts||(ts.pts===worst.s.pts&&ts.gd<worst.s.gd))worst=row;});
+  var h='<div class="us-grid"><div class="us-stat"><div class="us-stat-v">'+rank+'</div><div class="us-stat-l">Rank</div></div><div class="us-stat"><div class="us-stat-v">'+st.pts+'</div><div class="us-stat-l">Pts</div></div><div class="us-stat"><div class="us-stat-v">'+(st.gd>0?'+':'')+st.gd+'</div><div class="us-stat-l">GD</div></div><div class="us-stat"><div class="us-stat-v">'+badges.length+'</div><div class="us-stat-l">Badges</div></div></div>';
+  h+='<div class="us-section"><div class="us-section-title">Teams</div><div class="us-chip-row">';managerTeams(nm).forEach(function(t){h+='<span class="us-chip" data-team="'+escHtml(t)+'">'+(FC[t]?'<img style="height:14px" src="https://flagcdn.com/w80/'+FC[t]+'.png" alt="">':'')+escHtml(t)+'</span>';});h+='</div></div>';
+  h+='<div class="us-section"><div class="us-section-title">Live status</div><div class="us-chip-row"><span class="us-chip">'+(live.length?('LIVE · '+live.join(', ')):'No teams live')+'</span></div></div>';
+  if(best)h+='<div class="us-section"><div class="us-section-title">Best / worst team</div><div class="us-chip-row"><span class="us-chip">Best: '+escHtml(best.t)+' · '+best.s.pts+' pts</span><span class="us-chip">Needs lift: '+escHtml(worst.t)+' · '+worst.s.pts+' pts</span></div></div>';
+  if(badges.length){h+='<div class="us-section"><div class="us-section-title">Badges</div><div class="bdg-grid">';badges.slice(0,8).forEach(function(b){h+=bdgHTML(b.id,'1.35em',b);});h+='</div></div>';}
+  body.innerHTML=h;bg.classList.add('open');
+}
+
+/* Make flags generally tappable. */
+var _oldFi=window.fi;window.fi=function(c,sz){var out=_oldFi?_oldFi(c,sz):'';if(!out||!FC[c])return out;return out.replace('<img','<img class="team-click" data-team="'+String(c).replace(/"/g,'&quot;')+'" onclick="if(event.stopPropagation)event.stopPropagation();openTeamSheet(\''+String(c).replace(/\\/g,'\\\\').replace(/\'/g,"\\'")+'\')"');};
+
+document.addEventListener('click',function(e){
+  var btn=e.target.closest?e.target.closest('button,input,select,textarea,.mcm-mx,.mc-wrap,.bk-m,.follow-card-btn'):null;if(btn)return;
+  var tel=e.target.closest?e.target.closest('[data-team]'):null;if(tel){var t=tel.getAttribute('data-team')||tel.getAttribute('alt');if(t&&FC[t]){openTeamSheet(t);return;}}
+  var mel=e.target.closest?e.target.closest('[data-mgr],.mgr-click,.mn,.fr-mgr,.mt-mgr'):null;if(mel){var m=mel.getAttribute('data-mgr')||(mel.textContent||'').replace(/[🔥❌➡️▲▼★👑]/g,'').trim();if(MGR&&MGR[m]){openManagerSheet(m);return;}}
+},false);
+
+function rFollowFollowing(){
+  var c=document.getElementById('followFollowing');if(!c)return;
+  var cnt=followList.players.length+followList.countries.length;
+  if(!cnt){c.innerHTML='<div class="follow-empty">You aren\u2019t following anything yet.<br>Select your manager, then follow players and countries below.</div>';return;}
+  var html='';followList.countries.forEach(function(team){html+=renderFollowCountryDetail(team);});followList.players.forEach(function(p){html+=renderFollowPlayerDetail(p);});
+  c.innerHTML='<div class="follow-detail-section">'+html+'</div>';
+}
+function rFollowingTab(){rFollowFollowing();if(followBrowseMode==='countries'){followBrowseSw('countries');}else{followBrowseSw('players');}}
+
+var _oldRFC=window.rFollowCountries;window.rFollowCountries=function(){
+  var grid=document.getElementById('followCountryGrid');if(!grid)return;
+  var q=(document.getElementById('followCountrySearch')||{value:''}).value.toLowerCase().trim();
+  var teams=Object.keys(FC).sort();if(q)teams=teams.filter(function(t){return t.toLowerCase().indexOf(q)>=0||((CO[t]||'').toLowerCase().indexOf(q)>=0);});
+  var h='';teams.forEach(function(t){var isFol=followList.countries.indexOf(t)>=0;var mgr=CO[t]?CO[t]:'';h+='<div class="follow-card'+(isFol?' following':'')+'"><img data-team="'+escHtml(t)+'" src="https://flagcdn.com/w80/'+FC[t]+'.png" alt=""><div class="follow-card-name team-click" data-team="'+escHtml(t)+'">'+escHtml(t)+'</div><div class="follow-card-meta mgr-click" data-mgr="'+escHtml(mgr)+'">'+escHtml(mgr)+'</div><button class="follow-card-btn" onclick="toggleFollowCountry(\''+t.replace(/\'/g,"\\\'")+'\')">'+(isFol?'\u2713 Following':'+ Follow')+'</button></div>';});grid.innerHTML=h;
+};
+
+function rMT(){
+  var c=document.getElementById('myC');if(!c)return;if(!curU||!MGR[curU]){c.innerHTML='<div class="nm">Select your manager in Settings &#9881;</div>';return;}
+  var teams=MGR[curU],tgf=0,tga=0,tw=0,td=0,tl=0,tp=0,tdata=[];
+  teams.forEach(function(tn){var g='';for(var gi=0;gi<GL.length;gi++){if(GRP[GL[gi]].indexOf(tn)>=0)g=GL[gi];}var gd=cGrp(g);var pos=-1;for(var k=0;k<gd.st.length;k++){if(gd.st[k][0]===tn){pos=k;break;}}var s=pos>=0?gd.st[pos][1]:{p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};tgf+=s.gf;tga+=s.ga;tw+=s.w;td+=s.d;tl+=s.l;tp+=s.p;var status='IN CONTENTION',cls='c';if(isTeamEliminated(tn)){status='ELIMINATED';cls='e';}else if(gd.done&&pos<=1){status='QUALIFIED';cls='q';}else if(!gd.done&&pos<=1){status='ON TRACK';cls='a';}else if(pos===2){status='3RD PLACE';cls='c';}else if(pos>=3){status='AT RISK';cls='e';}tdata.push({tn:tn,g:g,s:s,status:status,cls:cls,pos:pos});});
+  tdata.sort(function(a,b){return b.s.pts-a.s.pts||b.s.gd-a.s.gd||b.s.gf-a.s.gf;});
+  var h='<div class="cd"><h3 style="color:#10b981;margin-bottom:8px">'+escHtml(curU)+'\'s Combined Stats</h3><div class="my-stats"><div class="mst"><div class="sv">'+tp+'</div><div class="sl">Matches</div></div><div class="mst"><div class="sv">'+tw+'</div><div class="sl">Wins</div></div><div class="mst"><div class="sv">'+td+'</div><div class="sl">Draws</div></div><div class="mst"><div class="sv">'+tl+'</div><div class="sl">Losses</div></div><div class="mst"><div class="sv">'+tgf+'</div><div class="sl">Goals For</div></div><div class="mst"><div class="sv">'+tga+'</div><div class="sl">Goals Against</div></div><div class="mst"><div class="sv">'+(tgf-tga>0?'+':'')+(tgf-tga)+'</div><div class="sl">Goal Diff</div></div><div class="mst"><div class="sv">'+(tp>0?Math.round(tw/tp*100):0)+'%</div><div class="sl">Win Rate</div></div></div></div>';
+  h+='<div class="mt-card-grid">';tdata.forEach(function(d,i){var gd=d.s.gd;var next=teamFixtures(d.tn).filter(function(f){return !f.r;})[0];h+='<div class="mt-card '+d.cls+'" id="mtcard_'+i+'"><div class="mt-card-head"><span data-team="'+escHtml(d.tn)+'">'+fi(d.tn,28)+'</span><div style="min-width:0;flex:1"><div class="mt-card-name team-click" data-team="'+escHtml(d.tn)+'">'+escHtml(d.tn)+(teamIsLive(d.tn)?' <span class="live-mgr-dot '+teamLiveStatus(d.tn)+'"></span>':'')+'</div><div class="mt-card-sub">Group '+d.g+' · '+(d.pos>=0?ordinal(d.pos+1):'—')+'</div></div><span class="mt-status '+d.cls+'">'+d.status+'</span></div><div class="mt-card-mini"><div class="mt-mini-stat"><div class="mt-mini-v">'+d.s.pts+'</div><div class="mt-mini-l">Pts</div></div><div class="mt-mini-stat"><div class="mt-mini-v">'+d.s.w+'-'+d.s.d+'-'+d.s.l+'</div><div class="mt-mini-l">WDL</div></div><div class="mt-mini-stat"><div class="mt-mini-v">'+(gd>0?'+':'')+gd+'</div><div class="mt-mini-l">GD</div></div><div class="mt-mini-stat"><div class="mt-mini-v">'+d.s.gf+'</div><div class="mt-mini-l">GF</div></div></div>'+(next?'<div class="mt-card-sub" style="margin-top:8px">Next: '+escHtml(next.opp)+' · '+next.dt.substring(5,10)+' '+next.dt.substring(11,16)+'</div>':'<div class="mt-card-sub" style="margin-top:8px">No upcoming fixture</div>')+'<div class="mt-card-actions"><button class="mt-card-btn" onclick="openTeamSheet(\''+d.tn.replace(/\'/g,"\\\'")+'\')">Team sheet</button><button class="mt-card-btn" onclick="document.getElementById(\'mtcard_'+i+'\').classList.toggle(\'open\')">Squad/results</button></div><div class="mt-card-extra"><div class="mt-squad-list">'+buildMiniSquadResultHtml(d.tn)+'</div></div></div>';});h+='</div>';
+  var myBadges=calcBadges(curU);if(myBadges.length>0){h+='<div class="my-badges"><h4>Your Badges</h4><div class="bdg-grid">';myBadges.forEach(function(b){h+=bdgHTML(b.id,'1.4em',b);});h+='</div></div>';}
+  c.innerHTML=h;
+}
+function buildMiniSquadResultHtml(team){var h='';var list=teamFixtures(team,6);if(list.length){h+='<b>Recent / upcoming</b><br>';list.forEach(function(f){h+='M'+f.id+' · '+escHtml(f.opp)+' · '+(f.r?(f.r.s1+'-'+f.r.s2):f.dt.substring(5,10)+' '+f.dt.substring(11,16))+'<br>';});}var sq=SQUADS[team]||[];if(sq.length){h+='<br><b>Squad</b><br>';sq.slice(0,28).forEach(function(p){h+=(p.number?'#'+p.number+' ':'')+escHtml(p.name)+' · '+escHtml(p.position||'')+'<br>';});}return h||'No extra data yet.';}
+
+/* Make country/player follow buttons stay manager-scoped and auto-load when opening Following. */
+var _oldStab=window.stab;window.stab=function(t){if(_oldStab)_oldStab(t);if(t==='following'){loadFollowListForManager();setTimeout(function(){try{rFollowingTab();}catch(e){}},30);} };
+
+/* Open with selected manager preferences at boot. */
+setTimeout(function(){loadFollowListForManager();if(document.getElementById('tab_following')&&document.getElementById('tab_following').classList.contains('on'))rFollowingTab();},250);
+</script>
 </body></html>
