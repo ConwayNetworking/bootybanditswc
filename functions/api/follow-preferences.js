@@ -26,23 +26,12 @@ export async function onRequest(context) {
     const manager = url.searchParams.get("manager") || "";
 
     if (!manager) {
-      return json({
-        following: {
-          players: [],
-          countries: []
-        }
-      });
+      return json({ following: { players: [], countries: [], pinnedMatches: [] } });
     }
 
-    const saved = await env.FOLLOW_PREFS.get(prefKey(league, manager), {
-      type: "json"
-    });
-
+    const saved = await env.FOLLOW_PREFS.get(prefKey(league, manager), { type: "json" });
     return json({
-      following: saved || {
-        players: [],
-        countries: []
-      }
+      following: saved || { players: [], countries: [], pinnedMatches: [] }
     });
   }
 
@@ -54,24 +43,17 @@ export async function onRequest(context) {
     }
 
     const value = {
-      players: Array.isArray(body.following?.players)
-        ? body.following.players.slice(0, 200)
-        : [],
-      countries: Array.isArray(body.following?.countries)
-        ? body.following.countries.slice(0, 80)
+      players: Array.isArray(body.following?.players) ? body.following.players.slice(0, 200) : [],
+      countries: Array.isArray(body.following?.countries) ? body.following.countries.slice(0, 80) : [],
+      pinnedMatches: Array.isArray(body.following?.pinnedMatches)
+        ? body.following.pinnedMatches.map(Number).filter(Number.isFinite).slice(0, 120)
         : [],
       updatedAt: new Date().toISOString()
     };
 
-    await env.FOLLOW_PREFS.put(
-      prefKey(body.league, body.manager),
-      JSON.stringify(value)
-    );
+    await env.FOLLOW_PREFS.put(prefKey(body.league, body.manager), JSON.stringify(value));
 
-    return json({
-      ok: true,
-      following: value
-    });
+    return json({ ok: true, following: value });
   }
 
   return json({ error: "Method not allowed" }, 405);
