@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V22_GROUPS_HERO_KO_FIX -->
+<!-- WC2026_BUILD_V23_GROUP_KO_HARDFIX -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -6807,6 +6807,123 @@ body.no-elim-discolour #gGrd tr.team-out img.flag-out,body.no-elim-discolour #tp
   if(window.visualViewport){visualViewport.addEventListener('scroll',keepBottom,{passive:true});visualViewport.addEventListener('resize',keepBottom,{passive:true});}
   setInterval(keepBottom,1200);
   setTimeout(function(){keepBottom();removeManagerCarousel();rHeroCards();upgradeLeaderWinnerCards();applyGroupRowColours();disableKoAutoScroll();},700);
+})();
+</script>
+
+<style id="v23-group-ko-hardfix-css">
+/* === v23 hard fix: remove row washout from mini standings, lock knockout round on vertical scroll === */
+/* Restore row colours by removing dependency on team-out row styling in group mini standings */
+#gGrd tr.r1>td,#gGrd tr.r2>td,#tpB tr.ti>td{background:rgba(76,175,80,.30)!important;color:inherit!important;opacity:1!important;filter:none!important}
+#gGrd tr.r3>td{background:rgba(255,152,0,.30)!important;color:inherit!important;opacity:1!important;filter:none!important}
+#gGrd tr.r4>td,#tpB tr.to>td{background:rgba(255,60,60,.30)!important;color:inherit!important;opacity:1!important;filter:none!important}
+body.light #gGrd tr.r1>td,body.light #gGrd tr.r2>td,body.light #tpB tr.ti>td{background:rgba(56,142,60,.16)!important;color:inherit!important;opacity:1!important;filter:none!important}
+body.light #gGrd tr.r3>td{background:rgba(245,127,23,.14)!important;color:inherit!important;opacity:1!important;filter:none!important}
+body.light #gGrd tr.r4>td,body.light #tpB tr.to>td{background:rgba(211,47,47,.14)!important;color:inherit!important;opacity:1!important;filter:none!important}
+#gGrd tr>td *,#tpB tr>td *{opacity:1!important}
+#gGrd img.flag-out,#tpB img.flag-out{filter:grayscale(1) contrast(.85)!important;opacity:.34!important}
+body.no-elim-discolour #gGrd img.flag-out,body.no-elim-discolour #tpB img.flag-out{filter:none!important;opacity:1!important}
+/* Stop any old eliminated row class from washing the table out */
+#gGrd tr,#tpB tr{filter:none!important;opacity:1!important}
+/* Knockout stability while vertically scrolling */
+@media(max-width:900px){
+  #bkRoundPanel.ko-locked{overflow-x:hidden!important;scroll-snap-type:none!important;overscroll-behavior-x:contain!important;touch-action:pan-y!important}
+  #bkRoundPanel.ko-locked .bk-round-slide{flex:0 0 74%!important;min-width:74%!important;}
+}
+</style>
+
+<script id="v23-group-ko-hardfix-js">
+(function(){
+  function safeIsElim(team){try{return team&&window.isTeamEliminated&&isTeamEliminated(team);}catch(e){return false;}}
+  function stripGroupWashout(){
+    ['gGrd','tpB'].forEach(function(id){
+      var root=document.getElementById(id);if(!root)return;
+      root.querySelectorAll('tr.team-out').forEach(function(tr){
+        /* Key workaround: remove team-out from group/third-place rows so old CSS cannot wash out the row. */
+        tr.classList.remove('team-out');
+      });
+      root.querySelectorAll('tr').forEach(function(tr){
+        var teamTxt='';
+        var td=tr.querySelector('td.l');
+        if(td){
+          var img=td.querySelector('img');
+          teamTxt=(img&&img.getAttribute('data-team'))||(img&&img.getAttribute('alt'))||'';
+          if(!teamTxt){
+            var clone=td.cloneNode(true);
+            Array.prototype.forEach.call(clone.querySelectorAll('div,span,img'),function(n){n.remove&&n.remove();});
+            teamTxt=(clone.textContent||'').trim().split('\n')[0].trim();
+          }
+          if(teamTxt&&safeIsElim(teamTxt)){
+            var flag=td.querySelector('img');
+            if(flag){flag.classList.add('flag-out');flag.setAttribute('data-team',teamTxt);}
+          }
+        }
+        var bg='';
+        if(tr.classList.contains('r1')||tr.classList.contains('r2')||tr.classList.contains('ti'))bg='rgba(76,175,80,.30)';
+        else if(tr.classList.contains('r3'))bg='rgba(255,152,0,.30)';
+        else if(tr.classList.contains('r4')||tr.classList.contains('to'))bg='rgba(255,60,60,.30)';
+        if(bg){tr.querySelectorAll('td').forEach(function(cell){cell.style.setProperty('background',bg,'important');cell.style.setProperty('opacity','1','important');cell.style.setProperty('filter','none','important');});}
+      });
+    });
+  }
+
+  /* Knockout hard lock: selected horizontal round must survive vertical page scroll and re-renders. */
+  var lockedRound = (typeof window.bkRoundIdx==='number') ? window.bkRoundIdx : 0;
+  function getPanel(){return document.getElementById('bkRoundPanel');}
+  function getSlide(n){return document.getElementById('bkSlide'+n);}
+  function lockRound(n, smooth){
+    if(typeof n==='number' && !isNaN(n)) lockedRound=n;
+    window.bkRoundIdx=lockedRound;
+    var panel=getPanel(), slide=getSlide(lockedRound);
+    if(!panel||!slide)return;
+    panel.classList.add('ko-locked');
+    panel.onscroll=null;
+    var left=Math.max(0, slide.offsetLeft-14);
+    try{panel.scrollTo({left:left,behavior:smooth?'smooth':'auto'});}catch(e){panel.scrollLeft=left;}
+    var nav=document.getElementById('bkRoundNav');
+    if(nav){
+      nav.querySelectorAll('.seg-btn').forEach(function(btn,i){btn.classList.toggle('on',i===lockedRound);});
+      var active=document.getElementById('bkNav'+lockedRound);if(active&&active.scrollIntoView)try{active.scrollIntoView({behavior:smooth?'smooth':'auto',block:'nearest',inline:'center'});}catch(e){}
+    }
+  }
+  var baseBkSw=window.bkSw;
+  window.bkSw=function(n){
+    lockedRound=n; window.bkRoundIdx=n;
+    if(baseBkSw)baseBkSw(n);
+    setTimeout(function(){lockRound(n,true);},30);
+    setTimeout(function(){lockRound(n,false);},260);
+  };
+  var baseRender=window.renderBkMobile;
+  window.renderBkMobile=function(){
+    var keep=lockedRound;
+    window.bkRoundIdx=keep;
+    if(baseRender)baseRender();
+    lockedRound=keep; window.bkRoundIdx=keep;
+    setTimeout(function(){lockRound(keep,false);},20);
+    setTimeout(function(){lockRound(keep,false);},280);
+  };
+  var baseRKO=window.rKO;
+  window.rKO=function(){
+    var keep=lockedRound;
+    window.bkRoundIdx=keep;
+    if(baseRKO)baseRKO();
+    lockedRound=keep; window.bkRoundIdx=keep;
+    setTimeout(function(){lockRound(keep,false);},80);
+  };
+  function onVerticalScroll(){
+    if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on')){
+      requestAnimationFrame(function(){lockRound(lockedRound,false);});
+    }
+  }
+  window.addEventListener('scroll',onVerticalScroll,{passive:true,capture:true});
+  document.addEventListener('scroll',onVerticalScroll,{passive:true,capture:true});
+  if(window.visualViewport){visualViewport.addEventListener('scroll',onVerticalScroll,{passive:true});visualViewport.addEventListener('resize',onVerticalScroll,{passive:true});}
+
+  var baseRGR=window.rGR;
+  window.rGR=function(){if(baseRGR)baseRGR();setTimeout(stripGroupWashout,0);setTimeout(stripGroupWashout,100);};
+  var baseRAll=window.rAll;
+  window.rAll=function(){if(baseRAll)baseRAll();setTimeout(stripGroupWashout,40);setTimeout(function(){lockRound(lockedRound,false);},80);};
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(stripGroupWashout,400);setTimeout(function(){lockRound(lockedRound,false);},700);});
+  setInterval(function(){stripGroupWashout(); if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on'))lockRound(lockedRound,false);},1000);
 })();
 </script>
 </body></html>
