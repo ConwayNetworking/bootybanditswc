@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V20_BOTTOMBAR_ELIM_SETTINGS -->
+<!-- WC2026_BUILD_V21_MANAGER_SETTINGS_GROUPS_KO_CORE -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -6607,6 +6607,118 @@ body.no-elim-discolour img.flag-out,body.no-elim-discolour .flag-out,body.no-eli
   window.addEventListener('resize',function(){setTimeout(keepBottomBarFixed,50);},{passive:true});
   document.addEventListener('DOMContentLoaded',function(){setTimeout(polishAfterRender,80);});
   setTimeout(polishAfterRender,500);
+})();
+</script>
+
+<style id="v21-settings-groups-ko-css">
+/* === v21: per-manager settings cache, restored group colours, dynamic knockout spacing, no manager cards === */
+@media(max-width:900px){
+  #heroStack,.hero-stack{display:none!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important}
+}
+/* Restore main group/qualification row colours even when a team is eliminated. Only the flag should change. */
+.r1.team-out td,.r2.team-out td,.team-out.r1 td,.team-out.r2 td{background:rgba(76,175,80,.3)!important}
+.r3.team-out td,.team-out.r3 td{background:rgba(255,152,0,.3)!important}
+.r4.team-out td,.team-out.r4 td{background:rgba(255,60,60,.3)!important}
+.ti.team-out td,.team-out.ti td{background:rgba(76,175,80,.3)!important}
+.to.team-out td,.team-out.to td{background:rgba(255,60,60,.3)!important}
+.exp-tbl .grp-1.team-out td,.exp-tbl .grp-2.team-out td,.team-out.grp-1 td,.team-out.grp-2 td{background:rgba(76,175,80,.25)!important}
+.exp-tbl .grp-3.team-out td,.team-out.grp-3 td{background:rgba(255,152,0,.25)!important}
+.exp-tbl .grp-4.team-out td,.team-out.grp-4 td{background:rgba(255,60,60,.25)!important}
+.mt-q.team-out td,.team-out.mt-q td{background:rgba(76,175,80,.25)!important}.mt-a.team-out td,.team-out.mt-a td{background:rgba(255,193,7,.2)!important}.mt-c.team-out td,.team-out.mt-c td{background:rgba(33,150,243,.2)!important}.mt-e.team-out td,.team-out.mt-e td{background:rgba(244,67,54,.2)!important}
+body.light .r1.team-out td,body.light .r2.team-out td,body.light .team-out.r1 td,body.light .team-out.r2 td{background:rgba(56,142,60,.15)!important}
+body.light .r3.team-out td,body.light .team-out.r3 td{background:rgba(245,127,23,.12)!important}
+body.light .r4.team-out td,body.light .team-out.r4 td{background:rgba(211,47,47,.12)!important}
+body.light .ti.team-out td,body.light .team-out.ti td{background:rgba(56,142,60,.15)!important}
+body.light .to.team-out td,body.light .team-out.to td{background:rgba(211,47,47,.12)!important}
+/* but keep text normal, and let only flags grey out */
+.team-out td,.team-out .l,.team-out .l span,.team-out .fr-country,.team-out .fr-mgr{opacity:1!important;color:inherit!important;filter:none!important}
+body.no-elim-discolour img.flag-out{filter:none!important;opacity:1!important}
+@media(max-width:900px){
+  .bk-round-panel.v21-ko-panel{overflow-x:hidden!important;scroll-snap-type:none!important;touch-action:pan-y pinch-zoom!important}
+  .bk-round-panel.v21-ko-panel .bk-round-slide{position:relative!important;display:block!important;flex:0 0 74%!important;min-width:74%!important;transition:transform .32s cubic-bezier(.16,1,.3,1),opacity .2s ease!important}
+  .bk-round-panel.v21-ko-panel .ko-fm-item{position:absolute!important;left:0!important;right:0!important;margin-top:0!important}
+  .bk-round-panel.v21-ko-panel .bk-round-slide-title{position:absolute!important;top:0!important;left:0!important;right:0!important;height:24px!important}
+}
+</style>
+
+<script id="v21-settings-groups-ko-js">
+(function(){
+  function mgrSettingsKey(){return 'wc2026_manager_settings_v1_'+(window.curLg||'boys')+'_'+(window.curU||'guest');}
+  function currentSettings(){return {liveStandings:!!window.liveStandings,elimFlagDiscolour:window.elimFlagDiscolour!==false};}
+  function applySettings(s,rerender){
+    if(!s)return;
+    if(typeof s.liveStandings==='boolean')window.liveStandings=s.liveStandings;
+    if(typeof s.elimFlagDiscolour==='boolean')window.elimFlagDiscolour=s.elimFlagDiscolour;
+    try{sessionStorage.setItem('wc2026_live_standings',window.liveStandings?'true':'false');}catch(e){}
+    try{localStorage.setItem('wc2026_elim_flag_discolour',window.elimFlagDiscolour!==false?'true':'false');}catch(e){}
+    try{localStorage.setItem(mgrSettingsKey(),JSON.stringify(currentSettings()));}catch(e){}
+    if(typeof appLiveStandings==='function')appLiveStandings();
+    if(typeof appElimFlagDiscolour==='function')appElimFlagDiscolour();
+    if(rerender&&typeof rAll==='function')rAll();
+  }
+  window.saveManagerDisplaySettingsOnline=function(){
+    var s=currentSettings();
+    try{localStorage.setItem(mgrSettingsKey(),JSON.stringify(s));}catch(e){}
+    if(!window.curU)return;
+    fetch('/api/follow-preferences',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({league:window.curLg||'boys',manager:window.curU,settings:s})}).catch(function(){});
+  };
+  window.loadManagerDisplaySettingsOnline=function(){
+    var local=null;
+    try{var raw=localStorage.getItem(mgrSettingsKey());if(raw)local=JSON.parse(raw);}catch(e){}
+    if(local)applySettings(local,false);
+    if(!window.curU)return;
+    fetch('/api/follow-preferences?league='+encodeURIComponent(window.curLg||'boys')+'&manager='+encodeURIComponent(window.curU),{cache:'no-store'})
+      .then(function(r){if(!r.ok)throw new Error('settings');return r.json();})
+      .then(function(d){if(d&&d.settings)applySettings(d.settings,true);})
+      .catch(function(){});
+  };
+  var oldTglLive=window.tglLiveStandings;
+  window.tglLiveStandings=function(){if(oldTglLive)oldTglLive();saveManagerDisplaySettingsOnline();};
+  var oldTglElim=window.tglElimFlagDiscolour;
+  window.tglElimFlagDiscolour=function(){if(oldTglElim)oldTglElim();saveManagerDisplaySettingsOnline();};
+  var oldSetU=window.setU;
+  window.setU=function(){if(oldSetU)oldSetU();setTimeout(loadManagerDisplaySettingsOnline,80);};
+  var oldPick=window.pickMgr;
+  window.pickMgr=function(nm){if(oldPick)oldPick(nm);setTimeout(loadManagerDisplaySettingsOnline,80);};
+
+  /* Hide/remove the mobile manager hero cards so Fantasy League table is the focus. */
+  window.rHeroCards=function(){var h=document.getElementById('heroStack');if(h)h.innerHTML='';};
+  function removeHeroStack(){var h=document.getElementById('heroStack');if(h)h.innerHTML='';}
+
+  /* Dynamic FotMob knockout spacing: current round is compact; future rounds remain centered between corresponding matches. */
+  var PITCH=108, TOP=30;
+  function desiredRoundIndex(){return typeof window.bkRoundIdx==='number'?window.bkRoundIdx:0;}
+  function futureScale(rel){return Math.pow(2,Math.max(0,rel));}
+  window.layoutKoV21=function(){
+    var panel=document.getElementById('bkRoundPanel');if(!panel)return;
+    panel.classList.add('v21-ko-panel','v19-ko-panel');
+    var slides=panel.querySelectorAll('.bk-round-slide');if(!slides.length)return;
+    var active=Math.max(0,Math.min(desiredRoundIndex(),slides.length-1));
+    var activeCount=(slides[active].querySelectorAll('.ko-fm-item').length||1);
+    var panelHeight=TOP+(Math.max(activeCount,2)*PITCH)+95;
+    slides.forEach(function(slide,idx){
+      var items=slide.querySelectorAll('.ko-fm-item');
+      var rel=idx-active;
+      var scale=rel>0?futureScale(rel):1;
+      var offset=rel>0?(scale-1)/2:0;
+      items.forEach(function(item,i){
+        item.style.top=(TOP+((offset+i*scale)*PITCH))+'px';
+      });
+      var ownHeight=TOP+((offset+Math.max(0,items.length-1)*scale)*PITCH)+118;
+      slide.style.height=Math.max(panelHeight,ownHeight)+'px';
+    });
+    panel.style.height=panelHeight+'px';
+    panel.style.minHeight=panelHeight+'px';
+  };
+  var oldBkSw=window.bkSw;
+  window.bkSw=function(n){if(oldBkSw)oldBkSw(n);setTimeout(function(){layoutKoV21();},55);};
+  var oldRender=window.renderBkMobile;
+  window.renderBkMobile=function(){if(oldRender)oldRender();setTimeout(function(){layoutKoV21();},80);};
+  var oldRKO=window.rKO;
+  window.rKO=function(){if(oldRKO)oldRKO();setTimeout(function(){layoutKoV21();},120);};
+  var oldRAll=window.rAll;
+  window.rAll=function(){if(oldRAll)oldRAll();setTimeout(function(){removeHeroStack(); if(document.getElementById('bkRoundPanel'))layoutKoV21();},100);};
+  setTimeout(function(){removeHeroStack();loadManagerDisplaySettingsOnline();if(document.getElementById('bkRoundPanel'))layoutKoV21();},900);
 })();
 </script>
 </body></html>
