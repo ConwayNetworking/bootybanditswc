@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V21_MANAGER_SETTINGS_GROUPS_KO_CORE -->
+<!-- WC2026_BUILD_V22_GROUPS_HERO_KO_FIX -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -6719,6 +6719,94 @@ body.no-elim-discolour img.flag-out{filter:none!important;opacity:1!important}
   var oldRAll=window.rAll;
   window.rAll=function(){if(oldRAll)oldRAll();setTimeout(function(){removeHeroStack(); if(document.getElementById('bkRoundPanel'))layoutKoV21();},100);};
   setTimeout(function(){removeHeroStack();loadManagerDisplaySettingsOnline();if(document.getElementById('bkRoundPanel'))layoutKoV21();},900);
+})();
+</script>
+
+<style id="v22-groups-hero-ko-fix-css">
+/* === v22: restored group colours, restored hero cards, upgraded leader/winner cards, removed manager carousel, KO scroll bug fix === */
+@media(max-width:900px){
+  /* Re-instate the original mobile Hero cards that v21 accidentally hid */
+  #heroStack.hero-stack,.hero-stack{display:flex!important;flex-direction:column!important;gap:10px!important;height:auto!important;min-height:0!important;padding:12px!important;margin-bottom:8px!important;overflow:visible!important}
+  /* Remove the newer swipeable manager carousel completely */
+  #mgrCarouselWrap,.mgr-carousel-wrap,.mgr-carousel{display:none!important;height:0!important;max-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}
+}
+/* Stronger group row colour restoration: cells keep the original rank colour even when team-out exists */
+#gGrd tr.r1.team-out>td,#gGrd tr.r2.team-out>td,#gGrd tr.team-out.r1>td,#gGrd tr.team-out.r2>td,#tpB tr.ti.team-out>td,#tpB tr.team-out.ti>td{background:rgba(76,175,80,.30)!important;color:inherit!important;opacity:1!important;filter:none!important}
+#gGrd tr.r3.team-out>td,#gGrd tr.team-out.r3>td{background:rgba(255,152,0,.30)!important;color:inherit!important;opacity:1!important;filter:none!important}
+#gGrd tr.r4.team-out>td,#gGrd tr.team-out.r4>td,#tpB tr.to.team-out>td,#tpB tr.team-out.to>td{background:rgba(255,60,60,.30)!important;color:inherit!important;opacity:1!important;filter:none!important}
+body.light #gGrd tr.r1.team-out>td,body.light #gGrd tr.r2.team-out>td,body.light #gGrd tr.team-out.r1>td,body.light #gGrd tr.team-out.r2>td,body.light #tpB tr.ti.team-out>td{background:rgba(56,142,60,.16)!important}
+body.light #gGrd tr.r3.team-out>td,body.light #gGrd tr.team-out.r3>td{background:rgba(245,127,23,.14)!important}
+body.light #gGrd tr.r4.team-out>td,body.light #gGrd tr.team-out.r4>td,body.light #tpB tr.to.team-out>td{background:rgba(211,47,47,.14)!important}
+#gGrd tr.team-out img.flag-out,#tpB tr.team-out img.flag-out{filter:grayscale(1) contrast(.85)!important;opacity:.34!important}
+body.no-elim-discolour #gGrd tr.team-out img.flag-out,body.no-elim-discolour #tpB tr.team-out img.flag-out{filter:none!important;opacity:1!important}
+/* Upgraded core League cards */
+.wb-row{gap:12px!important;margin-bottom:16px!important}.wb{position:relative!important;overflow:hidden!important;border-radius:18px!important;padding:18px 16px!important;text-align:left!important;box-shadow:0 10px 24px rgba(0,0,0,.18)!important;min-height:118px!important}.wb::after{content:'';position:absolute;right:-30px;top:-35px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}.wb.pts{background:linear-gradient(135deg,rgba(16,185,129,.22),rgba(99,102,241,.12))!important;border:1px solid rgba(16,185,129,.38)!important}.wb.chp{background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(99,102,241,.10))!important;border:1px solid rgba(245,158,11,.40)!important}.wb h3{color:#a7f3d0!important;font-size:.70em!important;font-weight:900!important;letter-spacing:1.3px!important;margin-bottom:8px!important;position:relative;z-index:1}.wb.chp h3{color:#fde68a!important}.wb .wv{font-size:1.45em!important;font-weight:950!important;color:#fff!important;line-height:1.1!important;position:relative;z-index:1}.wb .ws{font-size:.78em!important;color:#cbd5e1!important;font-weight:650!important;margin-top:6px!important;position:relative;z-index:1}.wb .wv img{height:22px!important;border-radius:3px!important;margin-right:5px}.wb-card-extra{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;position:relative;z-index:1}.wb-mini-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#e5e7eb;font-size:.68em;font-weight:800}.wb-mini-pill img{height:14px!important}body.light .wb{box-shadow:0 8px 18px rgba(16,24,40,.08)!important}body.light .wb .wv{color:#111827!important}body.light .wb .ws{color:#475569!important}body.light .wb-mini-pill{background:rgba(255,255,255,.78);color:#1f2937;border-color:#e5e7eb}
+@media(max-width:900px){.wb-row{display:grid!important;grid-template-columns:1fr!important}.wb{margin:0 12px!important;min-width:0!important}.fly{margin-top:4px!important}}
+/* Bottom bar hard pin */
+@media(max-width:900px){.btb,#btb{position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;transform:translate3d(-50%,0,0)!important;z-index:2147483000!important;margin:0!important;translate:none!important}.live-mini-bar{z-index:2147482999!important}}
+</style>
+
+<script id="v22-groups-hero-ko-fix-js">
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function keepBottom(){
+    var b=document.getElementById('btb')||document.querySelector('.btb');
+    if(!b)return;
+    if(b.parentNode!==document.body)document.body.appendChild(b);
+    b.style.setProperty('position','fixed','important');b.style.setProperty('left','50%','important');b.style.setProperty('right','auto','important');b.style.setProperty('top','auto','important');b.style.setProperty('bottom','calc(12px + env(safe-area-inset-bottom))','important');b.style.setProperty('transform','translate3d(-50%,0,0)','important');b.style.setProperty('z-index','2147483000','important');b.style.setProperty('margin','0','important');
+  }
+  function removeManagerCarousel(){
+    var el=document.getElementById('mgrCarouselWrap');if(el)el.remove();
+    document.querySelectorAll('.mgr-carousel-wrap,.mgr-carousel').forEach(function(x){x.remove();});
+  }
+  window.renderManagerCarousel=function(){removeManagerCarousel();};
+
+  function managerFlags(nm,sz){var h='';try{(MGR[nm]||[]).forEach(function(t){if(FC[t])h+=fi(t,sz||14);});}catch(e){}return h;}
+  function upgradeLeaderWinnerCards(){
+    try{
+      var arr=cFan();
+      if(arr&&arr.length){
+        var lead=arr[0], pLd=document.getElementById('pLd'), pLs=document.getElementById('pLs');
+        if(pLd)pLd.innerHTML='<span class="mgr-click" data-mgr="'+esc(lead[0])+'">'+esc(lead[0])+'</span>';
+        if(pLs){pLs.innerHTML='<div>'+lead[1].pts+' pts · GD '+(lead[1].gd>0?'+':'')+lead[1].gd+' · '+lead[1].w+' wins</div><div class="wb-card-extra">'+managerFlags(lead[0],14)+'</div>';}
+      }
+      var fin=RS[104], wcW=document.getElementById('wcW'), wcS=document.getElementById('wcS');
+      if(fin&&wcW&&wcS){var ft=gKM(104);if(ft&&ft[0]&&ft[1]){var wn=fin.s1>fin.s2?ft[0]:ft[1];wcW.innerHTML=fi(wn,22)+' '+esc(wn);wcS.innerHTML='<div>Managed by '+esc(CO[wn]||'?')+'</div><div class="wb-card-extra"><span class="wb-mini-pill">Final winner</span><span class="wb-mini-pill">M104</span></div>';}}
+      else if(wcW&&wcS){wcW.innerHTML='TBD';wcS.innerHTML='<div>Final not yet played</div><div class="wb-card-extra"><span class="wb-mini-pill">Road to the final active</span></div>';}
+    }catch(e){}
+  }
+  /* Restore original mobile hero cards (Points Leader / Your Standing) that were hidden by v21. */
+  window.rHeroCards=function(){
+    var wrap=document.getElementById('heroStack');if(!wrap)return;
+    if(window.innerWidth>900){wrap.innerHTML='';return;}
+    var arr=cFan&&cFan();if(!arr||!arr.length){wrap.innerHTML='';return;}
+    var rows=arr.map(function(pair){return{nm:pair[0],s:pair[1]};});
+    function flagStrip(nm){return managerFlags(nm,18);}
+    var champ=rows[0];
+    var h='<div class="hero-card"><div class="hero-card-label">🏆 Points Leader</div><div class="hero-card-name"><span class="mgr-click" data-mgr="'+esc(champ.nm)+'">'+esc(champ.nm)+'</span><span class="hero-card-pos">1st</span></div><div class="hero-card-flags">'+flagStrip(champ.nm)+'</div><div class="hero-card-stats"><div class="hero-stat"><div class="hero-stat-v">'+champ.s.pts+'</div><div class="hero-stat-l">Pts</div></div><div class="hero-stat"><div class="hero-stat-v">'+(champ.s.gd>0?'+':'')+champ.s.gd+'</div><div class="hero-stat-l">GD</div></div><div class="hero-stat"><div class="hero-stat-v">'+champ.s.w+'</div><div class="hero-stat-l">W</div></div><div class="hero-stat"><div class="hero-stat-v">'+champ.s.p+'</div><div class="hero-stat-l">P</div></div></div></div>';
+    if(curU&&MGR[curU]){var youPos=-1;for(var i=0;i<rows.length;i++){if(rows[i].nm===curU){youPos=i+1;break;}}if(youPos>0){var you=rows[youPos-1], diff=rows[0].s.pts-you.s.pts, suf=youPos===1?'st':youPos===2?'nd':youPos===3?'rd':'th';h+='<div class="hero-card you"><div class="hero-card-label">⭐ Your Standing</div><div class="hero-card-name"><span class="mgr-click" data-mgr="'+esc(you.nm)+'">'+esc(you.nm)+'</span><span class="hero-card-pos">'+youPos+suf+'</span></div><div class="hero-card-flags">'+flagStrip(you.nm)+'</div><div class="hero-card-stats"><div class="hero-stat"><div class="hero-stat-v">'+you.s.pts+'</div><div class="hero-stat-l">Pts</div></div><div class="hero-stat"><div class="hero-stat-v">'+(you.s.gd>0?'+':'')+you.s.gd+'</div><div class="hero-stat-l">GD</div></div><div class="hero-stat"><div class="hero-stat-v">'+you.s.w+'</div><div class="hero-stat-l">W</div></div><div class="hero-stat"><div class="hero-stat-v">'+(diff>0?'-'+diff:'leader')+'</div><div class="hero-stat-l">vs 1st</div></div></div></div>';}}
+    wrap.innerHTML=h;
+  };
+  function applyGroupRowColours(){
+    var map=[['r1','rgba(76,175,80,.30)'],['r2','rgba(76,175,80,.30)'],['r3','rgba(255,152,0,.30)'],['r4','rgba(255,60,60,.30)'],['ti','rgba(76,175,80,.30)'],['to','rgba(255,60,60,.30)']];
+    document.querySelectorAll('#gGrd tr.team-out,#tpB tr.team-out').forEach(function(tr){
+      var bg='';map.forEach(function(x){if(tr.classList.contains(x[0]))bg=x[1];});
+      if(bg)tr.querySelectorAll('td').forEach(function(td){td.style.setProperty('background',bg,'important');td.style.setProperty('opacity','1','important');td.style.setProperty('filter','none','important');});
+      tr.querySelectorAll('img.flag-out').forEach(function(img){if(document.body.classList.contains('no-elim-discolour')){img.style.setProperty('filter','none','important');img.style.setProperty('opacity','1','important');}else{img.style.setProperty('filter','grayscale(1) contrast(.85)','important');img.style.setProperty('opacity','.34','important');}});
+    });
+  }
+  /* Knockout bug: preserve selected round while vertically scrolling; never let render/scroll reset to R32. */
+  var selectedRound=typeof bkRoundIdx==='number'?bkRoundIdx:0;
+  function preserveRound(){if(typeof bkRoundIdx==='number')selectedRound=bkRoundIdx;}
+  var oldBkSw=window.bkSw;window.bkSw=function(n){selectedRound=n; if(oldBkSw)oldBkSw(n); setTimeout(function(){selectedRound=n;bkRoundIdx=n;if(window.layoutKoV21)layoutKoV21();if(window.centerBkRoundV19)centerBkRoundV19(n,false);disableKoAutoScroll();},80);};
+  function disableKoAutoScroll(){var p=document.getElementById('bkRoundPanel');if(p){p.onscroll=null;p._bkSwLock=true;setTimeout(function(){if(p)p._bkSwLock=false;},300);}}
+  var oldRender=window.renderBkMobile;window.renderBkMobile=function(){var keep=selectedRound;if(oldRender)oldRender();selectedRound=keep;bkRoundIdx=keep;setTimeout(function(){bkRoundIdx=selectedRound;if(window.layoutKoV21)layoutKoV21();if(window.centerBkRoundV19)centerBkRoundV19(selectedRound,false);disableKoAutoScroll();},60);};
+  var oldRKO=window.rKO;window.rKO=function(){var keep=selectedRound;if(oldRKO)oldRKO();selectedRound=keep;bkRoundIdx=keep;setTimeout(function(){bkRoundIdx=selectedRound;if(window.layoutKoV21)layoutKoV21();disableKoAutoScroll();},120);};
+  var oldRAll=window.rAll;window.rAll=function(){if(oldRAll)oldRAll();setTimeout(function(){keepBottom();removeManagerCarousel();rHeroCards();upgradeLeaderWinnerCards();applyGroupRowColours();if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on')){bkRoundIdx=selectedRound;if(window.layoutKoV21)layoutKoV21();disableKoAutoScroll();}},80);};
+  window.addEventListener('scroll',function(){requestAnimationFrame(function(){keepBottom();});},{passive:true});
+  if(window.visualViewport){visualViewport.addEventListener('scroll',keepBottom,{passive:true});visualViewport.addEventListener('resize',keepBottom,{passive:true});}
+  setInterval(keepBottom,1200);
+  setTimeout(function(){keepBottom();removeManagerCarousel();rHeroCards();upgradeLeaderWinnerCards();applyGroupRowColours();disableKoAutoScroll();},700);
 })();
 </script>
 </body></html>
