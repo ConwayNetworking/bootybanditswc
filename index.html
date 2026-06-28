@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V15_SWIPE_KO_POLISH -->
+<!-- WC2026_BUILD_V17_MOBILE_ENHANCEMENTS -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -1525,7 +1525,7 @@ body.light .h2h-mini-team{color:#333}
 <div class="hl" id="hLst"></div>
 </div></div></div></div>
 <div class="tp" id="tab_myteams"><div id="myC"></div></div>
-<div class="tp" id="tab_matches"><nav class="sub-tabs" id="matchesSubTabs"><button class="sub-tab on" onclick="subTabGo('mc')">Matches</button><button class="sub-tab" onclick="subTabGo('groups')">Groups</button><button class="sub-tab" onclick="subTabGo('knockout')">Knockout</button></nav><div class="cd" style="border:1px solid rgba(16,185,129,.3)">
+<div class="tp" id="tab_matches"><nav class="sub-tabs" id="matchesSubTabs"><button class="sub-tab on" onclick="subTabGo('mc')">Fixtures</button><button class="sub-tab" onclick="subTabGo('groups')">Groups</button><button class="sub-tab" onclick="subTabGo('knockout')">Knockout</button></nav><div class="cd" style="border:1px solid rgba(16,185,129,.3)">
 <h2 style="color:#10b981">📅 Matches <span style="font-size:.72em;color:#888">(NZT)</span></h2>
 <div class="mcf" id="mcFl"></div><button type="button" class="mc-fbtn" onclick="openMcFiltSheet()"><svg viewBox="0 0 24 24"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Filters<span class="mc-fbtn-count" id="mcFbtnCount" style="display:none">1</span></button><input type="text" class="mc-search" id="mcSearch" placeholder="Search country or manager..." oninput="filterMC()">
 <div id="mcLs"></div><div id="mcLsMobile"></div></div></div>
@@ -6033,6 +6033,287 @@ body.light .mgrp-item-name{color:#111827!important}.mgrp-force-note{padding:0 18
   var oldRAll=window.rAll;
   window.rAll=function(){if(oldRAll)oldRAll();setTimeout(function(){fixBottomTabSizing();setupSmoothNextSwipe();renderNxDots();if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on'))enhanceKnockoutPaths();},40);};
   setTimeout(function(){fixBottomTabSizing();setupSmoothNextSwipe();renderNxDots();enhanceKnockoutPaths();},600);
+})();
+</script>
+
+<style id="v16-swipe-ko-fixes-css">
+/* === v16: no double-swipe skip, half-drag panes, clearer knockout paths === */
+@media(max-width:900px){
+  /* Bottom tabs equal; mini tab specifically says Fixtures */
+  .btb-btn{min-width:62px!important;width:62px!important;padding:9px 8px!important}
+  .btb-btn[data-bt="matches"] .btb-btn-lbl{font-size:.62em!important;font-weight:600!important;letter-spacing:.3px!important}
+  .btb-btn[data-bt="matches"] .btb-btn-lbl::after{content:none!important}
+  #matchesSubTabs .sub-tab:first-child{font-size:0!important}
+  #matchesSubTabs .sub-tab:first-child::after{content:'Fixtures';font-size:12px!important}
+  /* Pull/half-swipe feel for match date panes */
+  #mcLsMobile .mcm-day-content{will-change:transform,opacity;transition:transform .28s cubic-bezier(.16,1,.3,1),opacity .22s ease}
+  #mcLsMobile.swiping .mcm-day-content{transition:none!important}
+  .mcm-pane-out-left{animation:mcmPaneOutLeft .16s ease forwards}.mcm-pane-out-right{animation:mcmPaneOutRight .16s ease forwards}
+  @keyframes mcmPaneOutLeft{to{transform:translateX(-42px);opacity:0}}
+  @keyframes mcmPaneOutRight{to{transform:translateX(42px);opacity:0}}
+  /* clearer knockout path/source grouping */
+  .bk-round-slide{align-self:flex-start!important;min-height:0!important;padding-top:0!important}
+  .bk-round-item{position:relative;margin-bottom:12px!important}
+  .bk-source-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 8px}
+  .bk-source-mini{border:1px solid rgba(245,158,11,.18);background:rgba(245,158,11,.055);border-radius:10px;padding:6px 7px;min-width:0}
+  body.light .bk-source-mini{background:rgba(245,158,11,.045);border-color:rgba(217,119,6,.16)}
+  .bk-source-title{font-size:.54em;font-weight:900;color:#f59e0b;letter-spacing:.7px;text-transform:uppercase;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bk-source-team{font-size:.66em;color:#d1d5db;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35} body.light .bk-source-team{color:#374151}
+  .bk-source-team.w{color:#10b981;font-weight:800}
+  .bk-source-connector{display:flex;align-items:center;justify-content:center;color:#10b981;font-size:.65em;font-weight:900;text-transform:uppercase;letter-spacing:.8px;margin:2px 0 5px}
+  .bk-match-focus{box-shadow:0 0 0 1px rgba(16,185,129,.18),0 8px 16px rgba(0,0,0,.12)}
+}
+</style>
+
+<script id="v16-swipe-ko-fixes-js">
+(function(){
+  /* 1) Fix upcoming-match swipe skipping: older v14 and newer v15 swipe handlers both called nxNav; this lock makes duplicate calls harmless. */
+  var _nxCore = window.nxNav;
+  var nxAnimating=false;
+  window.nxNav=function(dir){
+    if(nxAnimating)return;
+    if(!window.nxList||!nxList.length)return;
+    var ni=nxIdx+dir;if(ni<0||ni>=nxList.length)return;
+    nxAnimating=true;
+    if(_nxCore)_nxCore(dir);
+    setTimeout(function(){nxAnimating=false;},460);
+  };
+
+  function keepMiniTabFixtures(){
+    var first=document.querySelector('#matchesSubTabs .sub-tab:first-child');
+    if(first)first.textContent='Fixtures';
+    document.querySelectorAll('.btb-btn[data-bt="matches"] .btb-btn-lbl').forEach(function(el){el.textContent='Matches';});
+  }
+
+  /* 2) Smoother half-drag swipe between mobile fixture date panes. */
+  function sortedMcmDates(){return Array.prototype.map.call(document.querySelectorAll('.mcm-date-chip[data-date]'),function(x){return x.getAttribute('data-date');}).filter(Boolean).sort();}
+  function mcmMoveBy(dir){
+    var dates=sortedMcmDates();if(!dates.length||typeof mcmActiveDate==='undefined')return false;
+    var idx=dates.indexOf(mcmActiveDate);if(idx<0)return false;
+    var ni=idx+dir;if(ni<0||ni>=dates.length)return false;
+    var cont=document.getElementById('mcmDayContent');
+    if(cont){cont.classList.add(dir>0?'mcm-pane-out-left':'mcm-pane-out-right');}
+    setTimeout(function(){if(typeof mcmGoToDate==='function')mcmGoToDate(dates[ni]);},105);
+    return true;
+  }
+  function setupFixtureHalfSwipe(){
+    var wrap=document.getElementById('mcLsMobile');if(!wrap||wrap._v16Swipe)return;wrap._v16Swipe=true;
+    var sx=0,sy=0,st=0,tracking=false,content=null;
+    wrap.addEventListener('touchstart',function(e){
+      if(e.touches.length!==1)return;
+      var target=e.target;if(target.closest&&target.closest('button,input,select,.mcm-date-nav,.pin-btn'))return;
+      content=document.getElementById('mcmDayContent');if(!content)return;
+      var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();tracking=true;wrap.classList.add('swiping');
+    },{passive:true});
+    wrap.addEventListener('touchmove',function(e){
+      if(!tracking||!content)return;
+      var t=e.touches[0];var dx=t.clientX-sx,dy=t.clientY-sy;
+      if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>18){tracking=false;wrap.classList.remove('swiping');content.style.transform='';content.style.opacity='';return;}
+      var cap=Math.max(-92,Math.min(92,dx));
+      content.style.transform='translateX('+cap+'px) scale('+(1-Math.min(Math.abs(cap),92)/500)+')';
+      content.style.opacity=String(1-Math.min(Math.abs(cap),92)/240);
+    },{passive:true});
+    wrap.addEventListener('touchend',function(e){
+      if(!tracking||!content)return;tracking=false;wrap.classList.remove('swiping');
+      var t=e.changedTouches[0];var dx=t.clientX-sx,dy=t.clientY-sy,el=Date.now()-st;
+      content.style.transform='';content.style.opacity='';
+      if(el>800||Math.abs(dy)>Math.abs(dx)*.85||Math.abs(dx)<54){return;}
+      if(dx<0)mcmMoveBy(1);else mcmMoveBy(-1);
+      if(navigator.vibrate)try{navigator.vibrate(6);}catch(e){}
+    },{passive:true});
+  }
+
+  /* 3) Knockout: show each later-round game directly with the two feed-in games above it. */
+  function koById2(id){for(var i=0;i<KO.length;i++){if(KO[i][0]===id)return KO[i];}return null;}
+  function slotId(slot,prefix){if(!slot||slot[0]!==prefix)return null;var n=parseInt(slot.substring(1),10);return isNaN(n)?null:n;}
+  function matchTeamsText(mid){
+    var k=koById2(mid);if(!k)return {a:'TBD',b:'TBD',aw:false,bw:false};
+    var t=(typeof gKM==='function')?gKM(mid):null;
+    var a=t&&t[0]?t[0]:k[2], b=t&&t[1]?t[1]:k[3];
+    var r=ftRes(mid)||RS[mid];var aw=false,bw=false;
+    if(r){var w=koWin(r,[a,b]);aw=w===a;bw=w===b;}
+    return {a:a,b:b,aw:aw,bw:bw,grp:k[1]};
+  }
+  function sourceMini(mid,label){
+    if(!mid)return '<div class="bk-source-mini"><div class="bk-source-title">'+label+'</div><div class="bk-source-team">TBD</div><div class="bk-source-team">TBD</div></div>';
+    var t=matchTeamsText(mid);
+    return '<div class="bk-source-mini"><div class="bk-source-title">'+label+' · M'+mid+'</div><div class="bk-source-team '+(t.aw?'w':'')+'">'+((FC&&FC[t.a])?fi(t.a,12)+' ':'')+t.a+'</div><div class="bk-source-team '+(t.bw?'w':'')+'">'+((FC&&FC[t.b])?fi(t.b,12)+' ':'')+t.b+'</div></div>';
+  }
+  function addSourcePairs(){
+    var panel=document.getElementById('bkRoundPanel');if(!panel)return;
+    panel.querySelectorAll('.bk-round-item').forEach(function(item){
+      if(item.querySelector('.bk-source-pair'))return;
+      var bl=item.querySelector('.bl');if(!bl)return;
+      var mm=(bl.textContent||'').match(/M(\d+)/);if(!mm)return;
+      var k=koById2(parseInt(mm[1],10));if(!k)return;
+      var s1=slotId(k[2],'W'),s2=slotId(k[3],'W');
+      if(!s1&&!s2)return;
+      var pair=document.createElement('div');
+      pair.className='bk-source-pair';
+      pair.innerHTML=sourceMini(s1,'Feeds in')+sourceMini(s2,'Feeds in');
+      var focus=document.createElement('div');focus.className='bk-source-connector';focus.textContent='Winner paths meet here';
+      item.insertBefore(focus,item.firstChild);
+      item.insertBefore(pair,item.firstChild);
+      var match=item.querySelector('.bk-m');if(match)match.classList.add('bk-match-focus');
+    });
+  }
+  function centerKnockoutRound(){
+    var panel=document.getElementById('bkRoundPanel');var target=document.getElementById('bkSlide'+(typeof bkRoundIdx==='number'?bkRoundIdx:0));
+    if(panel&&target){
+      var left=target.offsetLeft-(panel.clientWidth-target.offsetWidth)/2;
+      try{panel.scrollTo({left:Math.max(0,left),behavior:'smooth'});}catch(e){panel.scrollLeft=Math.max(0,left);}
+    }
+    var ko=document.getElementById('tab_knockout');
+    if(ko&&ko.classList.contains('on')){
+      var card=ko.querySelector('.cd');
+      if(card){try{card.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){card.scrollIntoView(true);}}
+    }
+  }
+  var _renderBk=window.renderBkMobile;
+  window.renderBkMobile=function(){if(_renderBk)_renderBk();setTimeout(function(){addSourcePairs();centerKnockoutRound();},40);};
+  var _bkSw=window.bkSw;
+  window.bkSw=function(n){if(_bkSw)_bkSw(n);setTimeout(function(){addSourcePairs();centerKnockoutRound();},120);};
+  var _rKO=window.rKO;
+  window.rKO=function(){if(_rKO)_rKO();setTimeout(function(){addSourcePairs();centerKnockoutRound();},80);};
+
+  var _rMCM=window.rMCMobile;
+  window.rMCMobile=function(){if(_rMCM)_rMCM();setTimeout(function(){setupFixtureHalfSwipe();keepMiniTabFixtures();},30);};
+  var _rAll=window.rAll;
+  window.rAll=function(){if(_rAll)_rAll();setTimeout(function(){keepMiniTabFixtures();setupFixtureHalfSwipe();if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on')){addSourcePairs();centerKnockoutRound();}},90);};
+  setTimeout(function(){keepMiniTabFixtures();setupFixtureHalfSwipe();addSourcePairs();},700);
+})();
+</script>
+
+<style id="v17-mobile-enhancements-css">
+/* === v17: sticky live bar, today card, manager carousel, my-path KO, filter sheet, haptics === */
+@media(max-width:900px){
+  body.has-live-mini{padding-bottom:calc(128px + env(safe-area-inset-bottom))!important}
+  .live-mini-bar{display:none;position:fixed;left:50%;bottom:calc(78px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(14px);width:calc(100vw - 26px);max-width:520px;z-index:199;background:linear-gradient(135deg,rgba(239,68,68,.96),rgba(245,158,11,.94));color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:9px 11px;box-shadow:0 12px 28px rgba(0,0,0,.42);opacity:0;transition:opacity .22s ease,transform .22s cubic-bezier(.2,.8,.2,1);-webkit-tap-highlight-color:transparent;cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .live-mini-bar.show{display:block;opacity:1;transform:translateX(-50%) translateY(0)}
+  .live-mini-row{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center}.live-mini-dot{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.85);animation:liveDot 1.1s ease-in-out infinite}.live-mini-main{min-width:0}.live-mini-kicker{font-size:.58em;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;opacity:.86}.live-mini-teams{font-size:.82em;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}.live-mini-meta{font-size:.64em;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.live-mini-score{font-size:1em;font-weight:950;background:rgba(0,0,0,.18);border-radius:11px;padding:6px 9px;font-variant-numeric:tabular-nums;min-width:54px;text-align:center}.live-mini-close{border:none;background:rgba(0,0,0,.18);color:#fff;border-radius:999px;width:23px;height:23px;font-size:15px;font-weight:900;margin-left:5px;cursor:pointer}
+  .mt-today-card{margin:0 0 12px;background:linear-gradient(135deg,rgba(16,185,129,.13),rgba(99,102,241,.09));border:1px solid rgba(16,185,129,.24);border-radius:16px;padding:12px}.mt-today-title{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:.72em;font-weight:900;color:#10b981;text-transform:uppercase;letter-spacing:1.1px;margin-bottom:8px}.mt-today-pill{background:rgba(16,185,129,.16);border:1px solid rgba(16,185,129,.23);border-radius:999px;padding:3px 8px;color:#10b981;font-size:.78em}.mt-today-list{display:flex;flex-direction:column;gap:7px}.mt-today-row{display:grid;grid-template-columns:48px 1fr auto;gap:8px;align-items:center;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);border-radius:12px;padding:8px;cursor:pointer}.mt-today-time{font-size:.74em;color:#a7f3d0;font-weight:800;text-align:center}.mt-today-match{min-width:0;font-size:.82em;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mt-today-sub{font-size:.68em;color:#9aa0ac;margin-top:2px}.mt-today-status{font-size:.62em;font-weight:900;border-radius:8px;padding:4px 7px;background:rgba(99,102,241,.16);color:#a5b4fc;text-transform:uppercase}.mt-today-status.live{background:rgba(239,68,68,.18);color:#ff8a8a}.mt-today-status.ft{background:rgba(148,163,184,.14);color:#cbd5e1}
+  body.light .mt-today-card{background:linear-gradient(135deg,rgba(5,150,105,.07),rgba(99,102,241,.045));border-color:rgba(5,150,105,.18)}body.light .mt-today-match{color:#1c1e26}body.light .mt-today-row{background:#fff;border-color:#e8edf3}
+  .mgr-carousel-wrap{display:none}.mgr-carousel-title{font-size:.72em;font-weight:900;color:#10b981;text-transform:uppercase;letter-spacing:1.2px;padding:0 13px 8px}.mgr-carousel{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;padding:0 12px 12px;scrollbar-width:none}.mgr-carousel::-webkit-scrollbar{display:none}.mgr-card{flex:0 0 76%;scroll-snap-align:center;background:linear-gradient(135deg,rgba(255,255,255,.045),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);cursor:pointer;-webkit-tap-highlight-color:transparent}.mgr-card.me{border-color:rgba(16,185,129,.42);background:linear-gradient(135deg,rgba(16,185,129,.13),rgba(99,102,241,.06))}.mgr-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.mgr-card-name{font-size:1.05em;font-weight:950;color:#fff}.mgr-card-rank{background:rgba(16,185,129,.14);color:#10b981;border:1px solid rgba(16,185,129,.22);border-radius:12px;padding:5px 8px;font-size:.75em;font-weight:950}.mgr-card-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:10px 0}.mgr-card-stat{text-align:center;border-radius:9px;background:rgba(255,255,255,.04);padding:6px 2px}.mgr-card-v{font-size:.94em;font-weight:950;color:#fff}.mgr-card-l{font-size:.51em;color:#8d95a3;text-transform:uppercase;letter-spacing:.4px}.mgr-card-flags{display:flex;gap:4px;flex-wrap:wrap}.mgr-card-flags img{height:17px!important;border-radius:3px}body.light .mgr-card{background:#fff;border-color:#e8edf3}body.light .mgr-card-name,body.light .mgr-card-v{color:#111827}.mgr-carousel-wrap.show{display:block}
+  .ko-path-toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:0 2px 10px}.ko-path-btn{flex:1;border:1px solid rgba(245,158,11,.28);background:rgba(245,158,11,.1);color:#f59e0b;border-radius:13px;padding:9px 11px;font-family:inherit;font-size:.73em;font-weight:900;letter-spacing:.5px;text-transform:uppercase;cursor:pointer}.ko-path-btn.on{background:#f59e0b;color:#111318}.ko-path-count{font-size:.63em;color:#888;min-width:70px;text-align:right}.ko-my-path-on .bk-round-item:not(.my-path-match){opacity:.18;filter:grayscale(.8);max-height:48px;overflow:hidden}.bk-round-item.my-path-match{border-color:rgba(245,158,11,.38)!important;background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(16,185,129,.05))!important}.bk-round-item.my-path-match::after{content:'MY PATH';position:absolute;right:8px;top:7px;background:#f59e0b;color:#111318;font-size:.5em;font-weight:950;border-radius:999px;padding:3px 7px;letter-spacing:.6px}
+  .mcfilt-box.v17{border-radius:22px 22px 0 0!important}.mcfilt-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px}.mcfilt-title{font-size:1.05em;font-weight:950;color:#fff}.mcfilt-sub{font-size:.7em;color:#8d95a3;margin-top:1px}.mcfilt-close{border:none;background:rgba(255,255,255,.06);color:#9aa0ac;border-radius:999px;width:32px;height:32px;font-size:18px;cursor:pointer}.mcfilt-actions{display:flex;gap:8px;padding:0 14px 12px}.mcfilt-action{flex:1;border:1px solid rgba(16,185,129,.22);background:rgba(16,185,129,.08);color:#10b981;border-radius:11px;padding:9px 8px;font-family:inherit;font-size:.72em;font-weight:850;cursor:pointer}.mcfilt-action.secondary{border-color:rgba(148,163,184,.18);background:rgba(148,163,184,.06);color:#cbd5e1}.mcfilt-chip.livechip{border-color:rgba(239,68,68,.25)!important;color:#ff8a8a!important}.mcfilt-chip.on.livechip{background:#ef4444!important;color:#fff!important;border-color:#ef4444!important}.mcfilt-chip.finalchip{border-color:rgba(245,158,11,.25)!important;color:#f59e0b!important}.mcfilt-chip.on.finalchip{background:#f59e0b!important;color:#111318!important;border-color:#f59e0b!important}body.light .mcfilt-title{color:#111827}body.light .mcfilt-action.secondary{color:#475569;background:rgba(0,0,0,.03)}
+}
+</style>
+
+<script id="v17-mobile-enhancements-js">
+(function(){
+  function haptic(kind){
+    if(!navigator.vibrate)return;
+    var p={tap:6,select:10,success:[8,35,12],swipe:8,pin:[6,25,8],open:5,heavy:18}[kind]||6;
+    try{navigator.vibrate(p);}catch(e){}
+  }
+  window.hapticV17=haptic;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function allMatches(){var a=[],i,k,t;for(i=0;i<MX.length;i++)a.push({id:MX[i][0],grp:MX[i][1],t1:MX[i][2],t2:MX[i][3],dt:MX[i][4],group:true});for(k=0;k<KO.length;k++){t=gKM(KO[k][0]);a.push({id:KO[k][0],grp:KO[k][1],t1:t?t[0]:null,t2:t?t[1]:null,dt:KO[k][4],s1l:KO[k][2],s2l:KO[k][3],ko:true});}return a;}
+  function fmtDateShort(dt){try{var d=new Date(dt.replace(' ','T')+':00');var dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];return dn[d.getDay()]+' '+d.getDate()+' · '+dt.substring(11,16);}catch(e){return dt||'';}}
+  function getMatch(id){var a=allMatches();for(var i=0;i<a.length;i++)if(String(a[i].id)===String(id))return a[i];return null;}
+  function myTeams(){return curU&&MGR&&MGR[curU]?MGR[curU]:[];}
+  function teamInMine(t){return myTeams().indexOf(t)>=0;}
+
+  /* 1. Sticky live mini bar above bottom tabs */
+  function ensureLiveMini(){
+    var el=document.getElementById('liveMiniBar');
+    if(!el){el=document.createElement('div');el.id='liveMiniBar';el.className='live-mini-bar';document.body.appendChild(el);}
+    return el;
+  }
+  function liveCandidates(){
+    var out=[],a=allMatches();
+    for(var i=0;i<a.length;i++){var m=a[i];if(!m.dt||!isMatchLive(m.dt,m.id)||isMatchFinished(m.id))continue;out.push(m);}return out;
+  }
+  function updateLiveMiniBar(){
+    var bar=ensureLiveMini();
+    var hidden=false;try{hidden=sessionStorage.getItem('wc2026_live_mini_hidden')==='1';}catch(e){}
+    var list=liveCandidates();
+    if(!list.length||hidden){bar.classList.remove('show');document.body.classList.remove('has-live-mini');return;}
+    list.sort(function(a,b){var am=(teamInMine(a.t1)||teamInMine(a.t2))?0:1,bm=(teamInMine(b.t1)||teamInMine(b.t2))?0:1;return am-bm||a.id-b.id;});
+    var m=list[0],r=gRes(m.id)||{},t1=m.t1||m.s1l||'TBD',t2=m.t2||m.s2l||'TBD';
+    var score=(r.s1!=null)?(r.s1+' - '+r.s2):'LIVE';
+    var lr=RSL[m.id]||RSA[m.id]||r;var period=livePeriodFromKickoff?livePeriodFromKickoff(m.dt,lr,m.id):'Live';
+    bar.innerHTML='<div class="live-mini-row"><span class="live-mini-dot"></span><div class="live-mini-main"><div class="live-mini-kicker">LIVE'+((teamInMine(t1)||teamInMine(t2))?' · Your team':'')+'</div><div class="live-mini-teams">'+(FC[t1]?fi(t1,14)+' ':'')+esc(t1)+' vs '+esc(t2)+(FC[t2]?' '+fi(t2,14):'')+'</div><div class="live-mini-meta">M'+m.id+' · '+esc(m.grp)+' · '+esc(period)+'</div></div><div style="display:flex;align-items:center"><div class="live-mini-score">'+score+'</div><button class="live-mini-close" onclick="event.stopPropagation();sessionStorage.setItem(\'wc2026_live_mini_hidden\',\'1\');document.getElementById(\'liveMiniBar\').classList.remove(\'show\');document.body.classList.remove(\'has-live-mini\')">×</button></div></div>';
+    bar.onclick=function(){haptic('open');openMatchFeed(m.id);};
+    bar.classList.add('show');document.body.classList.add('has-live-mini');
+  }
+
+  /* 2. My Teams today alert card */
+  function todaysMatchesForManager(){
+    var teams=myTeams();if(!teams.length)return[];
+    var today=typeof todayNZDate==='function'?todayNZDate():(new Date().toISOString().slice(0,10));
+    var arr=allMatches().filter(function(m){return m.dt&&m.dt.substring(0,10)===today&&(teams.indexOf(m.t1)>=0||teams.indexOf(m.t2)>=0);});
+    arr.sort(function(a,b){return a.dt<b.dt?-1:a.dt>b.dt?1:a.id-b.id;});return arr;
+  }
+  function injectMyTeamsToday(){
+    var c=document.getElementById('myC');if(!c||!curU||!MGR||!MGR[curU])return;
+    var old=document.getElementById('mtTodayCard');if(old)old.remove();
+    var ms=todaysMatchesForManager();
+    var div=document.createElement('div');div.id='mtTodayCard';div.className='mt-today-card';
+    var h='<div class="mt-today-title"><span>Today for '+esc(curU)+'</span><span class="mt-today-pill">'+ms.length+' match'+(ms.length===1?'':'es')+'</span></div>';
+    if(!ms.length){h+='<div class="mt-today-sub">No selected-manager countries play today.</div>';}
+    else{h+='<div class="mt-today-list">';ms.forEach(function(m){var r=gRes(m.id),live=isMatchLive(m.dt,m.id)&&!isMatchFinished(m.id),ft=isMatchFinished(m.id);var t1=m.t1||m.s1l||'TBD',t2=m.t2||m.s2l||'TBD';var st=live?'LIVE':ft?'FT':'Upcoming';h+='<div class="mt-today-row" onclick="hapticV17(\'open\');openMatchFeed('+m.id+')"><div class="mt-today-time">'+m.dt.substring(11,16)+'</div><div style="min-width:0"><div class="mt-today-match">'+(FC[t1]?fi(t1,14)+' ':'')+esc(t1)+' vs '+esc(t2)+(FC[t2]?' '+fi(t2,14):'')+'</div><div class="mt-today-sub">M'+m.id+' · '+esc(m.grp)+'</div></div><div class="mt-today-status '+(live?'live':ft?'ft':'')+'">'+st+'</div></div>';});h+='</div>';}
+    div.innerHTML=h;c.insertBefore(div,c.firstChild);
+  }
+
+  /* 3. Swipeable manager cards in League tab */
+  function renderManagerCarousel(){
+    var hero=document.getElementById('heroStack');if(!hero)return;
+    var wrap=document.getElementById('mgrCarouselWrap');
+    if(!wrap){wrap=document.createElement('div');wrap.id='mgrCarouselWrap';wrap.className='mgr-carousel-wrap';hero.parentNode.insertBefore(wrap,hero.nextSibling);}
+    if(window.innerWidth>900){wrap.classList.remove('show');wrap.innerHTML='';return;}
+    var arr=cFan();if(!arr||!arr.length){wrap.classList.remove('show');return;}
+    var h='<div class="mgr-carousel-title">Manager cards</div><div class="mgr-carousel">';
+    arr.forEach(function(row,idx){var nm=row[0],s=row[1],flags='';(MGR[nm]||[]).forEach(function(t){if(FC[t])flags+=fi(t,17);});h+='<div class="mgr-card '+(nm===curU?'me':'')+'" onclick="hapticV17(\'open\');if(window.openManagerSheet)openManagerSheet(\''+String(nm).replace(/\\/g,'\\\\').replace(/\'/g,"\\'")+'\')"><div class="mgr-card-top"><div><div class="mgr-card-name">'+esc(nm)+'</div><div class="mt-today-sub">'+(MGR[nm]||[]).length+' countries</div></div><div class="mgr-card-rank">#'+(idx+1)+'</div></div><div class="mgr-card-stats"><div class="mgr-card-stat"><div class="mgr-card-v">'+s.pts+'</div><div class="mgr-card-l">Pts</div></div><div class="mgr-card-stat"><div class="mgr-card-v">'+(s.gd>0?'+':'')+s.gd+'</div><div class="mgr-card-l">GD</div></div><div class="mgr-card-stat"><div class="mgr-card-v">'+s.w+'</div><div class="mgr-card-l">W</div></div><div class="mgr-card-stat"><div class="mgr-card-v">'+s.p+'</div><div class="mgr-card-l">P</div></div></div><div class="mgr-card-flags">'+flags+'</div></div>';});
+    h+='</div>';wrap.innerHTML=h;wrap.classList.add('show');
+  }
+
+  /* 4. Knockout my-path filter */
+  var koMyPath=false;
+  function nextWinnerMatch(mid){var w='W'+mid;for(var i=0;i<KO.length;i++){if(KO[i][2]===w||KO[i][3]===w)return KO[i];}return null;}
+  function collectMyPathIds(){
+    var mine=myTeams(),ids={};if(!mine.length)return ids;
+    for(var i=0;i<KO.length;i++){var tm=gKM(KO[i][0]);if(tm&&(mine.indexOf(tm[0])>=0||mine.indexOf(tm[1])>=0)){var cur=KO[i];while(cur){ids[cur[0]]=true;cur=nextWinnerMatch(cur[0]);}}}
+    return ids;
+  }
+  function ensureKoPathToolbar(){
+    var mob=document.getElementById('bkMobile');if(!mob)return;
+    if(document.getElementById('koPathToolbar'))return;
+    var t=document.createElement('div');t.id='koPathToolbar';t.className='ko-path-toolbar';t.innerHTML='<button class="ko-path-btn" id="koPathBtn" onclick="toggleKoMyPath()">Show my path</button><div class="ko-path-count" id="koPathCount"></div>';
+    mob.insertBefore(t,mob.firstChild);
+  }
+  window.toggleKoMyPath=function(){koMyPath=!koMyPath;haptic('select');applyKoMyPath();};
+  function applyKoMyPath(){
+    ensureKoPathToolbar();var panel=document.getElementById('bkRoundPanel');if(!panel)return;
+    var ids=collectMyPathIds(),count=0;
+    panel.classList.toggle('ko-my-path-on',koMyPath);
+    panel.querySelectorAll('.bk-round-item').forEach(function(item){var bl=item.querySelector('.bl'),mid=null;if(bl){var m=(bl.textContent||'').match(/M(\d+)/);if(m)mid=parseInt(m[1],10);}var on=!!ids[mid];if(on)count++;item.classList.toggle('my-path-match',on);});
+    var btn=document.getElementById('koPathBtn'),ct=document.getElementById('koPathCount');if(btn){btn.classList.toggle('on',koMyPath);btn.textContent=koMyPath?'Showing my path':'Show my path';}if(ct)ct.textContent=count?count+' matches':'No path yet';
+  }
+
+  /* 6. Upgraded match filter bottom sheet */
+  function chipsHtml(title,items,cls){var h='<div class="mcfilt-section"><div class="mcfilt-section-title">'+title+'</div><div class="mcfilt-chips">';items.forEach(function(it){h+='<button type="button" class="mcfilt-chip '+(cls||'')+'" data-f="'+it[0]+'">'+it[1]+'</button>';});return h+'</div></div>';}
+  function buildFilterSheet(){
+    var bg=document.getElementById('mcfiltBg');if(!bg)return;var box=bg.querySelector('.mcfilt-box');if(!box)return;box.classList.add('v17');
+    box.innerHTML='<div class="mgrp-handle"></div><div class="mcfilt-topbar"><div><div class="mcfilt-title">Match filters</div><div class="mcfilt-sub">Choose one quick view for fixtures, groups or knockouts</div></div><button class="mcfilt-close" onclick="closeMcFiltSheet()">×</button></div><div class="mcfilt-actions"><button class="mcfilt-action" onclick="setF(\'All\');syncMcFiltChips();updateMcFbtnCount();closeMcFiltSheet();hapticV17(\'select\')">Show all</button><button class="mcfilt-action secondary" onclick="document.getElementById(\'mcSearch\').value=\'\';mcFilter=\'\';filterMC();closeMcFiltSheet();hapticV17(\'tap\')">Clear search</button></div>'+chipsHtml('Status',[['All','All'],['Upcoming','Upcoming'],['Live','Live'],['Completed','Completed']],'')+chipsHtml('Group stage',[['MD1','Matchday 1'],['MD2','Matchday 2'],['MD3','Matchday 3'],['A','Group A'],['B','Group B'],['C','Group C'],['D','Group D'],['E','Group E'],['F','Group F'],['G','Group G'],['H','Group H'],['I','Group I'],['J','Group J'],['K','Group K'],['L','Group L']],'')+chipsHtml('Knockout',[['R32','Round of 32'],['R16','Round of 16'],['QF','Quarter-finals'],['SF','Semi-finals'],['Final','Finals']],'finalchip');
+  }
+  var oldOpenFilter=window.openMcFiltSheet;
+  window.openMcFiltSheet=function(){buildFilterSheet();if(oldOpenFilter)oldOpenFilter();syncMcFiltChips();haptic('open');};
+  var oldSync=window.syncMcFiltChips;
+  window.syncMcFiltChips=function(){if(oldSync)oldSync();document.querySelectorAll('.mcfilt-chip[data-f]').forEach(function(c){var f=c.getAttribute('data-f');c.classList.toggle('on',f===mcF);if(!c._v17){c._v17=true;c.addEventListener('click',function(){setF(f);syncMcFiltChips();updateMcFbtnCount();closeMcFiltSheet();haptic('select');});}});};
+
+  /* 7. More haptics on key mobile actions */
+  function wrap(name,kind){var old=window[name];if(typeof old!=='function')return;window[name]=function(){haptic(kind||'tap');return old.apply(this,arguments);};}
+  ['btbGo','subTabGo','mcmGoToDate','bkSw','pickMgr','openMatchFeed'].forEach(function(n){wrap(n,n==='openMatchFeed'?'open':'tap');});
+  wrap('togglePinnedMatch','pin');wrap('toggleFollowCountry','success');wrap('toggleFollowPlayer','success');
+
+  var oldRAll=window.rAll;window.rAll=function(){if(oldRAll)oldRAll();setTimeout(function(){updateLiveMiniBar();injectMyTeamsToday();renderManagerCarousel();ensureKoPathToolbar();applyKoMyPath();},80);};
+  var oldRenderLive=window.renderLiveFeed;window.renderLiveFeed=function(){if(oldRenderLive)oldRenderLive();setTimeout(updateLiveMiniBar,20);};
+  var oldRMT=window.rMT;window.rMT=function(){if(oldRMT)oldRMT();injectMyTeamsToday();};
+  var oldRFL=window.rFL;window.rFL=function(){if(oldRFL)oldRFL();renderManagerCarousel();};
+  var oldRKO=window.rKO;window.rKO=function(){if(oldRKO)oldRKO();setTimeout(function(){ensureKoPathToolbar();applyKoMyPath();},120);};
+  var oldRBK=window.renderBkMobile;window.renderBkMobile=function(){if(oldRBK)oldRBK();setTimeout(function(){ensureKoPathToolbar();applyKoMyPath();},90);};
+  setTimeout(function(){buildFilterSheet();updateLiveMiniBar();injectMyTeamsToday();renderManagerCarousel();ensureKoPathToolbar();applyKoMyPath();},900);
 })();
 </script>
 </body></html>
