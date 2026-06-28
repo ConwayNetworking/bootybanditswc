@@ -12,6 +12,27 @@ function prefKey(league, manager) {
   return `follow:${encodeURIComponent(league)}:${encodeURIComponent(manager)}`;
 }
 
+function cleanFollowing(input, existing = {}) {
+  const src = input || existing || {};
+  return {
+    players: Array.isArray(src.players) ? src.players.slice(0, 200) : [],
+    countries: Array.isArray(src.countries) ? src.countries.slice(0, 80) : [],
+    pinnedMatches: Array.isArray(src.pinnedMatches)
+      ? src.pinnedMatches.map(Number).filter(Number.isFinite).slice(0, 120)
+      : []
+  };
+}
+
+function cleanSettings(input, existing = {}) {
+  const out = {
+    liveStandings: typeof existing.liveStandings === "boolean" ? existing.liveStandings : true,
+    elimFlagDiscolour: typeof existing.elimFlagDiscolour === "boolean" ? existing.elimFlagDiscolour : true
+  };
+  if (input && typeof input.liveStandings === "boolean") out.liveStandings = input.liveStandings;
+  if (input && typeof input.elimFlagDiscolour === "boolean") out.elimFlagDiscolour = input.elimFlagDiscolour;
+  return out;
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -26,12 +47,17 @@ export async function onRequest(context) {
     const manager = url.searchParams.get("manager") || "";
 
     if (!manager) {
-      return json({ following: { players: [], countries: [], pinnedMatches: [] } });
+      return json({
+        following: { players: [], countries: [], pinnedMatches: [] },
+        settings: { liveStandings: true, elimFlagDiscolour: true }
+      });
     }
 
     const saved = await env.FOLLOW_PREFS.get(prefKey(league, manager), { type: "json" });
     return json({
-      following: saved || { players: [], countries: [], pinnedMatches: [] }
+      following: cleanFollowing(saved?.following || saved),
+      settings: cleanSettings(saved?.settings),
+      updatedAt: saved?.updatedAt || null
     });
   }
 
@@ -42,18 +68,16 @@ export async function onRequest(context) {
       return json({ error: "league and manager are required" }, 400);
     }
 
+    const existing = await env.FOLLOW_PREFS.get(prefKey(body.league, body.manager), { type: "json" });
     const value = {
-      players: Array.isArray(body.following?.players) ? body.following.players.slice(0, 200) : [],
-      countries: Array.isArray(body.following?.countries) ? body.following.countries.slice(0, 80) : [],
-      pinnedMatches: Array.isArray(body.following?.pinnedMatches)
-        ? body.following.pinnedMatches.map(Number).filter(Number.isFinite).slice(0, 120)
-        : [],
+      following: cleanFollowing(body.following, existing?.following || existing),
+      settings: cleanSettings(body.settings, existing?.settings),
       updatedAt: new Date().toISOString()
     };
 
     await env.FOLLOW_PREFS.put(prefKey(body.league, body.manager), JSON.stringify(value));
 
-    return json({ ok: true, following: value });
+    return json({ ok: true, following: value.following, settings: value.settings, updatedAt: value.updatedAt });
   }
 
   return json({ error: "Method not allowed" }, 405);
