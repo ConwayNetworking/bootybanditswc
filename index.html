@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V31_KO_BRACE_SWIPE_FIX -->
+<!-- WC2026_BUILD_V32_MORE_AND_FANTASY_KO -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -7357,5 +7357,56 @@ body.light .bk25-item.future::after{border-top-color:rgba(31,41,55,.22)!importan
 </style>
 <script id="v31-ko-brace-swipe-js">
 (function(){window.__WC2026_KO_BUILD='WC2026_BUILD_V31_KO_BRACE_SWIPE_FIX';setTimeout(function(){try{if(document.getElementById('tab_knockout')&&document.getElementById('bkRoundPanel'))renderBkMobile();}catch(e){}},500);})();
+</script>
+
+<style id="v32-more-and-fantasy-ko-css">
+/* === v32: More sheet clearance + knockout fantasy scoring/form/expanded manager tables === */
+@media(max-width:900px){
+  #moreBg.more-bg{z-index:2147482500!important;align-items:flex-end!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;}
+  .more-box{margin-bottom:0!important;max-height:calc(100dvh - 145px - env(safe-area-inset-bottom))!important;overflow-y:auto!important;overscroll-behavior:contain!important;transform:translateY(0)!important;}
+  .btb,#btb{z-index:2147483000!important;}
+}
+.exp-kostage{display:inline-flex;align-items:center;margin-left:5px;padding:2px 6px;border-radius:999px;background:rgba(16,185,129,.12);color:#10b981;font-size:.7em;font-weight:800;vertical-align:middle;}
+</style>
+<script id="v32-more-and-fantasy-ko-js">
+(function(){
+  var BUILD='WC2026_BUILD_V32_MORE_AND_FANTASY_KO';
+  window.__WC2026_FANTASY_BUILD=BUILD;
+  var CANON_KO=[
+    [73,'R32','South Africa','Canada','2026-06-29 07:00','Los Angeles'],[74,'R32','Germany','Paraguay','2026-06-30 08:30','Boston'],[75,'R32','Netherlands','Morocco','2026-06-30 13:00','Monterrey'],[76,'R32','Brazil','Japan','2026-06-30 05:00','Houston'],[77,'R32','France','Sweden','2026-07-01 09:00','New York'],[78,'R32','Ivory Coast','Norway','2026-07-01 05:00','Dallas'],[79,'R32','Mexico','Ecuador','2026-07-01 13:00','Mexico City'],[80,'R32','England','DR Congo','2026-07-02 04:00','Atlanta'],[81,'R32','USA','Bosnia & Herzegovina','2026-07-02 12:00','San Francisco'],[82,'R32','Belgium','Senegal','2026-07-02 08:00','Seattle'],[83,'R32','Portugal','Croatia','2026-07-03 11:00','Toronto'],[84,'R32','Spain','Austria','2026-07-03 07:00','Los Angeles'],[85,'R32','Switzerland','Algeria','2026-07-03 15:00','Vancouver'],[86,'R32','Argentina','Cape Verde','2026-07-04 10:00','Miami'],[87,'R32','Colombia','Ghana','2026-07-04 13:30','Kansas City'],[88,'R32','Australia','Egypt','2026-07-04 06:00','Dallas'],
+    [89,'R16','W74','W77','2026-07-05 09:00','Philadelphia'],[90,'R16','W73','W75','2026-07-05 05:00','Houston'],[91,'R16','W76','W78','2026-07-06 08:00','New York'],[92,'R16','W79','W80','2026-07-06 12:00','Mexico City'],[93,'R16','W83','W84','2026-07-07 07:00','Dallas'],[94,'R16','W81','W82','2026-07-07 12:00','Seattle'],[95,'R16','W86','W88','2026-07-08 04:00','Atlanta'],[96,'R16','W85','W87','2026-07-08 08:00','Vancouver'],
+    [97,'QF','W89','W90','2026-07-10 08:00','Boston'],[98,'QF','W93','W94','2026-07-11 07:00','Los Angeles'],[99,'QF','W91','W92','2026-07-12 09:00','Miami'],[100,'QF','W95','W96','2026-07-12 13:00','Kansas City'],[101,'SF','W97','W98','2026-07-15 07:00','Dallas'],[102,'SF','W99','W100','2026-07-16 07:00','Atlanta'],[103,'3RD','L101','L102','2026-07-19 06:00','Miami'],[104,'FIN','W101','W102','2026-07-20 04:00','New York']
+  ];
+  function installCanonicalKO(){try{if(!window.KO||!Array.isArray(window.KO)||window.KO.length<32){window.KO=CANON_KO.map(function(k){return k.slice();});}else{var by={};CANON_KO.forEach(function(k){by[k[0]]=k;});for(var i=0;i<KO.length;i++){if(by[KO[i][0]])KO[i]=by[KO[i][0]].slice();}}}catch(e){}}
+  function seedResults(){try{window.RSA=window.RSA||{};window.RSM=window.RSM||{};window.RS=window.RS||{};if(!RSM[73]&&!RSA[73]&&!RS[73])RSA[73]={s1:0,s2:1,st:'FT'};if(typeof mergeRS==='function')mergeRS();}catch(e){}}
+  function norm(t){var a={'United States':'USA','Bosnia-Herzegovina':'Bosnia & Herzegovina','Bosnia and Herzegovina':'Bosnia & Herzegovina','Congo DR':'DR Congo','Cabo Verde':'Cape Verde'};return a[t]||t;}
+  function koBy(id){installCanonicalKO();for(var i=0;i<KO.length;i++){if(KO[i][0]===id)return KO[i];}return null;}
+  function resultFor(id){seedResults();try{return (typeof standRes==='function'&&standRes(id))||(typeof gRes==='function'&&gRes(id))||(typeof ftRes==='function'&&ftRes(id))||RS[id]||null;}catch(e){return RS[id]||null;}}
+  function teamsForKO(id){var k=koBy(id);return k?[slotTeam(k[2]),slotTeam(k[3])]:null;}
+  function koWinnerById(id){var t=teamsForKO(id),r=resultFor(id);if(!t||!r||!t[0]||!t[1])return null;try{return koWin(r,t);}catch(e){if(r.s1>r.s2)return t[0];if(r.s2>r.s1)return t[1];if(r.p1!=null&&r.p2!=null)return r.p1>r.p2?t[0]:t[1];return null;}}
+  function koLoserById(id){var t=teamsForKO(id),w=koWinnerById(id);if(!t||!w)return null;return w===t[0]?t[1]:t[0];}
+  function slotTeam(s){s=norm(s||'');if(!s)return null;if(window.FC&&FC[s])return s;if(window.CO&&CO[s])return s;if(s.charAt(0)==='W')return koWinnerById(parseInt(s.slice(1),10))||null;if(s.charAt(0)==='L')return koLoserById(parseInt(s.slice(1),10))||null;try{if(typeof gKT==='function'){var t=gKT(s);if(t)return t;}}catch(e){}return null;}
+  window.gKT=function(s){return slotTeam(s);};
+  window.gKM=function(id){var k=koBy(id);return k?[slotTeam(k[2]),slotTeam(k[3])]:null;};
+  function blank(){return {p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};}
+  function addOutcome(st,team,opp,r,isHome,mid){if(!team||!st[team])return;var gf=isHome?r.s1:r.s2,ga=isHome?r.s2:r.s1;st[team].p++;st[team].gf+=gf;st[team].ga+=ga;var wm=mid?koWinnerById(mid):null;if(wm){if(wm===team){st[team].w++;st[team].pts+=3;}else{st[team].l++;}}else if(gf>ga){st[team].w++;st[team].pts+=3;}else if(gf<ga){st[team].l++;}else{st[team].d++;st[team].pts+=1;}}
+  function addPair(st,t1,t2,r,mid){if(!r||r.s1==null||r.s2==null||!t1||!t2)return;var o1=CO[t1],o2=CO[t2];if(!o1&&!o2)return;if(o1===o2&&o1){st[o1].p++;st[o1].gf+=Math.max(r.s1,r.s2);st[o1].ga+=Math.min(r.s1,r.s2);var w=mid?koWinnerById(mid):null;if(w){st[o1].w++;st[o1].pts+=3;}else if(r.s1!==r.s2){st[o1].w++;st[o1].pts+=3;}else{st[o1].d++;st[o1].pts+=1;}return;}addOutcome(st,t1,t2,r,true,mid);addOutcome(st,t2,t1,r,false,mid);}
+  window.cFan=function(){installCanonicalKO();seedResults();var st={};for(var i=0;i<MO.length;i++)st[MO[i]]=blank();for(var i=0;i<MX.length;i++){var m=MX[i],r=resultFor(m[0]);addPair(st,m[2],m[3],r,null);}for(var i=0;i<KO.length;i++){var k=KO[i],r=resultFor(k[0]),t=teamsForKO(k[0]);if(t)addPair(st,t[0],t[1],r,k[0]);}var arr=[];for(var m in st){st[m].gd=st[m].gf-st[m].ga;arr.push([m,st[m]]);}arr.sort(function(a,b){if(b[1].pts!==a[1].pts)return b[1].pts-a[1].pts;if(b[1].gd!==a[1].gd)return b[1].gd-a[1].gd;return b[1].gf-a[1].gf;});return arr;};
+  window.teamFantasyStats=function(team){installCanonicalKO();seedResults();var s=blank();function one(t1,t2,r,mid,dt,grp){if(!r||r.s1==null||r.s2==null)return;if(team!==t1&&team!==t2)return;var home=team===t1,gf=home?r.s1:r.s2,ga=home?r.s2:r.s1;s.p++;s.gf+=gf;s.ga+=ga;var w=mid?koWinnerById(mid):null;if(w){if(w===team){s.w++;s.pts+=3;}else{s.l++;}}else if(gf>ga){s.w++;s.pts+=3;}else if(gf<ga){s.l++;}else{s.d++;s.pts+=1;}}for(var i=0;i<MX.length;i++){var m=MX[i];one(m[2],m[3],resultFor(m[0]),null,m[4],m[1]);}for(var j=0;j<KO.length;j++){var k=KO[j],t=teamsForKO(k[0]);if(t)one(t[0],t[1],resultFor(k[0]),k[0],k[4],k[1]);}s.gd=s.gf-s.ga;return s;};
+  window.calcForm=function(mgrName){installCanonicalKO();seedResults();var teams=MGR[mgrName];if(!teams)return[];var out=[];function add(t1,t2,r,mid,dt,grp){if(!r||r.s1==null||r.s2==null)return;for(var i=0;i<teams.length;i++){var tn=teams[i],idx=tn===t1?0:tn===t2?1:-1;if(idx<0)continue;var gf=idx===0?r.s1:r.s2,ga=idx===0?r.s2:r.s1,wm=mid?koWinnerById(mid):null,res;if(wm)res=wm===tn?'w':'l';else res=gf>ga?'w':gf===ga?'d':'l';out.push({dt:dt,r:res,mid:mid||0,t1:t1,t2:t2,grp:grp});}}
+    for(var i=0;i<MX.length;i++){var m=MX[i];add(m[2],m[3],resultFor(m[0]),null,m[4],m[1]);}
+    for(var j=0;j<KO.length;j++){var k=KO[j],t=teamsForKO(k[0]);if(t)add(t[0],t[1],resultFor(k[0]),k[0],k[4],k[1]);}
+    out.sort(function(a,b){return a.dt>b.dt?1:a.dt<b.dt?-1:(a.mid||0)-(b.mid||0);});return out;};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function gdClass(gd){return gd>0?'gp':gd<0?'gn':'';}
+  function openRowHandler(nm){return function(){try{tglExp(nm);}catch(e){}};}
+  window.rFL=function(){installCanonicalKO();seedResults();var arr=cFan(),tb=document.getElementById('flB');if(!tb)return;tb.innerHTML='';if(arr.length>0){var pLd=document.getElementById('pLd'),pLs=document.getElementById('pLs');if(pLd)pLd.textContent=arr[0][0];if(pLs)pLs.textContent=arr[0][1].pts+' pts | GD: '+(arr[0][1].gd>0?'+':'')+arr[0][1].gd;}var fin=RS[104],wcW=document.getElementById('wcW'),wcS=document.getElementById('wcS');if(fin&&wcW&&wcS){var ft=gKM(104);if(ft&&ft[0]&&ft[1]){var wn=koWinnerById(104)||((fin.s1>fin.s2)?ft[0]:ft[1]);wcW.innerHTML=(FC[wn]?fi(wn,18)+' ':'')+wn;wcS.textContent='Managed by '+(CO[wn]||'?');}}else{if(wcW)wcW.textContent='TBD';if(wcS)wcS.textContent='Final not yet played';}
+    for(var i=0;i<arr.length;i++){var nm=arr[i][0],s=arr[i][1],fl='';for(var j=0;j<MGR[nm].length;j++)fl+=fi(MGR[nm][j],12)+' ';var tr=document.createElement('tr');tr.style.cursor='pointer';if(nm===curU)tr.className='my-row';tr.onclick=openRowHandler(nm);var gs=s.gd>0?'+'+s.gd:''+s.gd;tr.innerHTML='<td>'+(i+1)+'</td><td class="l"><div class="mn">'+esc(nm)+(typeof calcStreak==='function'?calcStreak(nm):'')+' <button class="exp-btn" id="ebtn_'+esc(nm)+'">&#9660;</button></div><div class="mf">'+fl+'</div></td><td class="fl-live-cell">'+(typeof getMgrLiveTeams==='function'&&getMgrLiveTeams(nm).length>0?'<span class="live-mgr-dot '+getMgrLiveStatus(nm)+'" title="LIVE: '+esc(getMgrLiveTeams(nm).join(', '))+'"></span>':'')+'</td><td>'+s.p+'</td><td>'+s.w+'</td><td>'+s.d+'</td><td>'+s.l+'</td><td>'+s.gf+'</td><td>'+s.ga+'</td><td class="'+gdClass(s.gd)+'">'+gs+'</td><td class="pc">'+s.pts+'</td><td>'+(typeof formDots==='function'?formDots(nm):'')+'</td>';tb.appendChild(tr);
+      var er=document.createElement('tr');er.className='exp-row';er.id='exp_'+nm;var teams=MGR[nm].map(function(t){var st=teamFantasyStats(t);return {name:t,s:st};});teams.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});var inner='<td colspan="12"><div class="exp-inner"><table class="exp-tbl"><thead><tr><th>#</th><th class="l">Country</th><th>Stage</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>';for(var j=0;j<teams.length;j++){var td=teams[j],cs=td.s,gds=cs.gd>0?'+'+cs.gd:''+cs.gd;inner+='<tr><td>'+(j+1)+'</td><td class="l">'+fi(td.name,14)+' '+td.name+'</td><td>All <span class="exp-kostage">+KO</span></td><td>'+cs.p+'</td><td>'+cs.w+'</td><td>'+cs.d+'</td><td>'+cs.l+'</td><td>'+cs.gf+'</td><td>'+cs.ga+'</td><td class="'+gdClass(cs.gd)+'">'+gds+'</td><td class="pc">'+cs.pts+'</td></tr>';}inner+='</tbody></table></div></td>';er.innerHTML=inner;tb.appendChild(er);}try{if(typeof rHeroCards==='function')rHeroCards();}catch(e){} };
+  function liftMore(){var bg=document.getElementById('moreBg');if(bg){bg.style.zIndex='2147482500';bg.style.paddingBottom='calc(104px + env(safe-area-inset-bottom))';}var box=document.querySelector('.more-box');if(box){box.style.maxHeight='calc(100dvh - 145px - env(safe-area-inset-bottom))';box.style.overflowY='auto';}}
+  var oldMore=window.tglMore; if(typeof oldMore==='function'&&!oldMore._v32){window.tglMore=function(){var r=oldMore.apply(this,arguments);setTimeout(liftMore,20);return r;};window.tglMore._v32=true;}
+  var oldMore2=window.openMore; if(typeof oldMore2==='function'&&!oldMore2._v32){window.openMore=function(){var r=oldMore2.apply(this,arguments);setTimeout(liftMore,20);return r;};window.openMore._v32=true;}
+  seedResults();installCanonicalKO();setTimeout(function(){try{rFL();liftMore();}catch(e){}},700);
+})();
 </script>
 </body></html>
