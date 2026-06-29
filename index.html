@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V32_MORE_AND_FANTASY_KO -->
+<!-- WC2026_BUILD_V33_FANTASY_KO_REPAIR -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -7407,6 +7407,94 @@ body.light .bk25-item.future::after{border-top-color:rgba(31,41,55,.22)!importan
   var oldMore=window.tglMore; if(typeof oldMore==='function'&&!oldMore._v32){window.tglMore=function(){var r=oldMore.apply(this,arguments);setTimeout(liftMore,20);return r;};window.tglMore._v32=true;}
   var oldMore2=window.openMore; if(typeof oldMore2==='function'&&!oldMore2._v32){window.openMore=function(){var r=oldMore2.apply(this,arguments);setTimeout(liftMore,20);return r;};window.openMore._v32=true;}
   seedResults();installCanonicalKO();setTimeout(function(){try{rFL();liftMore();}catch(e){}},700);
+})();
+</script>
+
+<style id="v33-fantasy-ko-repair-css">
+/* v33: Fantasy scoring repair after KO inclusion patch */
+.form-dots{white-space:nowrap!important;max-width:62px!important;overflow:hidden!important;vertical-align:middle!important}
+.form-dot{flex:0 0 auto!important}
+.exp-kostage{display:inline-flex;align-items:center;margin-left:5px;padding:2px 6px;border-radius:999px;background:rgba(16,185,129,.12);color:#10b981;font-size:.7em;font-weight:800;vertical-align:middle;}
+</style>
+<script id="v33-fantasy-ko-repair-js">
+(function(){
+  var BUILD='WC2026_BUILD_V33_FANTASY_KO_REPAIR';
+  window.__WC2026_FANTASY_BUILD=BUILD;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function blank(){return {p:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};}
+  function norm(t){var a={'United States':'USA','Bosnia-Herzegovina':'Bosnia & Herzegovina','Bosnia and Herzegovina':'Bosnia & Herzegovina','Congo DR':'DR Congo','Cabo Verde':'Cape Verde'};return a[t]||t;}
+  function koByIdV33(id){for(var i=0;i<KO.length;i++){if(KO[i][0]===id)return KO[i];}return null;}
+  function safeResult(id){try{return typeof standRes==='function'?standRes(id):((typeof ftRes==='function'&&ftRes(id))||RS[id]||null);}catch(e){return RS[id]||null;}}
+  function finalResult(id){try{return (typeof ftRes==='function'&&ftRes(id))||RS[id]||null;}catch(e){return RS[id]||null;}}
+  function koTeamsV33(id){var k=koByIdV33(id);if(!k)return null;return [slotTeamV33(k[2]),slotTeamV33(k[3])];}
+  function koWinnerV33(id){var tm=koTeamsV33(id),r=safeResult(id);if(!tm||!r||!tm[0]||!tm[1])return null;try{return koWin(r,tm);}catch(e){if(r.s1>r.s2)return tm[0];if(r.s2>r.s1)return tm[1];if(r.p1!=null&&r.p2!=null)return r.p1>r.p2?tm[0]:tm[1];return null;}}
+  function koLoserV33(id){var w=koWinnerV33(id),tm=koTeamsV33(id);if(!w||!tm)return null;return w===tm[0]?tm[1]:tm[0];}
+  function slotTeamV33(s){s=norm(s||'');if(!s)return null;if(FC&&FC[s])return s;if(CO&&CO[s])return s;if(s.charAt(0)==='W')return koWinnerV33(parseInt(s.slice(1),10));if(s.charAt(0)==='L')return koLoserV33(parseInt(s.slice(1),10));try{var old=window.__v33_old_gKT;if(old){var t=old(s);if(t)return t;}}catch(e){}return null;}
+  if(!window.__v33_old_gKT && typeof window.gKT==='function')window.__v33_old_gKT=window.gKT;
+  window.gKT=function(s){return slotTeamV33(s);};
+  window.gKM=function(id){return koTeamsV33(id);};
+  function addMatchToManagerStats(st,t1,t2,r,mid){
+    if(!r||r.s1==null||r.s2==null||!t1||!t2)return;
+    t1=norm(t1);t2=norm(t2);
+    var o1=CO[t1],o2=CO[t2];
+    if(!o1&&!o2)return;
+    var isKO=!!mid;
+    var kw=isKO?koWinnerV33(mid):null;
+    function addOne(owner,team,isHome){
+      if(!owner||!st[owner])return;
+      var gf=isHome?r.s1:r.s2,ga=isHome?r.s2:r.s1;
+      st[owner].p++;st[owner].gf+=gf;st[owner].ga+=ga;
+      if(kw){ if(kw===team){st[owner].w++;st[owner].pts+=3;} else st[owner].l++; }
+      else if(gf>ga){st[owner].w++;st[owner].pts+=3;} else if(gf<ga){st[owner].l++;} else {st[owner].d++;st[owner].pts+=1;}
+    }
+    if(o1&&o1===o2){
+      var gf=Math.max(r.s1,r.s2),ga=Math.min(r.s1,r.s2);st[o1].p++;st[o1].gf+=gf;st[o1].ga+=ga;
+      if(kw){st[o1].w++;st[o1].pts+=3;} else if(r.s1!==r.s2){st[o1].w++;st[o1].pts+=3;} else {st[o1].d++;st[o1].pts+=1;}
+    }else{addOne(o1,t1,true);addOne(o2,t2,false);}
+  }
+  window.cFan=function(){
+    var st={};for(var i=0;i<MO.length;i++)st[MO[i]]=blank();
+    for(var i=0;i<MX.length;i++){var m=MX[i],r=safeResult(m[0]);addMatchToManagerStats(st,m[2],m[3],r,null);}
+    for(var j=0;j<KO.length;j++){var k=KO[j],r=safeResult(k[0]),tm=koTeamsV33(k[0]);if(tm)addMatchToManagerStats(st,tm[0],tm[1],r,k[0]);}
+    var arr=[];for(var nm in st){st[nm].gd=st[nm].gf-st[nm].ga;arr.push([nm,st[nm]]);}arr.sort(function(a,b){if(b[1].pts!==a[1].pts)return b[1].pts-a[1].pts;if(b[1].gd!==a[1].gd)return b[1].gd-a[1].gd;return b[1].gf-a[1].gf;});return arr;
+  };
+  function addMatchToTeamStats(s,team,t1,t2,r,mid,dt,grp,form){
+    if(!r||r.s1==null||r.s2==null||!team)return;if(team!==t1&&team!==t2)return;
+    var home=team===t1,gf=home?r.s1:r.s2,ga=home?r.s2:r.s1,kw=mid?koWinnerV33(mid):null,res;
+    s.p++;s.gf+=gf;s.ga+=ga;
+    if(kw){if(kw===team){s.w++;s.pts+=3;res='w';}else{s.l++;res='l';}}
+    else if(gf>ga){s.w++;s.pts+=3;res='w';}else if(gf<ga){s.l++;res='l';}else{s.d++;s.pts+=1;res='d';}
+    if(form)form.push({dt:dt,r:res,mid:mid||0,t1:t1,t2:t2,grp:grp});
+  }
+  window.teamFantasyStats=function(team){var s=blank();for(var i=0;i<MX.length;i++){var m=MX[i];addMatchToTeamStats(s,team,m[2],m[3],safeResult(m[0]),null,m[4],m[1]);}for(var j=0;j<KO.length;j++){var k=KO[j],tm=koTeamsV33(k[0]);if(tm)addMatchToTeamStats(s,team,tm[0],tm[1],safeResult(k[0]),k[0],k[4],k[1]);}s.gd=s.gf-s.ga;return s;};
+  window.calcForm=function(mgrName){
+    var teams=MGR[mgrName];if(!teams)return[];var all=[];
+    function incl(t){return teams.indexOf(t)>=0;}
+    for(var i=0;i<MX.length;i++){var m=MX[i],r=finalResult(m[0])||safeResult(m[0]);if(!r)continue;if(incl(m[2])){var s=blank();addMatchToTeamStats(s,m[2],m[2],m[3],r,null,m[4],m[1],all);}if(incl(m[3])){var s2=blank();addMatchToTeamStats(s2,m[3],m[2],m[3],r,null,m[4],m[1],all);}}
+    for(var j=0;j<KO.length;j++){var k=KO[j],r=finalResult(k[0])||safeResult(k[0]),tm=koTeamsV33(k[0]);if(!r||!tm)continue;if(incl(tm[0])){var s3=blank();addMatchToTeamStats(s3,tm[0],tm[0],tm[1],r,k[0],k[4],k[1],all);}if(incl(tm[1])){var s4=blank();addMatchToTeamStats(s4,tm[1],tm[0],tm[1],r,k[0],k[4],k[1],all);}}
+    all.sort(function(a,b){return a.dt>b.dt?1:a.dt<b.dt?-1:(a.mid||0)-(b.mid||0);});return all.slice(-5);
+  };
+  window.formDots=function(mgrName){var f=calcForm(mgrName).slice(-5);if(!f.length)return'';var h='<span class="form-dots">';for(var i=f.length-1;i>=0;i--)h+='<span class="form-dot '+f[i].r+'" title="'+f[i].r.toUpperCase()+'" data-mid="'+f[i].mid+'"></span>';return h+'</span>';};
+  function gdClass(gd){return gd>0?'gp':gd<0?'gn':'';}
+  function openRowHandler(nm){return function(){try{tglExp(nm);}catch(e){}};}
+  window.rFL=function(){
+    var open={};document.querySelectorAll('.exp-row.open').forEach(function(r){open[r.id]=true;});
+    var arr=cFan(),tb=document.getElementById('flB');if(!tb)return;tb.innerHTML='';
+    if(arr.length){var pLd=document.getElementById('pLd'),pLs=document.getElementById('pLs');if(pLd)pLd.textContent=arr[0][0];if(pLs)pLs.textContent=arr[0][1].pts+' pts | GD: '+(arr[0][1].gd>0?'+':'')+arr[0][1].gd;}
+    var wcW=document.getElementById('wcW'),wcS=document.getElementById('wcS'),fin=safeResult(104);if(fin&&wcW&&wcS){var ft=koTeamsV33(104),wn=koWinnerV33(104);if(ft&&wn){wcW.innerHTML=(FC[wn]?fi(wn,18)+' ':'')+wn;wcS.textContent='Managed by '+(CO[wn]||'?');}}else{if(wcW)wcW.textContent='TBD';if(wcS)wcS.textContent='Final not yet played';}
+    for(var i=0;i<arr.length;i++){
+      var nm=arr[i][0],s=arr[i][1],fl='';(MGR[nm]||[]).forEach(function(t){fl+=fi(t,12)+' ';});var tr=document.createElement('tr');tr.style.cursor='pointer';tr.onclick=openRowHandler(nm);if(nm===curU)tr.className='my-row';var gs=s.gd>0?'+'+s.gd:''+s.gd;
+      tr.innerHTML='<td>'+(i+1)+'</td><td class="l"><div class="mn">'+esc(nm)+(typeof calcStreak==='function'?calcStreak(nm):'')+' <button class="exp-btn" id="ebtn_'+esc(nm)+'">&#9660;</button></div><div class="mf">'+fl+'</div></td><td class="fl-live-cell">'+(typeof getMgrLiveTeams==='function'&&getMgrLiveTeams(nm).length?'<span class="live-mgr-dot '+getMgrLiveStatus(nm)+'" title="LIVE: '+esc(getMgrLiveTeams(nm).join(', '))+'"></span>':'')+'</td><td>'+s.p+'</td><td>'+s.w+'</td><td>'+s.d+'</td><td>'+s.l+'</td><td>'+s.gf+'</td><td>'+s.ga+'</td><td class="'+gdClass(s.gd)+'">'+gs+'</td><td class="pc">'+s.pts+'</td><td>'+formDots(nm)+'</td>';
+      tb.appendChild(tr);
+      var er=document.createElement('tr');er.className='exp-row'+(open['exp_'+nm]?' open':'');er.id='exp_'+nm;if(open[er.id]){var b=document.getElementById('ebtn_'+nm);if(b)b.classList.add('open');}
+      var teams=(MGR[nm]||[]).map(function(t){return {name:t,s:teamFantasyStats(t)};});teams.sort(function(a,b){if(b.s.pts!==a.s.pts)return b.s.pts-a.s.pts;if(b.s.gd!==a.s.gd)return b.s.gd-a.s.gd;return b.s.gf-a.s.gf;});
+      var inner='<td colspan="12"><div class="exp-inner"><table class="exp-tbl"><thead><tr><th>#</th><th class="l">Country</th><th>Stage</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>';
+      for(var j=0;j<teams.length;j++){var td=teams[j],cs=td.s,gds=cs.gd>0?'+'+cs.gd:''+cs.gd;inner+='<tr><td>'+(j+1)+'</td><td class="l">'+fi(td.name,14)+' '+td.name+'</td><td>All <span class="exp-kostage">+KO</span></td><td>'+cs.p+'</td><td>'+cs.w+'</td><td>'+cs.d+'</td><td>'+cs.l+'</td><td>'+cs.gf+'</td><td>'+cs.ga+'</td><td class="'+gdClass(cs.gd)+'">'+gds+'</td><td class="epc">'+cs.pts+'</td></tr>';}
+      er.innerHTML=inner+'</tbody></table></div></td>';tb.appendChild(er);
+    }
+    try{if(typeof rHeroCards==='function')rHeroCards();}catch(e){}
+  };
+  setTimeout(function(){try{if(document.getElementById('tab_fantasy')&&document.getElementById('tab_fantasy').classList.contains('on'))rFL();}catch(e){}},500);
 })();
 </script>
 </body></html>
