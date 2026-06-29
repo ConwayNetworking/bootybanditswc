@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V26_KO_SWIPE_STABILISER -->
+<!-- WC2026_BUILD_V29_CANONICAL_KNOCKOUT_HARD_RESET -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -2400,22 +2400,38 @@ var MX=[
 [72,"K","DR Congo","Uzbekistan","2026-06-28 11:30"],
 ];
 var KO=[
-[73,"R32","2A","2B","2026-06-29 05:00","Los Angeles"],[74,"R32","1E","3rd(A/B/C/D/F)","2026-06-30 07:00","Boston"],
-[75,"R32","1F","2C","2026-06-30 07:00","Monterrey"],[76,"R32","1C","2F","2026-06-30 11:00","Houston"],
-[77,"R32","1I","3rd(C/D/F/G/H)","2026-07-01 05:00","New York"],[78,"R32","2E","2I","2026-07-01 08:00","Dallas"],
-[79,"R32","1A","3rd(C/E/F/H/I)","2026-07-01 05:00","Mexico City"],[80,"R32","1L","3rd(E/H/I/J/K)","2026-07-02 05:00","Atlanta"],
-[81,"R32","1D","3rd(B/E/F/I/J)","2026-07-02 07:00","San Francisco"],[82,"R32","1G","3rd(A/E/H/I/J)","2026-07-02 07:00","Seattle"],
-[83,"R32","2K","2L","2026-07-03 05:00","Toronto"],[84,"R32","1H","2J","2026-07-03 08:00","Los Angeles"],
-[85,"R32","1B","3rd(E/F/G/I/J)","2026-07-03 08:00","Vancouver"],[86,"R32","1J","2H","2026-07-04 05:00","Miami"],
-[87,"R32","1K","3rd(D/E/I/J/L)","2026-07-04 07:00","Kansas City"],[88,"R32","2D","2G","2026-07-04 08:00","Dallas"],
-[89,"R16","W74","W77","2026-07-05 07:00","Philadelphia"],[90,"R16","W73","W75","2026-07-05 11:00","Houston"],
-[91,"R16","W76","W78","2026-07-06 07:00","New York"],[92,"R16","W79","W80","2026-07-06 05:00","Mexico City"],
-[93,"R16","W83","W84","2026-07-07 08:00","Dallas"],[94,"R16","W81","W82","2026-07-07 07:00","Seattle"],
-[95,"R16","W86","W88","2026-07-08 05:00","Atlanta"],[96,"R16","W85","W87","2026-07-08 08:00","Vancouver"],
-[97,"QF","W89","W90","2026-07-10 07:00","Boston"],[98,"QF","W93","W94","2026-07-11 08:00","Los Angeles"],
-[99,"QF","W91","W92","2026-07-12 05:00","Miami"],[100,"QF","W95","W96","2026-07-12 08:00","Kansas City"],
-[101,"SF","W97","W98","2026-07-15 08:00","Dallas"],[102,"SF","W99","W100","2026-07-16 08:00","Atlanta"],
-[103,"3RD","L101","L102","2026-07-19 08:00","Miami"],[104,"FIN","W101","W102","2026-07-20 07:00","New York"]
+[73,"R32","South Africa","Canada","2026-06-29 07:00","Los Angeles"],
+[74,"R32","Germany","Paraguay","2026-06-30 08:30","Boston"],
+[75,"R32","Netherlands","Morocco","2026-06-30 13:00","Monterrey"],
+[76,"R32","Brazil","Japan","2026-06-30 05:00","Houston"],
+[77,"R32","France","Sweden","2026-07-01 09:00","New York"],
+[78,"R32","Ivory Coast","Norway","2026-07-01 05:00","Dallas"],
+[79,"R32","Mexico","Ecuador","2026-07-01 13:00","Mexico City"],
+[80,"R32","England","DR Congo","2026-07-02 04:00","Atlanta"],
+[81,"R32","USA","Bosnia & Herzegovina","2026-07-02 12:00","San Francisco"],
+[82,"R32","Belgium","Senegal","2026-07-02 08:00","Seattle"],
+[83,"R32","Portugal","Croatia","2026-07-03 11:00","Toronto"],
+[84,"R32","Spain","Austria","2026-07-03 07:00","Los Angeles"],
+[85,"R32","Switzerland","Algeria","2026-07-03 15:00","Vancouver"],
+[86,"R32","Argentina","Cape Verde","2026-07-04 10:00","Miami"],
+[87,"R32","Colombia","Ghana","2026-07-04 13:30","Kansas City"],
+[88,"R32","Australia","Egypt","2026-07-04 06:00","Dallas"],
+[89,"R16","W74","W77","2026-07-05 09:00","Philadelphia"],
+[90,"R16","W73","W75","2026-07-05 05:00","Houston"],
+[91,"R16","W76","W78","2026-07-06 08:00","New York"],
+[92,"R16","W79","W80","2026-07-06 12:00","Mexico City"],
+[93,"R16","W83","W84","2026-07-07 07:00","Dallas"],
+[94,"R16","W81","W82","2026-07-07 12:00","Seattle"],
+[95,"R16","W86","W88","2026-07-08 04:00","Atlanta"],
+[96,"R16","W85","W87","2026-07-08 08:00","Vancouver"],
+[97,"QF","W89","W90","2026-07-10 08:00","Boston"],
+[98,"QF","W93","W94","2026-07-11 07:00","Los Angeles"],
+[99,"QF","W91","W92","2026-07-12 09:00","Miami"],
+[100,"QF","W95","W96","2026-07-12 13:00","Kansas City"],
+[101,"SF","W97","W98","2026-07-15 07:00","Dallas"],
+[102,"SF","W99","W100","2026-07-16 07:00","Atlanta"],
+[103,"3RD","L101","L102","2026-07-19 06:00","Miami"],
+[104,"FIN","W101","W102","2026-07-20 04:00","New York"]
 ];
 var curU=sessionStorage.getItem("wc2026_user_"+curLg)||"";
 var curTh="dark"; // set after KV load
@@ -6796,7 +6812,19 @@ body.light #gGrd tr.r4>td,body.light #tpB tr.to>td{background:rgba(211,47,47,.14
   var activeRound=(typeof window.bkRoundIdx==='number')?Math.max(0,Math.min(window.bkRoundIdx,4)):0;
   var isProgrammatic=false, scrollTimer=null;
   function koById25(id){for(var i=0;i<KO.length;i++){if(KO[i][0]===id)return KO[i];}return null;}
-  function roundMatches(grp){var out=[];for(var i=0;i<KO.length;i++){if(KO[i][1]===grp)out.push(KO[i]);}out.sort(function(a,b){return a[4]<b[4]?-1:a[4]>b[4]?1:a[0]-b[0];});return out;}
+  function roundMatches(grp){
+    var orderMap={
+      R32:[74,77,73,75,83,84,81,82,76,78,79,80,86,88,85,87],
+      R16:[89,90,93,94,91,92,95,96],
+      QF:[97,98,99,100],
+      SF:[101,102],
+      FIN:[104,103]
+    };
+    var out=[];for(var i=0;i<KO.length;i++){if(KO[i][1]===grp)out.push(KO[i]);}
+    var ord=orderMap[grp]||[];
+    out.sort(function(a,b){var ai=ord.indexOf(a[0]),bi=ord.indexOf(b[0]);if(ai<0)ai=999;if(bi<0)bi=999;return ai-bi;});
+    return out;
+  }
   function dtParts(dt){try{var d=new Date(dt.replace(' ','T')+':00');var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];var mons=['Jan','Feb','Mar','Apr','May','Jun','Jul'];return {day:days[d.getDay()]+', '+d.getDate()+' '+mons[d.getMonth()],time:dt.substring(11,16)};}catch(e){return{day:'',time:(dt||'').substring(11,16)}}}
   function slotText(slot){
     if(!slot)return 'TBD';
@@ -7042,6 +7070,256 @@ body.light #gGrd tr.r4>td,body.light #tpB tr.to>td{background:rgba(211,47,47,.14
 
   window.addEventListener('resize',function(){setTimeout(function(){setupSwipe();hardApply(false);},120);},{passive:true});
   setTimeout(function(){setupSwipe();hardApply(false);},900);
+})();
+</script>
+
+<style id="v27-ko-accuracy-braces-css">
+@media(max-width:900px){
+  /* Replace the square bracket connector with a softer FotMob-style curved brace. */
+  .bk25-item.future::before{
+    content:''!important;
+    position:absolute!important;
+    left:-24px!important;
+    top:-8px!important;
+    width:20px!important;
+    height:104px!important;
+    border:0!important;
+    border-radius:0!important;
+    pointer-events:none!important;
+    background-repeat:no-repeat!important;
+    background-size:20px 104px!important;
+    opacity:.72!important;
+    background-image:url("data:image/svg+xml,%3Csvg width='20' height='104' viewBox='0 0 20 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 2 C17 2 17 28 9 39 C7 43 7 49 14 52 C7 55 7 61 9 65 C17 76 17 102 3 102' fill='none' stroke='%23ffffff' stroke-opacity='0.34' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E")!important;
+  }
+  .bk25-item.future::after{
+    content:''!important;
+    position:absolute!important;
+    left:-6px!important;
+    top:43px!important;
+    width:10px!important;
+    border-top:2px solid rgba(255,255,255,.24)!important;
+    pointer-events:none!important;
+  }
+  body.light .bk25-item.future::before{
+    background-image:url("data:image/svg+xml,%3Csvg width='20' height='104' viewBox='0 0 20 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 2 C17 2 17 28 9 39 C7 43 7 49 14 52 C7 55 7 61 9 65 C17 76 17 102 3 102' fill='none' stroke='%231f2937' stroke-opacity='0.28' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E")!important;
+  }
+  body.light .bk25-item.future::after{border-top-color:rgba(31,41,55,.22)!important;}
+}
+</style>
+
+<style id="v28-2-ko-canonical-css">
+@media(max-width:900px){
+  /* Final canonical knockout renderer fixes */
+  #bkRoundPanel.bk25-panel{overflow:hidden!important;scroll-snap-type:none!important;scroll-behavior:auto!important;-webkit-overflow-scrolling:auto!important;touch-action:pan-y!important;}
+  #bkRoundPanel.bk25-panel .bk25-track{transition:transform .34s cubic-bezier(.16,1,.3,1)!important;will-change:transform!important;}
+  #bkRoundPanel.bk25-panel .bk25-track.dragging{transition:none!important;}
+  .bk25-score{top:8px!important;right:8px!important;bottom:auto!important;z-index:4!important;}
+  .bk25-card.has-score .bk25-venue{padding-right:62px!important;}
+  .bk25-card.has-score .bk25-time{padding-top:14px!important;}
+  .bk25-item.future::before{
+    content:''!important;position:absolute!important;left:-24px!important;top:-8px!important;width:20px!important;height:104px!important;border:0!important;pointer-events:none!important;background-repeat:no-repeat!important;background-size:20px 104px!important;opacity:.72!important;
+    background-image:url("data:image/svg+xml,%3Csvg width='20' height='104' viewBox='0 0 20 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 2 C17 2 17 28 9 39 C7 43 7 49 14 52 C7 55 7 61 9 65 C17 76 17 102 3 102' fill='none' stroke='%23ffffff' stroke-opacity='0.34' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E")!important;
+  }
+  .bk25-item.future::after{content:''!important;position:absolute!important;left:-6px!important;top:43px!important;width:10px!important;border-top:2px solid rgba(255,255,255,.24)!important;pointer-events:none!important;}
+  body.light .bk25-item.future::before{background-image:url("data:image/svg+xml,%3Csvg width='20' height='104' viewBox='0 0 20 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 2 C17 2 17 28 9 39 C7 43 7 49 14 52 C7 55 7 61 9 65 C17 76 17 102 3 102' fill='none' stroke='%231f2937' stroke-opacity='0.28' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E")!important;}
+  body.light .bk25-item.future::after{border-top-color:rgba(31,41,55,.22)!important;}
+}
+</style>
+
+<script id="v28-2-ko-canonical-js">
+(function(){
+  var PITCH=108,TITLE=30,activeRound=(typeof window.bkRoundIdx==='number'?Math.max(0,Math.min(window.bkRoundIdx,4)):0),MAX=4;
+  var ROUNDS=[{label:'Round of 32',grp:'R32'},{label:'Round of 16',grp:'R16'},{label:'Quarter-final',grp:'QF'},{label:'Semi-final',grp:'SF'},{label:'Final',grp:'FIN',finals:true}];
+  var ORDER={R32:[74,77,73,75,83,84,81,82,76,78,79,80,86,88,85,87],R16:[89,90,93,94,91,92,95,96],QF:[97,98,99,100],SF:[101,102],FIN:[104,103]};
+  var DIRECT={};
+  KO.forEach(function(k){if(k[1]==='R32'){DIRECT[k[2]]=true;DIRECT[k[3]]=true;}});
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function koById(id){for(var i=0;i<KO.length;i++){if(KO[i][0]===id)return KO[i];}return null;}
+  function normTeam(t){var alias={'United States':'USA','Bosnia-Herzegovina':'Bosnia & Herzegovina','Bosnia and Herzegovina':'Bosnia & Herzegovina','Congo DR':'DR Congo','Cabo Verde':'Cape Verde'};return alias[t]||t;}
+  window.gKT=function(slot){
+    slot=normTeam(slot);
+    if(!slot)return null;
+    if((window.FC&&FC[slot])||DIRECT[slot])return slot;
+    if(slot[0]==='W'||slot[0]==='L'){
+      var mid=parseInt(slot.slice(1),10),tm=gKM(mid),r=ftRes(mid)||RS[mid]||null;
+      if(!tm||!tm[0]||!tm[1]||!r)return null;
+      var w=koWin(r,tm); if(!w)return null;
+      return slot[0]==='W'?w:(w===tm[0]?tm[1]:tm[0]);
+    }
+    if(slot.length===2&&slot[1]>='A'&&slot[1]<='L'){return slot[0]==='1'?gPos(slot[1],0):gPos(slot[1],1);}
+    return null;
+  };
+  window.gKM=function(mid){var k=koById(mid);return k?[gKT(k[2]),gKT(k[3])]:null;};
+  function ensureKnownResults(){
+    // Canada beat South Africa 1-0 in Match 73; seed only if the API/override has not already supplied it.
+    if(typeof RSA!=='undefined' && typeof RSM!=='undefined' && typeof RS!=='undefined'){
+      if(!RSA[73]&&!RSM[73]&&!RS[73])RSA[73]={s1:0,s2:1};
+      if(typeof mergeRS==='function')mergeRS();
+    }
+  }
+  function ordered(grp){var arr=KO.filter(function(k){return k[1]===grp;});var ord=ORDER[grp]||[];arr.sort(function(a,b){return ord.indexOf(a[0])-ord.indexOf(b[0]);});return arr;}
+  function matchesFor(rd){if(rd.finals)return [koById(104),koById(103)].filter(Boolean);return ordered(rd.grp);}
+  function dtParts(dt){try{var d=new Date(dt.replace(' ','T')+':00');var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mons=['Jan','Feb','Mar','Apr','May','Jun','Jul'];return {day:days[d.getDay()]+', '+d.getDate()+' '+mons[d.getMonth()],time:dt.substring(11,16)};}catch(e){return{day:'',time:(dt||'').substring(11,16)}}}
+  function slotText(slot){var t=gKT(slot); if(t)return t; if(slot&&slot[0]==='W')return 'Winner M'+parseInt(slot.slice(1),10); if(slot&&slot[0]==='L')return 'Loser M'+parseInt(slot.slice(1),10); return slot||'TBD';}
+  function teamHtml(name,win){var real=window.FC&&FC[name];return '<div class="bk25-team '+(win?'w ':'')+(real?'':'placeholder')+'">'+(real?fi(name,15):'<span style="width:15px;height:15px;border-radius:50%;background:#555;display:inline-block;flex-shrink:0"></span>')+'<span>'+esc(name)+'</span></div>';}
+  function cardHtml(k){
+    var tm=gKM(k[0])||[slotText(k[2]),slotText(k[3])],t1=tm[0]||slotText(k[2]),t2=tm[1]||slotText(k[3]);
+    var r=gRes(k[0]),fr=ftRes(k[0]),live=isMatchLive(k[4],k[0])&&!isMatchFinished(k[0]),w=null,dt=dtParts(k[4]);
+    if(fr)w=koWin(fr,[t1,t2]);
+    var score=r&&r.s1!=null?'<div class="bk25-score '+(live?'live':'')+'">'+r.s1+' - '+r.s2+'</div>':'';
+    return '<div class="bk25-card '+(score?'has-score ':'')+(live?'live ':'')+(fr?'done':'')+'" onclick="openMatchFeed('+k[0]+')"><div class="bk25-venue">M'+k[0]+' · '+esc(k[5]||'Stadium')+'</div><div class="bk25-main"><div class="bk25-teams">'+teamHtml(t1,w===t1)+teamHtml(t2,w===t2)+'</div><div class="bk25-time"><span>'+esc(dt.day)+'</span><strong>'+esc(dt.time)+'</strong></div></div>'+score+'</div>';
+  }
+  function topFor(idx,j){var rel=idx-activeRound,scale=rel>0?Math.pow(2,rel):1,offset=rel>0?(scale-1)/2:0;return TITLE+((offset+j*scale)*PITCH);}
+  function layout(){var p=document.getElementById('bkRoundPanel');if(!p)return;var active=document.getElementById('bkSlide'+activeRound),cnt=active?Math.max(active.querySelectorAll('.bk25-item').length,2):2,h=TITLE+(cnt*PITCH)+16;p.style.height=h+'px';p.style.minHeight=h+'px';for(var i=0;i<=MAX;i++){var sl=document.getElementById('bkSlide'+i);if(!sl)continue;sl.style.height=h+'px';sl.querySelectorAll('.bk25-item').forEach(function(item,j){item.style.top=topFor(i,j)+'px';item.classList.toggle('future',i>activeRound);});}}
+  function offsetFor(n){var s=document.getElementById('bkSlide'+n);return s?-(s.offsetLeft-14):0;}
+  function setNav(){var nav=document.getElementById('bkRoundNav');if(!nav)return;nav.querySelectorAll('.seg-btn').forEach(function(b,i){b.classList.toggle('on',i===activeRound);});var a=document.getElementById('bkNav'+activeRound);if(a&&a.scrollIntoView)try{a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}catch(e){}}
+  function apply(animate){layout();var tr=document.getElementById('bk25Track');if(!tr)return;if(!animate)tr.classList.add('dragging');tr.style.transform='translate3d('+offsetFor(activeRound)+'px,0,0)';if(!animate)setTimeout(function(){var t=document.getElementById('bk25Track');if(t)t.classList.remove('dragging');},30);window.bkRoundIdx=activeRound;setNav();}
+  window.bkSw=function(n){activeRound=Math.max(0,Math.min(n,MAX));apply(true);};
+  function setupSwipe(){var p=document.getElementById('bkRoundPanel'),tr=document.getElementById('bk25Track');if(!p||!tr||p._v282)return;p._v282=true;var sx=0,sy=0,base=0,start=0,tracking=false,drag=false;p.addEventListener('touchstart',function(e){if(e.touches.length!==1)return;if(e.target.closest&&e.target.closest('.bk25-card'))return;var t=e.touches[0];sx=t.clientX;sy=t.clientY;start=activeRound;base=offsetFor(activeRound);tracking=true;drag=false;tr.classList.add('dragging');},{passive:true});p.addEventListener('touchmove',function(e){if(!tracking)return;var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(!drag&&Math.abs(dy)>16&&Math.abs(dy)>Math.abs(dx)*1.05){tracking=false;drag=false;tr.classList.remove('dragging');apply(false);return;}if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.15)drag=true;if(!drag)return;e.preventDefault();var capped=Math.max(-120,Math.min(120,dx*((start===0&&dx>0)||(start===MAX&&dx<0)?0.28:1)));tr.style.transform='translate3d('+(base+capped)+'px,0,0)';},{passive:false});p.addEventListener('touchend',function(e){if(!tracking)return;tracking=false;tr.classList.remove('dragging');var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(drag&&Math.abs(dx)>58&&Math.abs(dx)>Math.abs(dy)*1.15){activeRound=Math.max(0,Math.min(start+(dx<0?1:-1),MAX));}else activeRound=start;apply(true);},{passive:true});p.addEventListener('touchcancel',function(){tracking=false;drag=false;tr.classList.remove('dragging');activeRound=start;apply(true);},{passive:true});}
+  window.renderBkMobile=function(){ensureKnownResults();var nav=document.getElementById('bkRoundNav'),p=document.getElementById('bkRoundPanel');if(!nav||!p)return;nav.className='seg-ctrl bk-round-nav bk25-nav';nav.innerHTML='';ROUNDS.forEach(function(rd,i){var b=document.createElement('div');b.className='seg-btn'+(i===activeRound?' on':'');b.id='bkNav'+i;b.textContent=rd.label;b.onclick=function(){bkSw(i);};nav.appendChild(b);});p.className='bk-round-panel bk25-panel';p.onscroll=null;p.innerHTML='<div class="bk25-track" id="bk25Track"></div>';var tr=document.getElementById('bk25Track');ROUNDS.forEach(function(rd,i){var sl=document.createElement('div');sl.className='bk25-slide';sl.id='bkSlide'+i;sl.innerHTML='<div class="bk25-title">'+esc(rd.label)+'</div>';matchesFor(rd).forEach(function(k){sl.insertAdjacentHTML('beforeend','<div class="bk25-item" data-mid="'+k[0]+'">'+cardHtml(k)+'</div>');});tr.appendChild(sl);});setupSwipe();setTimeout(function(){apply(false);},20);};
+  window.rKO=function(){renderBkMobile();};
+  var prevRAll=window.rAll;window.rAll=function(){if(prevRAll)prevRAll();if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on'))setTimeout(renderBkMobile,60);};
+  window.addEventListener('resize',function(){setTimeout(function(){apply(false);},100);},{passive:true});
+  setTimeout(function(){ensureKnownResults();if(document.getElementById('bkRoundPanel'))renderBkMobile();},800);
+})();
+</script>
+
+<style id="v29-ko-hard-reset-css">
+/* === v29: canonical knockout hard reset. This intentionally owns the knockout renderer. === */
+.bk25-panel{position:relative!important;overflow:hidden!important;scroll-snap-type:none!important;-webkit-overflow-scrolling:auto!important;touch-action:pan-y!important;padding:0!important;margin:0 -2px!important;min-height:260px!important;}
+.bk25-track{position:relative!important;display:flex!important;gap:14px!important;transition:transform .34s cubic-bezier(.16,1,.3,1)!important;will-change:transform!important;transform:translate3d(0,0,0);}
+.bk25-track.dragging{transition:none!important;}
+.bk25-slide{position:relative!important;flex:0 0 86%!important;min-width:86%!important;padding:0 0 10px 0!important;}
+.bk25-title{text-align:center;font-size:.68em;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#10b981;margin:2px 0 10px;padding:6px 0;border-bottom:1px solid rgba(16,185,129,.18)}
+.bk25-item{position:absolute!important;left:14px!important;right:9px!important;height:96px!important;transition:top .28s cubic-bezier(.16,1,.3,1),opacity .22s ease!important;}
+.bk25-card{height:86px!important;border-radius:14px!important;border:1px solid rgba(255,255,255,.075)!important;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025))!important;padding:8px 10px!important;box-shadow:0 8px 18px rgba(0,0,0,.16)!important;cursor:pointer!important;position:relative!important;overflow:hidden!important;}
+body.light .bk25-card{background:#fff!important;border-color:rgba(0,0,0,.07)!important;box-shadow:0 4px 14px rgba(0,0,0,.06)!important;}
+.bk25-venue{font-size:.58em;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bk25-main{display:grid!important;grid-template-columns:minmax(0,1fr) 66px!important;gap:8px!important;align-items:center!important;}
+.bk25-teams{min-width:0;display:flex;flex-direction:column;gap:5px;}
+.bk25-team{display:flex;align-items:center;gap:6px;min-width:0;color:#e9edf3;font-size:.84em;font-weight:650;line-height:1.15;}
+body.light .bk25-team{color:#1c1e26;}
+.bk25-team span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bk25-team.w span:last-child{color:#10b981;font-weight:850;}
+.bk25-team.placeholder{color:#8a8f99;font-weight:600;font-size:.78em;}
+.bk25-time{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;min-width:0;text-align:center!important;color:#888!important;font-size:.62em!important;line-height:1.15!important;}
+.bk25-time strong{color:#ddd;font-size:1.12em;letter-spacing:.2px;}
+body.light .bk25-time strong{color:#333;}
+.bk25-score{position:static!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;margin-top:3px!important;padding:3px 7px!important;border-radius:999px!important;background:rgba(16,185,129,.14)!important;color:#10b981!important;font-size:.96em!important;font-weight:850!important;line-height:1!important;min-width:44px!important;font-variant-numeric:tabular-nums!important;}
+.bk25-score.live{background:rgba(239,68,68,.14)!important;color:#ef4444!important;}
+.bk25-card.live{border-color:rgba(239,68,68,.34)!important;}
+/* FotMob-like right brace, not a square bracket. It opens towards the previous round. */
+.bk25-item.future::before{content:''!important;position:absolute!important;left:-24px!important;top:-8px!important;width:20px!important;height:104px!important;background-repeat:no-repeat!important;background-size:20px 104px!important;opacity:.72!important;pointer-events:none!important;background-image:url("data:image/svg+xml,%3Csvg width='20' height='104' viewBox='0 0 20 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 2 C3 2 3 28 11 39 C13 43 13 49 6 52 C13 55 13 61 11 65 C3 76 3 102 17 102' fill='none' stroke='%23ffffff' stroke-opacity='0.36' stroke-width='2.3' stroke-linecap='round'/%3E%3C/svg%3E")!important;}
+.bk25-item.future::after{content:''!important;position:absolute!important;left:-7px!important;top:43px!important;width:11px!important;border-top:2px solid rgba(255,255,255,.25)!important;pointer-events:none!important;}
+body.light .bk25-item.future::before{background-image:url("data:image/svg+xml,%3Csvg width='20' height='104' viewBox='0 0 20 104' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17 2 C3 2 3 28 11 39 C13 43 13 49 6 52 C13 55 13 61 11 65 C3 76 3 102 17 102' fill='none' stroke='%231f2937' stroke-opacity='0.28' stroke-width='2.3' stroke-linecap='round'/%3E%3C/svg%3E")!important;}
+body.light .bk25-item.future::after{border-top-color:rgba(31,41,55,.22)!important;}
+@media(min-width:901px){.bk25-panel{display:none!important;}}
+</style>
+<script id="v29-ko-hard-reset-js">
+(function(){
+  var BUILD='WC2026_BUILD_V29_CANONICAL_KNOCKOUT_HARD_RESET';
+  window.__WC2026_KO_BUILD=BUILD;
+  var CANON=[
+    [73,'R32','South Africa','Canada','2026-06-29 07:00','Los Angeles'],
+    [74,'R32','Germany','Paraguay','2026-06-30 08:30','Boston'],
+    [75,'R32','Netherlands','Morocco','2026-06-30 13:00','Monterrey'],
+    [76,'R32','Brazil','Japan','2026-06-30 05:00','Houston'],
+    [77,'R32','France','Sweden','2026-07-01 09:00','New York'],
+    [78,'R32','Ivory Coast','Norway','2026-07-01 05:00','Dallas'],
+    [79,'R32','Mexico','Ecuador','2026-07-01 13:00','Mexico City'],
+    [80,'R32','England','DR Congo','2026-07-02 04:00','Atlanta'],
+    [81,'R32','USA','Bosnia & Herzegovina','2026-07-02 12:00','San Francisco'],
+    [82,'R32','Belgium','Senegal','2026-07-02 08:00','Seattle'],
+    [83,'R32','Portugal','Croatia','2026-07-03 11:00','Toronto'],
+    [84,'R32','Spain','Austria','2026-07-03 07:00','Los Angeles'],
+    [85,'R32','Switzerland','Algeria','2026-07-03 15:00','Vancouver'],
+    [86,'R32','Argentina','Cape Verde','2026-07-04 10:00','Miami'],
+    [87,'R32','Colombia','Ghana','2026-07-04 13:30','Kansas City'],
+    [88,'R32','Australia','Egypt','2026-07-04 06:00','Dallas'],
+    [89,'R16','W74','W77','2026-07-05 09:00','Philadelphia'],
+    [90,'R16','W73','W75','2026-07-05 05:00','Houston'],
+    [91,'R16','W76','W78','2026-07-06 08:00','New York'],
+    [92,'R16','W79','W80','2026-07-06 12:00','Mexico City'],
+    [93,'R16','W83','W84','2026-07-07 07:00','Dallas'],
+    [94,'R16','W81','W82','2026-07-07 12:00','Seattle'],
+    [95,'R16','W86','W88','2026-07-08 04:00','Atlanta'],
+    [96,'R16','W85','W87','2026-07-08 08:00','Vancouver'],
+    [97,'QF','W89','W90','2026-07-10 08:00','Boston'],
+    [98,'QF','W93','W94','2026-07-11 07:00','Los Angeles'],
+    [99,'QF','W91','W92','2026-07-12 09:00','Miami'],
+    [100,'QF','W95','W96','2026-07-12 13:00','Kansas City'],
+    [101,'SF','W97','W98','2026-07-15 07:00','Dallas'],
+    [102,'SF','W99','W100','2026-07-16 07:00','Atlanta'],
+    [103,'3RD','L101','L102','2026-07-19 06:00','Miami'],
+    [104,'FIN','W101','W102','2026-07-20 04:00','New York']
+  ];
+  var ORDER={R32:[74,77,73,75,83,84,81,82,76,78,79,80,86,88,85,87],R16:[89,90,93,94,91,92,95,96],QF:[97,98,99,100],SF:[101,102],FIN:[104,103]};
+  var ROUNDS=[{label:'Round of 32',grp:'R32'},{label:'Round of 16',grp:'R16'},{label:'Quarter-final',grp:'QF'},{label:'Semi-final',grp:'SF'},{label:'Final',grp:'FIN',finals:true}];
+  var active=(typeof window.bkRoundIdx==='number')?Math.max(0,Math.min(window.bkRoundIdx,4)):0;
+  var PITCH=108,TITLE=30,MAX=4;
+  function cloneCanon(){return CANON.map(function(k){return k.slice();});}
+  function installKo(){try{window.KO=cloneCanon();KO=window.KO;}catch(e){}}
+  installKo();
+  function aliases(t){var a={'United States':'USA','Bosnia-Herzegovina':'Bosnia & Herzegovina','Bosnia and Herzegovina':'Bosnia & Herzegovina','Congo DR':'DR Congo','Cabo Verde':'Cape Verde','Côte d\'Ivoire':'Ivory Coast','Cote d\'Ivoire':'Ivory Coast'};return a[t]||t;}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function koBy(id){for(var i=0;i<CANON.length;i++){if(CANON[i][0]===id)return CANON[i];}return null;}
+  window.koById=function(id){return koBy(id);};
+  function knownResults(){
+    try{window.RSA=window.RSA||{};window.RS=window.RS||{};window.RSM=window.RSM||{};if(!RSM[73]&&!RSA[73]&&!RS[73])RSA[73]={s1:0,s2:1,st:'FT'};if(typeof mergeRS==='function')mergeRS();}catch(e){}
+  }
+  function res(id){try{return (typeof ftRes==='function'&&ftRes(id))||RS[id]||null;}catch(e){return null;}}
+  function displayRes(id){try{return (typeof gRes==='function'&&gRes(id))||RS[id]||RSA[id]||RSL[id]||null;}catch(e){return null;}}
+  function winner(id){var k=koBy(id),r=res(id),tm=teams(id);if(!k||!r||!tm||!tm[0]||!tm[1])return null;try{return koWin(r,tm);}catch(e){if(r.s1>r.s2)return tm[0];if(r.s2>r.s1)return tm[1];if(r.p1!=null&&r.p2!=null)return r.p1>r.p2?tm[0]:tm[1];return null;}}
+  function loser(id){var w=winner(id),tm=teams(id);if(!w||!tm)return null;return w===tm[0]?tm[1]:tm[0];}
+  function teamFromSlot(slot){
+    if(!slot)return null; slot=aliases(slot);
+    if(window.FC&&FC[slot])return slot;
+    if(slot.charAt(0)==='W')return winner(parseInt(slot.slice(1),10));
+    if(slot.charAt(0)==='L')return loser(parseInt(slot.slice(1),10));
+    return null;
+  }
+  function slotLabel(slot){var t=teamFromSlot(slot);if(t)return t;if(slot&&slot.charAt(0)==='W')return 'Winner M'+parseInt(slot.slice(1),10);if(slot&&slot.charAt(0)==='L')return 'Loser M'+parseInt(slot.slice(1),10);return aliases(slot)||'TBD';}
+  function teams(id){var k=koBy(id);return k?[teamFromSlot(k[2])||slotLabel(k[2]),teamFromSlot(k[3])||slotLabel(k[3])]:null;}
+  window.gKT=function(slot){return teamFromSlot(slot);};
+  window.gKM=function(mid){return teams(mid);};
+  function ordered(grp){var arr=CANON.filter(function(k){return k[1]===grp;});var ord=ORDER[grp]||[];arr.sort(function(a,b){return ord.indexOf(a[0])-ord.indexOf(b[0]);});return arr;}
+  function forRound(rd){return rd.finals?[koBy(104),koBy(103)].filter(Boolean):ordered(rd.grp);}
+  function dtParts(dt){try{var d=new Date(dt.replace(' ','T')+':00');var days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mons=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return {day:days[d.getDay()]+', '+d.getDate()+' '+mons[d.getMonth()],time:dt.substring(11,16)};}catch(e){return{day:'',time:(dt||'').substring(11,16)}}}
+  function flag(t,sz){return (window.FC&&FC[t]&&typeof fi==='function')?fi(t,sz||15):'<span style="width:15px;height:15px;border-radius:50%;background:#555;display:inline-block;flex-shrink:0"></span>';}
+  function teamHtml(t,w){var real=window.FC&&FC[t];return '<div class="bk25-team '+(w?'w ':'')+(real?'':'placeholder')+'">'+flag(t,15)+'<span>'+esc(t)+'</span></div>';}
+  function card(k){
+    var tm=teams(k[0])||[slotLabel(k[2]),slotLabel(k[3])], t1=tm[0], t2=tm[1];
+    var r=displayRes(k[0]),fr=res(k[0]),w=fr?winner(k[0]):null,dt=dtParts(k[4]);
+    var live=false;try{live=!!(typeof isMatchLive==='function'&&isMatchLive(k[4],k[0])&&!(typeof isMatchFinished==='function'&&isMatchFinished(k[0])));}catch(e){}
+    var score=r&&r.s1!=null?'<div class="bk25-score '+(live?'live':'')+'">'+r.s1+' - '+r.s2+'</div>':'';
+    return '<div class="bk25-card '+(score?'has-score ':'')+(live?'live ':'')+(fr?'done':'')+'" onclick="openMatchFeed('+k[0]+')">'+
+      '<div class="bk25-venue">M'+k[0]+' · '+esc(k[5]||'Stadium')+'</div><div class="bk25-main"><div class="bk25-teams">'+teamHtml(t1,w===t1)+teamHtml(t2,w===t2)+
+      '</div><div class="bk25-time"><span>'+esc(dt.day)+'</span><strong>'+esc(dt.time)+'</strong>'+score+'</div></div></div>';
+  }
+  function topFor(idx,j){var rel=idx-active,scale=rel>0?Math.pow(2,rel):1,off=rel>0?(scale-1)/2:0;return TITLE+((off+j*scale)*PITCH);}  
+  function layout(){var p=document.getElementById('bkRoundPanel');if(!p)return;var activeSlide=document.getElementById('bkSlide'+active);var cnt=activeSlide?Math.max(activeSlide.querySelectorAll('.bk25-item').length,2):2;var h=TITLE+(cnt*PITCH)+16;p.style.height=h+'px';p.style.minHeight=h+'px';for(var i=0;i<=MAX;i++){var sl=document.getElementById('bkSlide'+i);if(!sl)continue;sl.style.height=h+'px';sl.querySelectorAll('.bk25-item').forEach(function(item,j){item.style.top=topFor(i,j)+'px';item.classList.toggle('future',i>active);});}}
+  function offset(n){var s=document.getElementById('bkSlide'+n);return s?-(s.offsetLeft-14):0;}
+  function nav(){var n=document.getElementById('bkRoundNav');if(!n)return;n.querySelectorAll('.seg-btn').forEach(function(b,i){b.classList.toggle('on',i===active);});var a=document.getElementById('bkNav'+active);if(a&&a.scrollIntoView)try{a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}catch(e){}}
+  function apply(anim){layout();var tr=document.getElementById('bk25Track');if(!tr)return;if(!anim)tr.classList.add('dragging');tr.style.transform='translate3d('+offset(active)+'px,0,0)';if(!anim)setTimeout(function(){var t=document.getElementById('bk25Track');if(t)t.classList.remove('dragging');},30);window.bkRoundIdx=active;nav();}
+  window.bkSw=function(n){active=Math.max(0,Math.min(n,MAX));apply(true);};
+  function setupSwipe(){var p=document.getElementById('bkRoundPanel'),tr=document.getElementById('bk25Track');if(!p||!tr||p._v29Swipe)return;p._v29Swipe=true;var sx=0,sy=0,base=0,start=0,tracking=false,drag=false;p.addEventListener('touchstart',function(e){if(e.touches.length!==1)return;if(e.target.closest&&e.target.closest('.bk25-card'))return;var t=e.touches[0];sx=t.clientX;sy=t.clientY;start=active;base=offset(active);tracking=true;drag=false;tr.classList.add('dragging');},{passive:true});p.addEventListener('touchmove',function(e){if(!tracking)return;var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(!drag&&Math.abs(dy)>16&&Math.abs(dy)>Math.abs(dx)*1.05){tracking=false;drag=false;tr.classList.remove('dragging');apply(false);return;}if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.15)drag=true;if(!drag)return;e.preventDefault();var cap=Math.max(-120,Math.min(120,dx*((start===0&&dx>0)||(start===MAX&&dx<0)?0.28:1)));tr.style.transform='translate3d('+(base+cap)+'px,0,0)';},{passive:false});p.addEventListener('touchend',function(e){if(!tracking)return;tracking=false;tr.classList.remove('dragging');var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(drag&&Math.abs(dx)>58&&Math.abs(dx)>Math.abs(dy)*1.15){active=Math.max(0,Math.min(start+(dx<0?1:-1),MAX));}else active=start;apply(true);},{passive:true});p.addEventListener('touchcancel',function(){tracking=false;drag=false;tr.classList.remove('dragging');active=start;apply(true);},{passive:true});}
+  window.renderBkMobile=function(){
+    installKo();knownResults();
+    var navEl=document.getElementById('bkRoundNav'),p=document.getElementById('bkRoundPanel');if(!navEl||!p)return;
+    active=Math.max(0,Math.min((typeof window.bkRoundIdx==='number'?window.bkRoundIdx:active),MAX));
+    navEl.className='seg-ctrl bk-round-nav bk25-nav';navEl.innerHTML='';
+    ROUNDS.forEach(function(rd,i){var b=document.createElement('div');b.className='seg-btn'+(i===active?' on':'');b.id='bkNav'+i;b.textContent=rd.label;b.onclick=function(){bkSw(i);};navEl.appendChild(b);});
+    p.className='bk-round-panel bk25-panel';p.onscroll=null;p.innerHTML='<div class="bk25-track" id="bk25Track"></div>';var tr=document.getElementById('bk25Track');
+    ROUNDS.forEach(function(rd,i){var sl=document.createElement('div');sl.className='bk25-slide';sl.id='bkSlide'+i;sl.innerHTML='<div class="bk25-title">'+esc(rd.label)+'</div>';forRound(rd).forEach(function(k){sl.insertAdjacentHTML('beforeend','<div class="bk25-item" data-mid="'+k[0]+'">'+card(k)+'</div>');});tr.appendChild(sl);});
+    setupSwipe();setTimeout(function(){apply(false);},20);
+  };
+  function renderDesktop(){var el=document.getElementById('brEl');if(!el)return;el.innerHTML='';var cols=[[74,77,73,75,83,84,81,82,'Round of 32'],[89,90,93,94,'Round of 16'],[97,98,'Quarter-Finals'],[101,'Semi-Final'],['FIN'],[102,'Semi-Final'],[99,100,'Quarter-Finals'],[91,92,95,96,'Round of 16'],[76,78,79,80,86,88,85,87,'Round of 32']];cols.forEach(function(colDef){var col=document.createElement('div');if(colDef[0]==='FIN'){col.className='bk-rnd fin';col.innerHTML='<div class="bk-hd">Final</div><div class="bk-fin"><div class="bk-cl">FINAL</div>'+mkDesktop(koBy(104))+'<div class="bk-cl">3RD PLACE</div>'+mkDesktop(koBy(103))+'</div>';}else{col.className='bk-rnd';var label=colDef[colDef.length-1];col.innerHTML='<div class="bk-hd">'+esc(label)+'</div>';colDef.slice(0,-1).forEach(function(id){var k=koBy(id);if(k)col.insertAdjacentHTML('beforeend','<div>'+mkDesktop(k)+'</div>');});}el.appendChild(col);});}
+  function mkDesktop(k){if(!k)return'';var tm=teams(k[0]),r=displayRes(k[0]),fr=res(k[0]),w=fr?winner(k[0]):null;var t1=tm[0],t2=tm[1];var h='<div class="bk-m" onclick="if(event.target.tagName!==\'INPUT\'&&event.target.tagName!==\'BUTTON\')openMatchFeed('+k[0]+')"><div class="bl">M'+k[0]+'</div>';
+    h+='<div class="bt '+(w===t1?'w':'')+'">'+(window.FC&&FC[t1]?fi(t1,12):'')+' '+esc(t1)+(r?' <b>'+r.s1+'</b>':'')+'</div>';h+='<div class="bt '+(w===t2?'w':'')+'">'+(window.FC&&FC[t2]?fi(t2,12):'')+' '+esc(t2)+(r?' <b>'+r.s2+'</b>':'')+'</div></div>';return h;}
+  window.rKO=function(){installKo();knownResults();renderDesktop();renderBkMobile();};
+  var oldRAll=window.rAll;window.rAll=function(){if(oldRAll)oldRAll();if(document.getElementById('tab_knockout')&&document.getElementById('tab_knockout').classList.contains('on')){setTimeout(window.rKO,80);setTimeout(window.rKO,420);}};
+  window.addEventListener('resize',function(){setTimeout(function(){apply(false);},100);},{passive:true});
+  setTimeout(function(){knownResults();if(document.getElementById('bkRoundPanel'))window.rKO();},900);
 })();
 </script>
 </body></html>
