@@ -3,7 +3,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WC2026 Fantasy League - Work</title>
-<!-- WC2026_BUILD_V33_FANTASY_KO_REPAIR -->
+<!-- WC2026_BUILD_V34_KO_ET_PENALTIES -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 
@@ -7495,6 +7495,68 @@ body.light .bk25-item.future::after{border-top-color:rgba(31,41,55,.22)!importan
     try{if(typeof rHeroCards==='function')rHeroCards();}catch(e){}
   };
   setTimeout(function(){try{if(document.getElementById('tab_fantasy')&&document.getElementById('tab_fantasy').classList.contains('on'))rFL();}catch(e){}},500);
+})();
+</script>
+
+<style id="v34-ko-et-penalties-css">
+/* v34: knockout extra-time + penalty display/scoring repair */
+.aet-label,.ko-et-pill{display:inline-flex;align-items:center;gap:3px;font-size:.62em;background:rgba(245,158,11,.18);color:#fbbf24;padding:2px 6px;border-radius:999px;margin-left:5px;font-weight:850;letter-spacing:.4px;text-transform:uppercase;vertical-align:middle;line-height:1.2}
+.pen-label,.ko-pen-pill{display:inline-flex;align-items:center;gap:3px;font-size:.65em;background:rgba(99,102,241,.18);color:#a5b4fc;padding:2px 6px;border-radius:999px;margin-left:4px;font-weight:850;letter-spacing:.25px;vertical-align:middle;line-height:1.2}
+.ko-res-detail{margin:10px 0 12px;display:grid;gap:8px}
+.ko-res-card{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);border-radius:10px;padding:9px 11px;font-size:.8em}
+body.light .ko-res-card{background:#fff;border-color:#eef0f5}.ko-res-lbl{color:#888;font-weight:800;text-transform:uppercase;letter-spacing:.8px;font-size:.75em}.ko-res-val{font-weight:900;color:#fff;font-variant-numeric:tabular-nums}body.light .ko-res-val{color:#1c1e26}.ko-res-win{color:#10b981;font-weight:900}.ko-res-note{font-size:.72em;color:#888;line-height:1.35;margin-top:-2px;text-align:center}.mcm-mx-aet{font-size:.58em;color:#f59e0b;margin-top:1px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}.mcm-mx-status.aet{background:rgba(245,158,11,.18)!important;color:#f59e0b!important}.mcm-mx-status.pen{background:rgba(99,102,241,.18)!important;color:#a5b4fc!important}.bk-m .ko-pen-pill,.bk-m .ko-et-pill{font-size:.58em;margin-top:2px}.ko30-score .ko-pen-pill,.ko30-score .ko-et-pill{display:none!important}
+</style>
+<script id="v34-ko-et-penalties-js">
+(function(){
+ var BUILD='WC2026_BUILD_V34_KO_ET_PENALTIES'; window.__WC2026_KO_RESULT_BUILD=BUILD;
+ function isObj(x){return x&&typeof x==='object';}
+ function val(){for(var i=0;i<arguments.length;i++){var v=arguments[i];if(v!==undefined&&v!==null&&v!==''&&!isNaN(parseInt(v,10)))return parseInt(v,10);}return null;}
+ function up(s){return String(s||'').toUpperCase().replace(/\s+/g,'_');}
+ function rawStatus(r){return up(r&&((r.st)||(r.status)||(r.longStatus)||(r.shortStatus)||(r.fixture&&r.fixture.status&&r.fixture.status.short)||(r.fixture&&r.fixture.status&&r.fixture.status.long)));}
+ function isLiveStatus(st){st=up(st);return !!({'LIVE':1,'1H':1,'2H':1,'HT':1,'ET':1,'BT':1,'P':1,'PEN':1,'PENALTY':1,'PENALTIES':1,'PENALTY_SHOOTOUT':1,'EXTRA_TIME':1}[st]);}
+ function isFinishedStatus(st){st=up(st);return !!({'FT':1,'AET':1,'FT_PEN':1,'AP':1,'FINISHED':1,'MATCH_FINISHED':1,'AFTER_EXTRA_TIME':1,'AFTER_PENALTIES':1,'PENALTIES_FINISHED':1,'FULL_TIME':1}[st]);}
+ function penHome(r){return val(r&&r.p1,r&&r.pen1,r&&r.penHome,r&&r.homePens,r&&r.penaltyHome,r&&r.ps1,r&&r.pk1,r&&r.score&&r.score.penalty&&r.score.penalty.home,r&&r.score&&r.score.penalties&&r.score.penalties.home,r&&r.goals&&r.goals.penalty&&r.goals.penalty.home);}
+ function penAway(r){return val(r&&r.p2,r&&r.pen2,r&&r.penAway,r&&r.awayPens,r&&r.penaltyAway,r&&r.ps2,r&&r.pk2,r&&r.score&&r.score.penalty&&r.score.penalty.away,r&&r.score&&r.score.penalties&&r.score.penalties.away,r&&r.goals&&r.goals.penalty&&r.goals.penalty.away);}
+ function etHome(r){return val(r&&r.et1,r&&r.aet1,r&&r.extra1,r&&r.score&&r.score.extratime&&r.score.extratime.home,r&&r.score&&r.score.extraTime&&r.score.extraTime.home);}
+ function etAway(r){return val(r&&r.et2,r&&r.aet2,r&&r.extra2,r&&r.score&&r.score.extratime&&r.score.extratime.away,r&&r.score&&r.score.extraTime&&r.score.extraTime.away);}
+ function scoreHome(r){return val(r&&r.s1,r&&r.home,r&&r.goalsHome,r&&r.score1,r&&r.goals&&r.goals.home,r&&r.score&&r.score.fulltime&&r.score.fulltime.home,r&&r.score&&r.score.fullTime&&r.score.fullTime.home);}
+ function scoreAway(r){return val(r&&r.s2,r&&r.away,r&&r.goalsAway,r&&r.score2,r&&r.goals&&r.goals.away,r&&r.score&&r.score.fulltime&&r.score.fulltime.away,r&&r.score&&r.score.fullTime&&r.score.fullTime.away);}
+ function isKOId(id){id=parseInt(id,10);return id>=73&&id<=104;}
+ function normResult(id,r){
+   if(!r)return r; var o={}; for(var k in r)o[k]=r[k]; var st=rawStatus(o); var ph=penHome(o),pa=penAway(o),eh=etHome(o),ea=etAway(o),sh=scoreHome(o),sa=scoreAway(o);
+   if(sh!=null)o.s1=sh;if(sa!=null)o.s2=sa;if(ph!=null)o.p1=ph;if(pa!=null)o.p2=pa;if(eh!=null)o.et1=eh;if(ea!=null)o.et2=ea;
+   if(o.p1!=null&&o.p2!=null){o.pen=true;o.dur='PENALTIES'; if(isFinishedStatus(st)||st==='PEN'||st==='P')o.st='FT_PEN';}
+   if(st==='PEN'||st==='PENALTY'||st==='PENALTIES'||st==='PENALTY_SHOOTOUT'||st==='P'){ if(o.p1==null||o.p2==null)o.st='PEN'; }
+   if(st==='ET'||st==='EXTRA_TIME'||o.dur==='EXTRA_TIME'||o.et1!=null||o.et2!=null||(o.min!=null&&parseInt(o.min,10)>90)){o.aet=true;if(!o.st||o.st==='LIVE')o.st=(isFinishedStatus(st)?'AET':'ET'); if(!o.dur)o.dur='EXTRA_TIME';}
+   if(st==='AET'||st==='AFTER_EXTRA_TIME'){o.aet=true;o.st='AET';if(!o.dur)o.dur='EXTRA_TIME';}
+   if(st==='AP'||st==='FT_PEN'||st==='AFTER_PENALTIES'||st==='PENALTIES_FINISHED'){o.pen=true;o.aet=true;o.st='FT_PEN';o.dur='PENALTIES';}
+   if(isFinishedStatus(st)&&(!o.st||isLiveStatus(o.st)))o.st=(o.pen?'FT_PEN':(o.aet?'AET':'FT'));
+   if(isKOId(id)&&o.s1!=null&&o.s2!=null&&o.s1===o.s2&&(o.p1!=null||o.p2!=null)){o.pen=true;o.aet=true;o.st='FT_PEN';}
+   return o;
+ }
+ window.normalizeKoResultV34=normResult;
+ window.koHasPensV34=function(r){r=normResult(0,r);return !!(r&&r.p1!=null&&r.p2!=null);};
+ window.koWentAetV34=function(r){r=normResult(0,r);return !!(r&&(r.aet||r.dur==='EXTRA_TIME'||r.dur==='PENALTIES'||r.st==='AET'||r.st==='FT_PEN'||r.p1!=null||r.p2!=null));};
+ window.koResultNoteV34=function(r){r=normResult(0,r);if(!r)return'';var h='';if(window.koWentAetV34(r))h+='<span class="ko-et-pill">AET</span>';if(window.koHasPensV34(r))h+='<span class="ko-pen-pill">Pens '+r.p1+'-'+r.p2+'</span>';return h;};
+ var oldNorm=window.normalizeAutoResult; window.normalizeAutoResult=function(id,r){return normResult(id, oldNorm?oldNorm(id,normResult(id,r)):r);};
+ window.mergeRS=function(){RS={};RSL={};FXST={};var liveMap={'LIVE':1,'1H':1,'2H':1,'HT':1,'ET':1,'BT':1,'P':1,'PEN':1,'PENALTY':1,'PENALTIES':1,'PENALTY_SHOOTOUT':1};for(var k in RSA){if(RSM[k])continue;var id=parseInt(k,10),r=normResult(id,RSA[k]);RSA[k]=r;var st=rawStatus(r)||r.st;if(st&&liveMap[st]&&!isFinishedStatus(st)){RSL[k]=r;FXST[k]=st;if(typeof markHtPassed==='function')try{markHtPassed(k,r);}catch(e){}if(r.min!=null)minSyncAt[k]={min:r.min,at:Date.now(),frozen:!!(r.clk||r.pp)};}else{RS[k]=r;}}for(var mk in RSM)RS[mk]=normResult(parseInt(mk,10),RSM[mk]);};
+ window.gRes=function(id){var r=RS[id]||RSL[id]||RSA[id]||null;if(!r)return null;r=normResult(id,r);try{return effectiveLiveScore(id,r);}catch(e){return r;}};
+ window.ftRes=function(id){var r=RS[id]||null;return r?normResult(id,r):null;};
+ window.standRes=function(id){return liveStandings?gRes(id):ftRes(id);};
+ window.isMatchFinished=function(id){var r=RS[id]||RSM[id]||RSA[id];r=normResult(id,r);var st=rawStatus(r);return !!(RSM[id]||RS[id]||isFinishedStatus(st));};
+ var oldLive=window.isMatchLive; window.isMatchLive=function(dt,id){if(id!=null){var r=normResult(id,RSA[id]||RSL[id]);var st=rawStatus(r);if(isFinishedStatus(st)||RS[id]||RSM[id])return false;if(isLiveStatus(st)||FXST[id])return true;}return oldLive?oldLive(dt,id):false;};
+ window.koWin=function(r,t){r=normResult(0,r);if(!r||!t)return null;if(r.s1>r.s2)return t[0];if(r.s2>r.s1)return t[1];if(r.p1!=null&&r.p2!=null){if(r.p1>r.p2)return t[0];if(r.p2>r.p1)return t[1];}return null;};
+ window.htLbl=function(r){r=normResult(0,r);if(!r)return'';var h='';if(r.ht1!=null&&r.ht2!=null)h+=' <span style="font-size:.75em;color:#888">(HT '+r.ht1+'-'+r.ht2+')</span>';if(window.koWentAetV34(r))h+=' <span class="aet-label">AET</span>';if(window.koHasPensV34(r))h+=' <span class="pen-label">Pens '+r.p1+'-'+r.p2+'</span>';return h;};
+ var oldBadge=window.liveBadgeHtml; window.liveBadgeHtml=function(lr,dt,fid){lr=normResult(fid,lr);var st=rawStatus(lr);if(st==='ET')return '<span class="live-badge ht">Extra Time</span>';if(st==='PEN'||st==='P')return '<span class="live-badge ht">Penalties</span>';return oldBadge?oldBadge(lr,dt,fid):'<span class="live-badge">LIVE</span>';};
+ var oldApply=window.applyMatchPayload; window.applyMatchPayload=function(data,opts){if(data&&data.results){for(var k in data.results)data.results[k]=normResult(parseInt(k,10),data.results[k]);}var out=oldApply?oldApply(data,opts):{cnt:0,mgCh:false,live:false};try{mergeRS();}catch(e){}return out;};
+ function teamNames(fid){var t=null;if(typeof getFxTeams==='function')t=getFxTeams(fid); if((!t||!t[0])&&typeof gKM==='function')t=gKM(fid); return t||[null,null];}
+ function resultSummary(fid){var r=gRes(fid);if(!r)return'';r=normResult(fid,r);var t=teamNames(fid),w=koWin(r,t);var h='<div class="ko-res-detail">';if(window.koWentAetV34(r)){h+='<div class="ko-res-card"><span class="ko-res-lbl">After extra time</span><span class="ko-res-val">'+r.s1+' – '+r.s2+'</span></div>';}if(window.koHasPensV34(r)){h+='<div class="ko-res-card"><span class="ko-res-lbl">Penalty shootout</span><span class="ko-res-val">'+r.p1+' – '+r.p2+'</span></div>';}if(w){h+='<div class="ko-res-note"><span class="ko-res-win">'+w+'</span> advance'+(window.koHasPensV34(r)?' on penalties':'')+'.</div>';}h+='</div>';return (window.koWentAetV34(r)||window.koHasPensV34(r))?h:'';}
+ var oldOpen=window.openMatchFeed; window.openMatchFeed=function(fid){if(oldOpen)oldOpen(fid);setTimeout(function(){var pane=document.getElementById('mfmPane0');if(!pane||pane.querySelector('.ko-res-detail'))return;var sum=resultSummary(fid);if(sum)pane.insertAdjacentHTML('afterbegin',sum);var st=document.querySelector('.mfm-status');var r=gRes(fid);if(st&&r){r=normResult(fid,r);if(isMatchFinished(fid)){var txt='Full Time';if(window.koWentAetV34(r))txt+=' · AET';if(window.koHasPensV34(r))txt+=' · Pens '+r.p1+'-'+r.p2;st.innerHTML=txt;st.classList.add('ft');}}},30);};
+ function decorate(){
+   try{document.querySelectorAll('[data-mid]').forEach(function(el){var mid=el.getAttribute('data-mid');var r=gRes(mid);if(!r)return;r=normResult(mid,r);var note=window.koResultNoteV34(r);if(!note)return;if(el.querySelector('.ko-pen-pill,.ko-et-pill,.aet-label,.pen-label'))return;var tgt=el.querySelector('.mcm-mx-mid')||el.querySelector('.bk25-time')||el.querySelector('.ko30-time')||el.querySelector('.mrs2')||el;if(tgt) tgt.insertAdjacentHTML('beforeend','<div class="mcm-mx-aet">'+note+'</div>');});}catch(e){}
+ }
+ ['rMC','rMCMobile','rKO','rHI','rFL','rMT','rStats','rCD'].forEach(function(fn){var old=window[fn];if(typeof old==='function'&&!old._v34){window[fn]=function(){var ret=old.apply(this,arguments);setTimeout(decorate,20);return ret;};window[fn]._v34=true;}});
+ try{mergeRS();}catch(e){} setTimeout(function(){try{if(typeof rAll==='function')rAll();decorate();}catch(e){}},700);
 })();
 </script>
 </body></html>
